@@ -1,0 +1,74 @@
+🛠️ Stack Tecnológico
+Frontend (Interfaz): Angular.
+
+Base de Datos: Firebase Firestore (NoSQL, en tiempo real).
+
+Autenticación: Firebase Auth (Email/Contraseña para empleados).
+
+Archivos: Firebase Storage (Para guardar las imágenes de urnas y carrozas).
+
+Backend Automático: Firebase Cloud Functions (Scripts en la nube para automatizar tareas).
+
+🗄️ Estructura de la Base de Datos (Colecciones)
+Nota: Todas las colecciones llevarán los campos base de auditoría y soft-delete (creado_por, actualizado_por, fecha_creada, fecha_actualizada, eliminado, eliminado_por, fecha_eliminacion).
+
+1. Catálogos e Inventario
+urnas: nombre, precio_costo, precio_venta, imagenes (array max 4 urls), stock_actual, kpi_alerta_stock.
+
+carrozas: marca, modelo, color, patente, imagenes (array), estado ('Activa', 'En Taller').
+
+adicionales: nombre, categoria (Flores, Libro, etc.), precio_costo, precio_venta.
+
+2. Gestión Operativa
+usuarios (Empleados/Admin): uid (de Firebase Auth), nombre, rol ('admin' | 'empleado'), sueldo_imponible, porcentaje_comision.
+
+pedidos (Ingreso de stock): fecha_pedido, urna_id, cantidad, fecha_llegada (null = En Espera), estado_manual.
+
+servicios (El contrato/venta):
+
+fecha_servicio, nombre_fallecido, entidad_pagadora.
+
+monto, fecha_pago (null = En Espera de pago).
+
+urna_id, adicionales_ids (array de referencias).
+
+asignado_a_id (Empleado responsable para su comisión).
+
+agenda_carrozas (Logística de vehículos):
+
+servicio_id (Referencia al contrato).
+
+nombre_fallecido (Para vista rápida).
+
+tipo_evento ('Velorio', 'Funeral', 'Crematorio').
+
+carroza_id (El vehículo asignado).
+
+fecha_inicio y fecha_fin (Rango horario exacto).
+
+estado_viaje ('Programado', 'Completado').
+
+3. Trazabilidad
+auditoria: coleccion_afectada, documento_id, accion ('CREACION', 'EDICION', 'BORRADO'), usuario_id, fecha_accion, cambios (objeto detallando qué valor había "antes" y "después").
+
+⚙️ Automatizaciones (Cloud Functions)
+Estas funciones se ejecutarán solas en los servidores de Google, tú no tienes que preocuparte por ellas en el día a día:
+
+Control de Stock Inverso: Al guardar un servicio, resta -1 al stock de la urna seleccionada.
+
+Control de Stock de Entrada: Al ponerle fecha_llegada a un pedido, suma la cantidad solicitada al stock de la urna.
+
+El Gran Hermano (Auditoría): Un Trigger onWrite global. Cada vez que alguien modifique algo en las tablas operativas, la función detecta quién fue y qué cambió, y lo guarda en la tabla auditoria.
+
+🔐 Seguridad (Reglas de Firestore)
+Admin: Tiene acceso total (Lectura, creación y edición) a todo el sistema.
+
+Empleado:
+
+Solo puede leer los inventarios (urnas, carrozas, adicionales) para ver fotos y precios. No puede modificarlos.
+
+Puede crear y editar servicios y registrar agenda_carrozas.
+
+Ningún empleado puede hacer eliminaciones (soft-delete).
+
+Esta arquitectura te permitirá tener la base de datos limpia, evitar cruces de vehículos con la agenda, y tener todo listo para armar el Dashboard del administrador con datos precisos.
