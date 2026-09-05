@@ -3,8 +3,8 @@ import { Component } from '@angular/core';
 @Component({
   selector: 'app-layout',
   imports: [],
-  templateUrl: './layout.html',
-  styleUrl: './layout.scss',
+  templateUrl: './layout.component.html',
+  styleUrl: './layout.component.scss',
 })
 export class LayoutComponent {
 

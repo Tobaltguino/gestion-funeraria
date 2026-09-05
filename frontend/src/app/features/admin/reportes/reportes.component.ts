@@ -3,8 +3,8 @@ import { Component } from '@angular/core';
 @Component({
   selector: 'app-reportes',
   imports: [],
-  templateUrl: './reportes.html',
-  styleUrl: './reportes.scss',
+  templateUrl: './reportes.component.html',
+  styleUrl: './reportes.component.scss',
 })
 export class ReportesComponent {
 
