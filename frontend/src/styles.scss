@@ -330,3 +330,55 @@ h1, h2, h3, h4, h5, h6 { font-family: var(--fuente-titulo); margin: 0; }
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+/* ==========================================
+   8. TOASTS / SNACKBARS (NOTIFICACIONES)
+   ========================================== */
+
+/* Ajustes generales del contenedor del Toast */
+.mat-mdc-snack-bar-container {
+  .mdc-snackbar__surface {
+    background-color: #ffffff !important; /* Fondo blanco puro */
+    border: 1px solid #000000 !important; /* Borde negro sutil alrededor */
+    border-radius: 8px !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+  }
+  
+  /* 🔥 Forzamos la letra a color negro */
+  .mdc-snackbar__label {
+    padding-left: 16px; 
+    color: #000000 !important; 
+  }
+}
+
+/* Toast de Éxito (Verde elegante) */
+.toast-success {
+  .mdc-snackbar__surface {
+    border-left: 6px solid #22c55e !important; /* Franja verde */
+  }
+  .mat-mdc-button.mat-mdc-snack-bar-action {
+    color: #166534 !important; /* "X" de color verde oscuro */
+  }
+}
+
+/* Toast de Error (Rojo formal) */
+.toast-error {
+  .mdc-snackbar__surface {
+    border-left: 6px solid #ef4444 !important; /* Franja roja */
+  }
+  .mat-mdc-button.mat-mdc-snack-bar-action {
+    color: #991b1b !important; /* "X" de color rojo oscuro */
+  }
+}
+
+/* Toast de Advertencia (Amarillo/Naranja sutil) */
+.toast-warning {
+  .mdc-snackbar__surface {
+    border-left: 6px solid #f59e0b !important; /* Franja amarilla */
+  }
+  .mat-mdc-button.mat-mdc-snack-bar-action {
+    color: #92400e !important; /* "X" de color naranja oscuro */
+  }
+}

@@ -3,19 +3,20 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 
-// Angular Material Form elements
+// Angular Material 
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBarModule } from '@angular/material/snack-bar'; // <-- Módulo agregado
 
 import { Role } from '../../../../shared/enums/role.enum';
 import { UsuarioService } from '../usuario.service';
 import { PerfilUsuario } from '../../../../core/auth/auth.interface';
-
 import { RutFormatDirective } from '../../../../shared/directives/rut-format';
+import { NotificationService } from '../../../../shared/services/notification.service';
 
 @Component({
   selector: 'app-usuario-dialog',
@@ -30,7 +31,8 @@ import { RutFormatDirective } from '../../../../shared/directives/rut-format';
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
-    RutFormatDirective
+    MatSnackBarModule, // <-- Inyectado aquí
+    RutFormatDirective 
   ],
   templateUrl: './usuario-dialog.component.html',
   styleUrls: ['./usuario-dialog.component.scss']
@@ -40,6 +42,7 @@ export class UsuarioDialogComponent implements OnInit {
   private dialogRef = inject(MatDialogRef<UsuarioDialogComponent>);
   private data = inject(MAT_DIALOG_DATA) as PerfilUsuario | null; 
   private usuarioService = inject(UsuarioService);
+  private notification = inject(NotificationService);
 
   formulario!: FormGroup;
   esEdicion = false;
@@ -66,7 +69,10 @@ export class UsuarioDialogComponent implements OnInit {
   }
 
   async guardar() {
-    if (this.formulario.invalid) return;
+    if (this.formulario.invalid) {
+      this.notification.warning('Por favor, revise los campos del formulario.');
+      return;
+    }
     
     this.cargando = true;
     try {
@@ -78,25 +84,24 @@ export class UsuarioDialogComponent implements OnInit {
           rol: formValues.rol,
           telefono: formValues.telefono
         });
+        this.notification.success('Usuario actualizado correctamente.');
       } else {
         const rawData = this.formulario.getRawValue();
-        
-        // Limpiamos el RUT (quitamos todo lo que no sea número o K)
         const rutSinPuntos = rawData.rut.replace(/[^0-9kK]/g, '').toUpperCase();
         
-        // Armamos el objeto para crear con la contraseña automática
         const nuevoUsuario = {
           ...rawData,
-          password: rutSinPuntos // Supabase recibirá el RUT limpio como clave
+          password: rutSinPuntos 
         };
 
         await this.usuarioService.crearUsuario(nuevoUsuario);
+        this.notification.success('Usuario creado con éxito.');
       }
       
       this.dialogRef.close(true); 
     } catch (error) {
       console.error('Error al guardar:', error);
-      alert('Hubo un error al guardar el usuario.');
+      this.notification.error('Hubo un error al procesar la solicitud.');
     } finally {
       this.cargando = false;
     }

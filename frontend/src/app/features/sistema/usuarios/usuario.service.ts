@@ -25,16 +25,24 @@ export class UsuarioService {
   }
 
   // 2. Crear usuario (Llama a la Edge Function)
-  async crearUsuario(usuarioData: CrearUsuarioDTO): Promise<any> {
-    const { data, error } = await this.supabase.functions.invoke('crear-usuario-admin', {
-      body: usuarioData // Aquí TypeScript valida que envíes nombre, rut, email, pass, rol y teléfono
-    });
+  // Busca tu método crearUsuario y reemplázalo por este:
+  async crearUsuario(nuevoUsuario: any): Promise<any> {
+    try {
+      // Usamos functions.invoke pasándole el nombre exacto de la carpeta que subimos
+      const { data, error } = await this.supabase.functions.invoke('crear-usuario-admin', {
+        body: nuevoUsuario // Angular se encarga de enviarlo en formato JSON automáticamente
+      });
 
-    if (error) {
-      console.error('Error desde la Edge Function:', error);
-      throw error;
+      if (error) {
+        console.error('Error del servidor Edge:', error);
+        throw new Error('No se pudo crear el usuario en el servidor.');
+      }
+
+      return data;
+    } catch (err) {
+      console.error('Excepción al invocar la función:', err);
+      throw err;
     }
-    return data;
   }
 
   // 3. Editar usuario (Actualiza solo la tabla pública)

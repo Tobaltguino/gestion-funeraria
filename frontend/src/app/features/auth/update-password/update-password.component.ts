@@ -10,8 +10,10 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBarModule } from '@angular/material/snack-bar'; // <-- Módulo agregado
 
 import { AuthService } from '../../../core/auth/auth.service';
+import { NotificationService } from '../../../shared/services/notification.service';
 
 @Component({
   selector: 'app-update-password',
@@ -24,7 +26,8 @@ import { AuthService } from '../../../core/auth/auth.service';
     MatInputModule,
     MatButtonModule,
     MatIconModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatSnackBarModule // <-- Inyectado aquí
   ],
   templateUrl: './update-password.component.html',
   styleUrls: ['./update-password.component.scss']
@@ -33,8 +36,8 @@ export class UpdatePasswordComponent {
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private authService = inject(AuthService);
+  private notification = inject(NotificationService);
 
-  // Validación personalizada para asegurar que las contraseñas coinciden
   passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
     const password = control.get('password')?.value;
     const confirm = control.get('confirmPassword')?.value;
@@ -53,7 +56,10 @@ export class UpdatePasswordComponent {
   mensajeError = '';
 
   async onSubmit(): Promise<void> {
-    if (this.updateForm.invalid) return;
+    if (this.updateForm.invalid) {
+      this.notification.warning('Revise los campos. Las contraseñas deben coincidir y tener al menos 6 caracteres.');
+      return;
+    }
 
     this.loading = true;
     this.mensajeError = '';
@@ -66,16 +72,18 @@ export class UpdatePasswordComponent {
 
       if (error) {
         this.mensajeError = 'Hubo un error al actualizar la contraseña. Es posible que el enlace haya expirado.';
+        this.notification.error(this.mensajeError);
       } else {
         this.mensajeExito = 'Contraseña actualizada correctamente.';
+        this.notification.success(this.mensajeExito);
         
-        // Esperamos 2.5 segundos para que lea el mensaje y luego al login
         setTimeout(() => {
           this.router.navigate(['/login']);
         }, 2500);
       }
     } catch (err) {
       this.mensajeError = 'Ocurrió un error inesperado. Intente nuevamente.';
+      this.notification.error(this.mensajeError);
     } finally {
       this.loading = false;
     }

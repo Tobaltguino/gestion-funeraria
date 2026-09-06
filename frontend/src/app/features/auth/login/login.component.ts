@@ -12,12 +12,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatSnackBarModule } from '@angular/material/snack-bar'; // <-- Módulo agregado
 
 import { AuthService } from '../../../core/auth/auth.service';
 import { Role } from '../../../shared/enums/role.enum';
 import { RecuperarDialogComponent } from '../recuperar-dialog/recuperar-dialog.component';
-
 import { RutFormatDirective } from '../../../shared/directives/rut-format';
+import { NotificationService } from '../../../shared/services/notification.service';
 
 @Component({
   selector: 'app-login',
@@ -34,7 +35,8 @@ import { RutFormatDirective } from '../../../shared/directives/rut-format';
     MatProgressSpinnerModule,
     MatDialogModule,
     MatCheckboxModule,
-    RutFormatDirective // 👇 La agregamos a los imports
+    MatSnackBarModule, // <-- Inyectado aquí
+    RutFormatDirective
   ],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
@@ -44,6 +46,7 @@ export class LoginComponent implements OnInit {
   private router = inject(Router);
   private authService = inject(AuthService);
   private dialog = inject(MatDialog); 
+  private notification = inject(NotificationService);
 
   loginForm: FormGroup = this.fb.group({
     rut: ['', [Validators.required]],
@@ -66,7 +69,10 @@ export class LoginComponent implements OnInit {
   }
 
   async onSubmit(): Promise<void> {
-    if (this.loginForm.invalid) return;
+    if (this.loginForm.invalid) {
+      this.notification.warning('Por favor, complete todos los campos requeridos.');
+      return;
+    }
 
     this.loading = true;
     this.errorMessage = '';
@@ -78,6 +84,7 @@ export class LoginComponent implements OnInit {
 
       if (error || !session) {
         this.errorMessage = 'Credenciales inválidas. Verifique su RUT y contraseña.';
+        this.notification.error(this.errorMessage);
         this.loading = false;
         return;
       }
@@ -92,9 +99,12 @@ export class LoginComponent implements OnInit {
 
       if (!perfil) {
         this.errorMessage = 'Error al obtener los datos del perfil.';
+        this.notification.error(this.errorMessage);
         this.loading = false;
         return;
       }
+
+      this.notification.success(`Bienvenido al sistema, ${perfil.nombre}`);
 
       if (perfil.rol === Role.ADMIN) {
         this.router.navigate(['/dashboard']); 
@@ -107,6 +117,7 @@ export class LoginComponent implements OnInit {
     } catch (err) {
       console.error('Error inesperado en login:', err);
       this.errorMessage = 'Ocurrió un error inesperado de red. Intente nuevamente.';
+      this.notification.error(this.errorMessage);
     } finally {
       this.loading = false;
     }
