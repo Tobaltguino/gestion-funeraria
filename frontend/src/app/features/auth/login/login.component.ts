@@ -96,9 +96,9 @@ export class LoginComponent implements OnInit {
       }
 
       if (perfil.rol === Role.ADMIN) {
-        this.router.navigate(['/admin/inicio']); 
+        this.router.navigate(['/dashboard']); 
       } else if (perfil.rol === Role.EMPLEADO) {
-        this.router.navigate(['/empleado/inicio']);
+        this.router.navigate(['/dashboard']);
       } else {
         this.router.navigate(['/']); 
       }

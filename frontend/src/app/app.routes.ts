@@ -12,17 +12,21 @@ import { HomeComponent } from './features/home/home.component';
 import { LoginComponent } from './features/auth/login/login.component';
 import { UpdatePasswordComponent } from './features/auth/update-password/update-password.component';
 
-// --- ADMIN ---
-import { AdminDashboardComponent } from './features/admin/admin-dashboard/admin-dashboard.component';
-import { GestionInventarioComponent } from './features/admin/gestion-inventario/gestion-inventario.component';
-import { GestionEmpleadosComponent } from './features/admin/gestion-empleados/gestion-empleados.component';
-import { ReportesComponent } from './features/admin/reportes/reportes.component';
+// --- NUEVOS COMPONENTES POR DOMINIO ---
+import { DashboardComponent } from './features/dashboard/dashboard.component';
 
-// --- EMPLEADO ---
-import { EmployeeDashboardComponent } from './features/employee/employee-dashboard/employee-dashboard.component';
-import { RegistroServiciosComponent } from './features/employee/registro-servicios/registro-servicios.component';
-import { DirectorioClientesComponent } from './features/employee/directorio-clientes/directorio-clientes.component';
-import { CatalogoComponent } from './features/employee/catalogo/catalogo.component';
+import { ServiciosComponent } from './features/administrativo/servicios/servicios.component';
+import { AgendaComponent } from './features/administrativo/agenda/agenda.component';
+
+import { UrnasComponent } from './features/inventario/urnas/urnas.component';
+import { CarrozasComponent } from './features/inventario/carrozas/carrozas.component';
+import { AdicionalesComponent } from './features/inventario/adicionales/adicionales.component';
+import { PedidosComponent } from './features/inventario/pedidos/pedidos.component';
+
+import { MovimientosCajaComponent } from './features/finanzas/movimientos-caja/movimientos-caja.component';
+
+import { UsuariosComponent } from './features/sistema/usuarios/usuarios.component';
+import { AuditoriaComponent } from './features/sistema/auditoria/auditoria.component';
 
 export const routes: Routes = [
   // ==========================================
@@ -33,41 +37,78 @@ export const routes: Routes = [
   { path: 'update-password', component: UpdatePasswordComponent },
 
   // ==========================================
-  // 1. RUTA ADMIN
+  // 1. RUTAS PROTEGIDAS (LAYOUT ÚNICO)
   // ==========================================
   {
-    path: 'admin',
+    path: '', 
     component: LayoutComponent,
     canActivate: [authGuard], 
-    data: { roles: [Role.ADMIN] },      
     children: [
-      { path: '', redirectTo: 'inicio', pathMatch: 'full' },
-      { path: 'inicio', component: AdminDashboardComponent },
-      { path: 'inventario', component: GestionInventarioComponent },
-      { path: 'empleados', component: GestionEmpleadosComponent },
-      { path: 'reportes', component: ReportesComponent },
+      
+      // --- PRINCIPAL (Ambos) ---
+      { 
+        path: 'dashboard', 
+        component: DashboardComponent,
+        data: { roles: [Role.ADMIN, Role.EMPLEADO] } 
+      },
+
+      // --- ADMINISTRATIVO (Ambos) ---
+      { 
+        path: 'servicios', 
+        component: ServiciosComponent,
+        data: { roles: [Role.ADMIN, Role.EMPLEADO] } 
+      },
+      { 
+        path: 'agenda', 
+        component: AgendaComponent,
+        data: { roles: [Role.ADMIN, Role.EMPLEADO] } 
+      },
+
+      // --- INVENTARIO (Ambos) ---
+      { 
+        path: 'inventario/urnas', 
+        component: UrnasComponent,
+        data: { roles: [Role.ADMIN, Role.EMPLEADO] } 
+      },
+      { 
+        path: 'inventario/carrozas', 
+        component: CarrozasComponent,
+        data: { roles: [Role.ADMIN, Role.EMPLEADO] } 
+      },
+      { 
+        path: 'inventario/adicionales', 
+        component: AdicionalesComponent,
+        data: { roles: [Role.ADMIN, Role.EMPLEADO] } 
+      },
+      { 
+        path: 'inventario/pedidos', 
+        component: PedidosComponent,
+        data: { roles: [Role.ADMIN, Role.EMPLEADO] } 
+      },
+
+      // --- FINANZAS (SOLO ADMIN) ---
+      { 
+        path: 'finanzas/caja', 
+        component: MovimientosCajaComponent,
+        data: { roles: [Role.ADMIN] } 
+      },
+
+      // --- SISTEMA (SOLO ADMIN) ---
+      { 
+        path: 'sistema/usuarios', 
+        component: UsuariosComponent,
+        data: { roles: [Role.ADMIN] } 
+      },
+      { 
+        path: 'sistema/auditoria', 
+        component: AuditoriaComponent,
+        data: { roles: [Role.ADMIN] } 
+      }
     ]
   },
 
   // ==========================================
-  // 2. RUTA EMPLEADO
-  // ==========================================
-  {
-    path: 'empleado',
-    component: LayoutComponent,
-    canActivate: [authGuard], 
-    data: { roles: [Role.EMPLEADO] },
-    children: [
-      { path: '', redirectTo: 'inicio', pathMatch: 'full' },
-      { path: 'inicio', component: EmployeeDashboardComponent },
-      { path: 'registro-servicios', component: RegistroServiciosComponent },
-      { path: 'directorio', component: DirectorioClientesComponent },
-      { path: 'catalogo', component: CatalogoComponent },
-    ]
-  },
-
-  // ==========================================
-  // 3. Ruta comodín (404 / Fallback)
+  // 2. Ruta comodín (404 / Fallback)
   // ==========================================
   { path: '**', redirectTo: '' } 
 ];

@@ -1,26 +1,48 @@
-<mat-sidenav-container class="admin-container" *ngIf="!cargando">
+<mat-sidenav-container class="admin-container" autosize *ngIf="!cargando">
   
-  <!-- Barra Lateral (Menú) -->
-  <mat-sidenav #sidenav mode="side" opened class="admin-sidenav">
+  <!-- Comportamiento dinámico: 
+       Celular = mode:"over", cerrado por defecto. No usa clase "collapsed".
+       PC = mode:"side", abierto por defecto. Usa clase "collapsed" según botón. -->
+  <mat-sidenav #sidenav 
+               [mode]="isMobile ? 'over' : 'side'" 
+               [opened]="!isMobile" 
+               class="admin-sidenav" 
+               [class.collapsed]="!isMobile && isCollapsed">
+               
     <div class="sidenav-header">
       <img src="assets/logo-funeraria.svg" alt="Logo" class="sidenav-logo">
+      
+      <!-- Este botón para "achicar" solo tiene sentido en el PC -->
+      <button mat-icon-button (click)="toggleMenu()" class="menu-btn-sidebar" *ngIf="!isMobile">
+        <mat-icon>menu</mat-icon>
+      </button>
     </div>
 
     <mat-nav-list class="admin-nav-list">
-      <!-- Generación dinámica de los enlaces según el rol -->
-      <a mat-list-item *ngFor="let opcion of menuFiltrado" [routerLink]="opcion.ruta" routerLinkActive="active-link">
-        <mat-icon matListItemIcon>{{ opcion.icono }}</mat-icon>
-        <span matListItemTitle>{{ opcion.titulo }}</span>
-      </a>
+      <ng-container *ngFor="let grupo of menuFiltrado">
+        
+        <div class="menu-section-title">{{ grupo.seccion }}</div>
+
+        <!-- Agregamos (click)="cerrarMenuMovil()" a cada enlace -->
+        <a mat-list-item *ngFor="let opcion of grupo.opciones" 
+           [routerLink]="opcion.ruta" 
+           routerLinkActive="active-link"
+           (click)="cerrarMenuMovil()">
+          <mat-icon matListItemIcon>{{ opcion.icono }}</mat-icon>
+          <span matListItemTitle class="menu-text">{{ opcion.titulo }}</span>
+        </a>
+
+      </ng-container>
     </mat-nav-list>
   </mat-sidenav>
 
   <!-- Contenido Principal -->
   <mat-sidenav-content class="admin-content">
     
-    <!-- Barra Superior -->
     <mat-toolbar class="admin-toolbar">
-      <button mat-icon-button (click)="sidenav.toggle()" class="menu-btn">
+      
+      <!-- Si estamos en celular, aquí aparece el botón para abrir el menú -->
+      <button mat-icon-button (click)="sidenav.toggle()" class="menu-btn" *ngIf="isMobile">
         <mat-icon>menu</mat-icon>
       </button>
 
@@ -46,7 +68,6 @@
       </mat-menu>
     </mat-toolbar>
 
-    <!-- Área de visualización de los componentes hijos -->
     <main class="main-workspace">
       <router-outlet></router-outlet>
     </main>
@@ -55,7 +76,6 @@
 
 </mat-sidenav-container>
 
-<!-- Spinner de carga inicial -->
 <div class="loading-overlay" *ngIf="cargando">
   <mat-spinner diameter="40"></mat-spinner>
 </div>

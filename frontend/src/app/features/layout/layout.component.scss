@@ -12,70 +12,132 @@
 }
 
 /* ==========================================
-   BARRA LATERAL (SIDENAV)
+   BARRA LATERAL (SIDENAV) - ANIMADA Y SIN SCROLL
    ========================================== */
+
+/* Asesina el scroll horizontal interno de Angular Material */
+::ng-deep .mat-drawer-inner-container {
+  overflow-x: hidden !important; 
+}
+
 .admin-sidenav {
   width: 250px; 
   background-color: #0c0c0c; 
   color: #ffffff;
   border-right: 1px solid rgba(255, 255, 255, 0.05); 
-}
+  
+  /* Elimina el scroll horizontal de raíz */
+  overflow-x: hidden; 
+  box-sizing: border-box;
+  
+  /* Animación suave al encoger y agrandar */
+  transition: width 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); 
 
-.sidenav-header {
-  height: 64px; 
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-  padding: 0.5rem 1rem;
-
-  .sidenav-logo {
-    max-width: 90%; 
-    max-height: 45px; 
-    object-fit: contain; 
-  }
-}
-
-.admin-nav-list {
-  padding-top: 1rem !important;
-
-  .mdc-list-item {
-    margin: 4px 12px;
-    border-radius: 6px;
-    transition: all 0.2s ease;
-
-    /* AQUI FORZAMOS EL TEXTO BLANCO Y MÁS CHICO */
-    .mdc-list-item__primary-text,
-    [matListItemTitle],
-    span {
-      color: #ffffff !important; 
-      font-size: 0.85rem !important; /* Letra más chica (aprox 13.5px) */
-      font-weight: 400;
-      letter-spacing: 0.3px; /* Pequeño espaciado para mejor lectura */
+  .sidenav-header {
+    height: 64px; 
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Empuja el logo a la izquierda y el botón a la derecha */
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    padding: 0 0.5rem 0 1rem; 
+    box-sizing: border-box; 
+    overflow: hidden; 
+  
+    .sidenav-logo {
+      max-width: 150px; 
+      max-height: 40px; 
+      object-fit: contain; 
+      margin: 0;
+      transition: opacity 0.2s ease, width 0.2s ease;
     }
-
-    .mat-icon {
+  
+    .menu-btn-sidebar {
       color: #ffffff !important;
-      transform: scale(0.9); /* Achicamos ligeramente el ícono para que haga juego con el texto */
+      flex-shrink: 0; 
     }
+  }
 
-    /* Efecto Hover */
-    &:hover {
-      background-color: rgba(255,255,255,0.1) !important;
+  .admin-nav-list {
+    padding-top: 0 !important;
+    overflow-x: hidden;
+
+    .menu-section-title {
+      color: #666666; 
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      margin: 0.75rem 0 0.2rem 1rem; 
+      white-space: nowrap; 
+      transition: opacity 0.2s ease, height 0.2s ease;
     }
-
-    /* Opción Activa (Ruta actual) */
-    &.active-link {
-      background-color: #ffffff !important;
-      
-      /* Cuando está activo, el texto se vuelve negro */
-      .mdc-list-item__primary-text,
-      [matListItemTitle],
-      span {
-        color: #000000 !important;
-        font-weight: 600;
+  
+    .mdc-list-item {
+      margin: 0 8px; 
+      width: calc(100% - 16px) !important; /* Ajuste perfecto para no desbordar */
+      height: 40px !important; /* Altura compacta para que quepan todos los ítems */
+      border-radius: 6px;
+      transition: all 0.2s ease;
+      box-sizing: border-box;
+      overflow: hidden;
+  
+      .menu-text {
+        color: #ffffff !important; 
+        font-size: 0.85rem !important;
+        font-weight: 400;
+        letter-spacing: 0.3px; 
+        white-space: nowrap;
+        transition: opacity 0.2s ease;
       }
-      .mat-icon { color: #000000 !important; }
+  
+      .mat-icon {
+        color: #ffffff !important;
+        transform: scale(0.9); 
+      }
+  
+      &:hover { 
+        background-color: rgba(255,255,255,0.1) !important; 
+      }
+      
+      &.active-link {
+        background-color: #ffffff !important;
+        .menu-text { color: #000000 !important; font-weight: 600; }
+        .mat-icon { color: #000000 !important; }
+      }
+    }
+  }
+
+  /* 🔥 ESTADO COLAPSADO (Solo Iconos) 🔥 */
+  &.collapsed {
+    width: 70px; 
+
+    .sidenav-header {
+      justify-content: center; 
+      padding: 0;
+      
+      .sidenav-logo {
+        display: none !important; /* Desaparece totalmente */
+      }
+    }
+
+    .admin-nav-list {
+      .menu-section-title {
+        display: none !important; /* Desaparece totalmente */
+      }
+
+      .mdc-list-item {
+        justify-content: center !important; 
+        padding: 0 !important; /* Quitamos paddings para centrar perfecto */
+        
+        /* Ocultamos el texto directamente por su clase */
+        .menu-text {
+          display: none !important; 
+        }
+
+        /* Forzamos al ícono a estar en el centro absoluto */
+        .mat-icon {
+          margin: 0 !important;
+        }
+      }
     }
   }
 }
@@ -96,12 +158,6 @@
   flex: 1 1 auto;
 }
 
-/* Botón de hamburguesa */
-.menu-btn {
-  color: #ffffff !important; 
-}
-
-/* Botón del usuario en la esquina superior derecha */
 .user-btn {
   display: flex;
   align-items: center;
@@ -111,11 +167,11 @@
   
   .user-name {
     margin: 0 4px;
-    font-size: 0.85rem; /* Achicamos el texto del administrador en la barra superior */
+    font-size: 0.85rem; 
   }
 }
 
-/* Menú desplegable al hacer clic en el usuario (blanco para que se lea bien) */
+/* Menú desplegable al hacer clic en el usuario */
 .menu-profile-info {
   padding: 16px;
   outline: none;
