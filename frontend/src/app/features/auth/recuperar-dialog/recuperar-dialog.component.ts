@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 
-// Importaciones de Material (incluyendo MatDialog)
+// Importaciones de Material 
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -11,6 +11,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { AuthService } from '../../../core/auth/auth.service';
+
+import { RutFormatDirective } from '../../../shared/directives/rut-format';
 
 @Component({
   selector: 'app-recuperar-dialog',
@@ -23,7 +25,8 @@ import { AuthService } from '../../../core/auth/auth.service';
     MatInputModule,
     MatButtonModule,
     MatIconModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    RutFormatDirective // 👇 La agregamos a los imports
   ],
   templateUrl: './recuperar-dialog.component.html',
   styleUrls: ['./recuperar-dialog.component.scss']
@@ -51,7 +54,6 @@ export class RecuperarDialogComponent {
     const { rut } = this.recuperarForm.value;
 
     try {
-      // Llamamos a la función que creaste en el paso anterior
       const { error } = await this.authService.recuperarContrasena(rut);
 
       if (error) {

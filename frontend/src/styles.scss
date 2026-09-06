@@ -1,20 +1,22 @@
-@import '@angular/material/prebuilt-themes/deeppurple-amber.css';
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
 
 /* ==========================================
    1. VARIABLES GLOBALES (Tokens de Diseño)
    ========================================== */
 :root {
-  /* Colores base (Tema Oscuro/Elegante) */
-  --color-fondo: #0c0c0c;
-  --color-panel: #151515;
-  --color-texto: #f4f2ee;
-  --color-texto-suave: #b4afa6;
-  --color-linea: #2c2c2c;
+  /* Fondos y Superficies (Tema Claro/Elegante) */
+  --color-fondo: #f4f6f8; /* Gris muy sutil para el área de trabajo */
+  --color-panel: #ffffff; /* Blanco puro para tarjetas, tablas y modales */
+  --color-input-bg: #fafafa; /* Fondo sutil para inputs */
   
-  /* Colores de marca */
-  --color-brand: #ffffff; /* Blanco principal para contrastar en fondo negro */
-  --color-brand-contrast: #000000; /* Texto negro sobre botones blancos */
-  --color-whatsapp: #25d366;
+  /* Textos y Bordes */
+  --color-texto: #111111; 
+  --color-texto-suave: #666666;
+  --color-linea: #cccccc; 
+  
+  /* Color de Marca (Monocromático solemne) */
+  --color-brand: #000000; /* Negro para botones principales y enfoques */
+  --color-brand-contrast: #ffffff; /* Letras blancas sobre botones negros */
   --color-enlace: #0056b3;
 
   /* Tipografías */
@@ -32,146 +34,299 @@ html, body {
   color: var(--color-texto);
   font-family: var(--fuente-texto);
   line-height: 1.6;
+  color-scheme: light; 
 }
 
-/* Esto obliga al contenedor principal de Angular a ocupar toda la pantalla */
-app-root {
-  display: block;
-  height: 100vh;
-}
+app-root { display: block; height: 100vh; }
+a { color: inherit; text-decoration: none; }
+h1, h2, h3, h4, h5, h6 { font-family: var(--fuente-titulo); margin: 0; }
 
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--fuente-titulo);
-  margin: 0;
-}
+.w-100 { width: 100% !important; display: block; }
 
 /* ==========================================
-   3. ANGULAR MATERIAL GLOBALES (Sobrescritura)
+   3. ANGULAR MATERIAL (Sobrescritura Global)
    ========================================== */
 
-/* --- BOTONES --- */
+/* --- Botones --- */
 .mat-mdc-button-base {
   font-family: var(--fuente-texto) !important;
   letter-spacing: 0.5px;
-  border-radius: 4px !important; /* Bordes rectos y elegantes */
+  border-radius: 4px !important; 
 }
 
-/* Botones Principales (Flat / Raised) */
+/* Botones Principales (Negros) */
 .mat-mdc-flat-button, 
-.mat-mdc-raised-button {
+.mat-mdc-raised-button,
+.btn-submit {
   background-color: var(--color-brand) !important;
   color: var(--color-brand-contrast) !important;
+  font-weight: 500;
+  height: 48px; /* Altura elegante por defecto */
   
-  &:hover:not([disabled]) {
-    background-color: #e0e0e0 !important;
-  }
-  
+  &:hover:not([disabled]) { background-color: #333333 !important; }
   &[disabled] {
-    background-color: #333333 !important;
-    color: #777777 !important;
+    background-color: #e0e0e0 !important;
+    color: #9e9e9e !important;
   }
 }
 
-/* Botones Secundarios (Outlined) */
-.mat-mdc-outlined-button {
-  border-color: var(--color-linea) !important;
-  color: var(--color-texto) !important;
-
-  &:hover:not([disabled]) {
-    border-color: var(--color-brand) !important;
-    color: var(--color-brand) !important;
+/* Botón Cancelar Global */
+.btn-cancelar {
+  color: #555555 !important;
+  font-weight: 500;
+  margin-right: 8px;
+  height: 48px;
+  &:hover {
+    color: #000000 !important;
+    background-color: #f5f5f5 !important;
   }
 }
 
-/* --- INPUTS (Entry / Text Fields) --- */
+/* --- Inputs Globales (Estilo Login en toda la app) --- */
 .mat-mdc-form-field {
   width: 100%;
+  margin-bottom: 0.5rem;
   
-  /* Fondo del input */
-  .mdc-text-field--outlined {
-    background-color: var(--color-panel) !important;
+  .mdc-text-field--outlined { background-color: var(--color-input-bg) !important; }
+  .mat-mdc-input-element { color: var(--color-texto) !important; }
+  
+  /* Iconos */
+  .mat-mdc-form-field-icon-prefix {
+    color: #555555 !important;
+    padding-right: 12px !important; 
   }
-  
-  /* Color de los bordes por defecto */
+  .mat-mdc-form-field-icon-suffix { color: #555555 !important; }
+
+  /* Bordes y Focus */
   .mdc-notched-outline__leading,
   .mdc-notched-outline__notch,
-  .mdc-notched-outline__trailing {
-    border-color: var(--color-linea) !important;
-    border-width: 1px !important;
-  }
+  .mdc-notched-outline__trailing { border-color: var(--color-linea) !important; border-width: 1px !important; }
   
-  /* Color del borde al hacer click (Focus) */
   .mdc-text-field--focused .mdc-notched-outline__leading,
   .mdc-text-field--focused .mdc-notched-outline__notch,
-  .mdc-text-field--focused .mdc-notched-outline__trailing {
-    border-color: var(--color-brand) !important;
-  }
+  .mdc-text-field--focused .mdc-notched-outline__trailing { border-color: var(--color-brand) !important; }
 
-  /* Color del texto y el placeholder */
-  .mat-mdc-input-element,
-  .mat-mdc-select-value-text {
-    color: var(--color-texto) !important;
-    
-    &::placeholder {
-      color: var(--color-texto-suave) !important;
-    }
-  }
-
-  /* Etiqueta superior (Label) */
-  .mdc-floating-label {
-    color: var(--color-texto-suave) !important;
-  }
-  .mdc-text-field--focused .mdc-floating-label {
-    color: var(--color-brand) !important;
-  }
-
-  /* Iconos dentro del input (Prefix / Suffix) */
-  .mat-mdc-form-field-icon-prefix,
-  .mat-mdc-form-field-icon-suffix {
-    color: var(--color-texto-suave) !important;
-  }
+  /* Labels */
+  .mdc-floating-label { color: var(--color-texto-suave) !important; }
+  .mdc-text-field--focused .mdc-floating-label { color: var(--color-brand) !important; }
 }
 
-/* --- SELECTS (Listas desplegables) --- */
+/* --- Selects --- */
 .mat-mdc-select-panel {
   background-color: var(--color-panel) !important;
   border: 1px solid var(--color-linea);
-  
   .mat-mdc-option {
     color: var(--color-texto) !important;
-    
     &:hover, &.mdc-list-item--selected {
-      background-color: rgba(255, 255, 255, 0.05) !important; /* Resalte suave */
+      background-color: #f5f5f5 !important;
       color: var(--color-brand) !important;
     }
   }
 }
 
-/* --- CHECKBOXES --- */
+/* --- Checkboxes --- */
 .mat-mdc-checkbox {
-  /* Color del borde sin marcar */
-  .mdc-checkbox__unselected-icon {
-    border-color: var(--color-texto-suave) !important;
+  --mdc-checkbox-unselected-icon-color: #777777;
+  --mdc-checkbox-unselected-hover-icon-color: #000000;
+  --mdc-checkbox-selected-icon-color: #000000;
+  --mdc-checkbox-selected-checkmark-color: #ffffff;
+  .mdc-label { color: #555555 !important; font-size: 0.85rem; }
+}
+
+/* ==========================================
+   4. MODALES (Dialogs estilo Login)
+   ========================================== */
+.mdc-dialog__surface {
+  background-color: var(--color-panel) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Títulos y subtítulos dentro de los modales */
+.dialog-title, .mat-mdc-dialog-title {
+  font-family: var(--fuente-titulo);
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--color-texto) !important;
+  margin-bottom: 0;
+  padding-bottom: 0.5rem;
+}
+
+.dialog-subtitle {
+  color: var(--color-texto-suave);
+  font-size: 0.95rem;
+  margin-bottom: 1.5rem;
+}
+
+.dialog-content, .mat-mdc-dialog-content { padding-top: 15px !important; overflow: visible; }
+.dialog-actions, .mat-mdc-dialog-actions { padding: 1rem 1.5rem; margin-bottom: 0.5rem; }
+
+/* Contenedores de formularios en modales */
+.form-container { padding-top: 10px; overflow: visible; }
+.formulario-usuario { display: flex; flex-direction: column; gap: 8px; }
+.form-row { display: flex; gap: 16px; mat-form-field { flex: 1; } }
+
+/* ==========================================
+   5. SISTEMA DE AUTENTICACIÓN (Login / Recuperar / Actualizar)
+   ========================================== */
+.login-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Fondo solemne solo para la pantalla de Auth */
+  background-color: #0a0a0a;
+  background-image: radial-gradient(circle at center, #1a1a1a 0%, #050505 100%);
+  padding: 1rem;
+  position: relative;
+}
+
+.back-btn {
+  position: absolute;
+  top: 2rem; left: 2rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #a1a1aa;
+  font-size: 0.9rem;
+  transition: color 0.3s ease;
+  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+  &:hover { color: #ffffff; }
+}
+
+.login-card {
+  width: 100%;
+  max-width: 440px;
+  background-color: var(--color-panel) !important;
+  border-radius: 8px !important;
+  padding: 3rem 2.5rem;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5) !important;
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+  .login-logo { height: 75px; margin-bottom: 1.5rem; filter: invert(1); }
+  .login-title {
+    font-family: var(--fuente-titulo);
+    font-size: 1.8rem;
+    color: var(--color-texto);
+    margin: 0 0 0.5rem;
+    font-weight: 700;
+  }
+  .login-subtitle { color: var(--color-texto-suave); font-size: 0.95rem; margin: 0; }
+}
+
+.login-form { display: flex; flex-direction: column; }
+
+.form-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: -0.5rem;
+  margin-bottom: 2rem;
+  .forgot-password {
+    color: var(--color-enlace); 
+    font-size: 0.85rem;
+    transition: color 0.2s ease;
+    &:hover { color: #003d82; text-decoration: underline; }
+  }
+}
+
+@media (max-width: 600px) {
+  .login-card { padding: 2.5rem 1.5rem; }
+  .back-btn { top: 1.5rem; left: 1.5rem; }
+}
+
+/* ==========================================
+   6. LAYOUT PRINCIPAL Y TABLAS
+   ========================================== */
+.page-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  .header-title {
+    h2 { margin: 0; font-size: 1.75rem; color: var(--color-texto); font-weight: 500; }
+    .subtitle { margin: 0; color: var(--color-texto-suave); font-size: 0.9rem; }
+  }
+}
+
+.loading-container { display: flex; justify-content: center; align-items: center; padding: 4rem 0; }
+
+.table-container {
+  border-radius: 8px;
+  overflow: hidden;
+  background: #ffffff; 
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08); 
+  border: 1px solid #b0bec5; 
+
+  table { width: 100%; background: transparent; }
+
+  /* 🔥 ENCABEZADO NEGRO (Actualizado para Angular 18 MDC) 🔥 */
+  .mat-mdc-header-row {
+    background-color: #111111 !important; /* Pinta toda la fila superior de negro */
   }
 
-  /* Color de fondo y borde cuando está marcado */
-  .mdc-checkbox--selected .mdc-checkbox__native-control:enabled ~ .mdc-checkbox__background {
-    background-color: var(--color-brand) !important;
-    border-color: var(--color-brand) !important;
+  .mat-mdc-header-cell {
+    font-weight: 500 !important;
+    color: #ffffff !important; /* Letras blancas */
+    font-size: 0.95rem;
+    letter-spacing: 0.5px;
+    border-bottom: none !important; /* Quitamos la línea de abajo */
   }
 
-  /* Color del "ticket" (checkmark) interior */
-  .mdc-checkbox__checkmark-path {
-    stroke: var(--color-brand-contrast) !important;
+  /* Celdas normales de datos */
+  td.mat-mdc-cell {
+    border-bottom: 1px solid #cfd8dc; 
   }
 
-  /* Color del texto al lado del checkbox */
-  .mdc-label {
-    color: var(--color-texto) !important;
+  .celda-rol { font-weight: 500; letter-spacing: 0.5px; color: #3f51b5; }
+  .text-center { text-align: center; }
+
+  .acciones-cell {
+    white-space: nowrap;
+    button {
+      margin: 0 2px;
+      transition: transform 0.2s ease;
+      &:hover:not([disabled]) { transform: scale(1.1); }
+    }
   }
+
+  tr.inactivo { opacity: 0.6; background-color: #f5f5f5; }
+}
+
+/* ==========================================
+   7. UTILIDADES: ALERTAS Y COLORES SEMÁNTICOS
+   ========================================== */
+.alert {
+  display: flex; align-items: flex-start; gap: 0.8rem;
+  padding: 1rem; border-radius: 6px; margin-bottom: 1.5rem;
+  font-size: 0.9rem; line-height: 1.4;
+  mat-icon { font-size: 22px; width: 22px; height: 22px; }
+  p { margin: 0; }
+}
+.alert-success { background-color: #e6f4ea; color: #137333; border: 1px solid #ceead6; }
+.alert-error { background-color: #fce8e6; color: #c5221f; border: 1px solid #fad2cf; }
+
+/* Botones de acción semánticos para tablas */
+.btn-crear-verde { background-color: #4caf50 !important; color: #ffffff !important; }
+.btn-editar-amarillo { color: #f57c00 !important; }
+.btn-eliminar-rojo, .btn-candado-rojo { color: #d32f2f !important; }
+.btn-candado-verde { color: #4caf50 !important; }
+
+.acciones-cell button:disabled {
+  color: #b0bec5 !important;
+  opacity: 0.5;
+  cursor: not-allowed;
 }

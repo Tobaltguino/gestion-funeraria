@@ -11,11 +11,13 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatCheckboxModule } from '@angular/material/checkbox'; // <-- Nuevo módulo
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 import { AuthService } from '../../../core/auth/auth.service';
 import { Role } from '../../../shared/enums/role.enum';
 import { RecuperarDialogComponent } from '../recuperar-dialog/recuperar-dialog.component';
+
+import { RutFormatDirective } from '../../../shared/directives/rut-format';
 
 @Component({
   selector: 'app-login',
@@ -31,7 +33,8 @@ import { RecuperarDialogComponent } from '../recuperar-dialog/recuperar-dialog.c
     MatIconModule,
     MatProgressSpinnerModule,
     MatDialogModule,
-    MatCheckboxModule // <-- Agregado a los imports
+    MatCheckboxModule,
+    RutFormatDirective // 👇 La agregamos a los imports
   ],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
@@ -45,7 +48,7 @@ export class LoginComponent implements OnInit {
   loginForm: FormGroup = this.fb.group({
     rut: ['', [Validators.required]],
     password: ['', [Validators.required, Validators.minLength(6)]],
-    recordar: [false] // <-- Nuevo control para el checkbox
+    recordar: [false]
   });
 
   hidePassword = true;
@@ -53,7 +56,6 @@ export class LoginComponent implements OnInit {
   errorMessage = '';
 
   ngOnInit(): void {
-    // Al cargar la pantalla, revisamos si el usuario había pedido recordar su RUT
     const rutGuardado = localStorage.getItem('funeraria_rut_recordado');
     if (rutGuardado) {
       this.loginForm.patchValue({
@@ -80,7 +82,6 @@ export class LoginComponent implements OnInit {
         return;
       }
 
-      // Si el login fue exitoso, gestionamos el "Recordar RUT"
       if (recordar) {
         localStorage.setItem('funeraria_rut_recordado', rut);
       } else {

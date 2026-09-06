@@ -1,0 +1,54 @@
+<h2 mat-dialog-title>{{ esEdicion ? 'Editar Perfil' : 'Nuevo Usuario' }}</h2>
+
+<mat-dialog-content class="form-container">
+  <form [formGroup]="formulario" class="formulario-usuario">
+
+    <mat-form-field appearance="outline">
+      <mat-label>Nombre Completo</mat-label>
+      <input matInput formControlName="nombre" placeholder="Ej. Juan Pérez">
+      <mat-error *ngIf="formulario.get('nombre')?.hasError('required')">El nombre es obligatorio</mat-error>
+    </mat-form-field>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <mat-label>RUT</mat-label>
+        <!-- 👇 Aquí agregamos la directiva appRutFormat y el maxlength -->
+        <input matInput formControlName="rut" appRutFormat placeholder="Ej. 12.345.678-9" maxlength="12">
+        <mat-error *ngIf="formulario.get('rut')?.hasError('required')">El RUT es obligatorio</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Rol del Sistema</mat-label>
+        <mat-select formControlName="rol">
+          <mat-option *ngFor="let rol of rolesDisponibles" [value]="rol">
+            {{ rol | uppercase }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <!-- Este campo se oculta si estamos en modo edición -->
+    <ng-container *ngIf="!esEdicion">
+      <mat-form-field appearance="outline">
+        <mat-label>Correo Electrónico</mat-label>
+        <input matInput formControlName="email" type="email" placeholder="usuario@empresa.com">
+        <mat-error *ngIf="formulario.get('email')?.hasError('email')">Correo inválido</mat-error>
+      </mat-form-field>
+      <!-- El input de la contraseña fue eliminado de aquí -->
+    </ng-container>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Teléfono (Opcional)</mat-label>
+      <input matInput formControlName="telefono" placeholder="+569...">
+    </mat-form-field>
+
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button class="btn-cancelar" (click)="cerrar()" [disabled]="cargando">Cancelar</button>
+  <button mat-flat-button color="primary" class="btn-submit" (click)="guardar()" [disabled]="formulario.invalid || cargando">
+    <mat-spinner diameter="20" *ngIf="cargando"></mat-spinner>
+    <span *ngIf="!cargando">{{ esEdicion ? 'Guardar Cambios' : 'Crear Usuario' }}</span>
+  </button>
+</mat-dialog-actions>

@@ -6,6 +6,10 @@ export interface PerfilUsuario {
   rol: Role;
   rut: string;
   telefono?: string;
-  sueldo_imponible?: number;
-  porcentaje_comision?: number;
+  
+  // --- Campos de Estado y Fechas (Nuevos) ---
+  activo: boolean;
+  fecha_creada?: string;
+  fecha_actualizada?: string;
+  fecha_eliminada?: string | null;
 }
