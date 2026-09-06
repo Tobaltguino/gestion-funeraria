@@ -54,4 +54,32 @@ export class AuthService {
   async logout(): Promise<void> {
     await this.supabase.auth.signOut();
   }
+
+  // 5. Recuperar Contraseña mediante RUT
+  async recuperarContrasena(rut: string): Promise<{ error: any }> {
+    // 1. Traducir el RUT a correo usando tu RPC
+    const { data: email, error: rpcError } = await this.supabase.rpc('obtener_correo_por_rut', {
+      p_rut: rut
+    });
+
+    if (rpcError || !email) {
+      return { error: new Error('El RUT ingresado no está registrado en el sistema.') };
+    }
+
+    // 2. Enviar el correo de restablecimiento vía Supabase
+    const { error } = await this.supabase.auth.resetPasswordForEmail(email, {
+      // Esta es la URL a la que el usuario será redirigido al hacer clic en el correo
+      redirectTo: `${window.location.origin}/actualizar-password` 
+    });
+
+    return { error };
+  }
+
+  // 6. Actualizar la contraseña (se usa después de hacer clic en el correo)
+  async actualizarContrasena(nuevaContrasena: string): Promise<{ error: any }> {
+    const { error } = await this.supabase.auth.updateUser({
+      password: nuevaContrasena
+    });
+    return { error };
+  }
 }

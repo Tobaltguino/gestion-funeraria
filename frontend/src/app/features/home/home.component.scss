@@ -1,0 +1,532 @@
+// ============ Tokens ============
+:host {
+  --color-fondo: #0c0c0c;
+  --color-panel: #151515;
+  --color-raya: rgba(255, 255, 255, 0.035);
+  --color-texto: #f4f2ee;
+  --color-texto-suave: #b4afa6;
+  --color-linea: #2c2c2c;
+  --color-whatsapp: #25d366;
+
+  --fuente-titulo: 'Playfair Display', Georgia, serif;
+  --fuente-texto: 'PT Serif', Georgia, serif;
+
+  display: block;
+  background: var(--color-fondo);
+  color: var(--color-texto);
+  font-family: var(--fuente-texto);
+  line-height: 1.6;
+}
+
+.pagina {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+h1, h2, h3 {
+  font-family: var(--fuente-titulo);
+  color: var(--color-texto);
+  margin: 0;
+}
+
+@mixin fondo-rayas($base) {
+  background:
+    repeating-linear-gradient(
+      118deg,
+      var(--color-raya) 0px,
+      var(--color-raya) 2px,
+      transparent 2px,
+      transparent 34px
+    ),
+    #{$base};
+}
+
+// ============ Nav ============
+.nav {
+  background: var(--color-fondo) !important;
+  color: var(--color-texto-suave) !important;
+  border-bottom: 1px solid var(--color-linea);
+  padding: 0 clamp(1rem, 5vw, 4rem);
+  min-height: 80px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  &__marca {
+    display: flex;
+    align-items: center;
+    flex: 1;
+  }
+
+  /* AQUÍ ESTÁ LA MAGIA QUE ARREGLA EL LOGO APLASTADO */
+  &__logo {
+    height: 55px; /* Define una altura razonable para la barra */
+    width: auto; /* Permite que el ancho se ajuste solo sin aplastarse */
+    max-width: 200px;
+    object-fit: contain; /* Garantiza que la imagen encaje perfecto */
+    flex-shrink: 0;
+  }
+
+  &__centro {
+    display: flex;
+    justify-content: center;
+    flex: 2;
+  }
+
+  &__links {
+    display: flex;
+    gap: 2.25rem;
+    font-size: 0.82rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+
+    a {
+      transition: color 0.3s ease;
+      &:hover {
+        color: #fff;
+      }
+    }
+  }
+
+  &__derecha {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    flex: 1;
+    gap: 1rem;
+  }
+
+  &__boton-acceso {
+    color: var(--color-texto) !important;
+    border: 1px solid rgba(255, 255, 255, 0.35) !important; 
+    border-radius: 2px !important; 
+    transition: all 0.3s ease;
+    padding: 0 16px;
+    
+    mat-icon {
+      margin-right: 6px;
+    }
+
+    &:hover {
+      border-color: #ffffff !important; 
+      color: #fff !important;
+      background: rgba(255, 255, 255, 0.08) !important; 
+    }
+  }
+
+  &__hamburguesa {
+    display: none;
+    color: var(--color-texto);
+  }
+}
+
+@media (max-width: 900px) {
+  .nav {
+    &__centro {
+      display: none; /* Esto oculta los enlaces del medio en pantallas pequeñas */
+    }
+    &__hamburguesa {
+      display: inline-flex;
+    }
+    &__links {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      flex-direction: column;
+      background: var(--color-fondo);
+      border-bottom: 1px solid var(--color-linea);
+      z-index: 10;
+      gap: 0;
+
+      a {
+        padding: 1rem clamp(1rem, 5vw, 4rem);
+        border-top: 1px solid var(--color-linea);
+      }
+      &--abierto {
+        display: flex;
+      }
+    }
+  }
+}
+
+// ============ Hero: banner principal ============
+.hero {
+  /* Fondo degradado sobre fune-landing.jpg */
+  background-image: 
+    linear-gradient(90deg, rgba(12, 12, 12, 0.95) 0%, rgba(12, 12, 12, 0.75) 45%, rgba(12, 12, 12, 0.1) 100%),
+    url('/assets/fune-landing.jpg');
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  
+  padding: clamp(3.5rem, 8vw, 6rem) clamp(1.5rem, 6vw, 5rem) clamp(4rem, 8vw, 6rem);
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; 
+}
+
+.hero__contenido {
+  max-width: 800px;
+}
+
+.hero__titulo {
+  font-size: clamp(2.5rem, 6vw, 4.2rem);
+  font-weight: 800;
+  line-height: 1.1;
+  color: #fff;
+  margin-bottom: 1.5rem;
+}
+
+.hero__subtitulo {
+  font-size: clamp(1.1rem, 2.2vw, 1.4rem);
+  color: var(--color-texto);
+  margin-bottom: 1rem;
+
+  p {
+    margin: 0 0 0.4rem;
+  }
+}
+
+.hero__regla {
+  height: 2px;
+  width: 100%;
+  max-width: 500px;
+  background: #fff;
+  margin: 1.5rem 0;
+}
+
+.hero__contacto {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  margin-bottom: 2.5rem;
+}
+
+.hero__linea {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  color: var(--color-texto);
+  font-size: 0.95rem;
+
+  a {
+    transition: color 0.2s ease;
+    &:hover {
+      color: #fff;
+      text-decoration: underline;
+    }
+  }
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: #fff;
+  }
+
+  &-separador-icono {
+    margin-left: 0.6rem;
+  }
+
+  .separador-guion {
+    margin: 0 0.2rem;
+    color: var(--color-texto-suave);
+  }
+
+  &-red {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+  }
+
+  /* Efecto enlace mapa */
+  &-mapa a:hover {
+    color: #fff;
+    text-decoration: underline;
+  }
+}
+
+.icono-red {
+  width: 18px !important;
+  height: 18px !important;
+  min-width: 18px !important;
+  flex-shrink: 0 !important;
+  fill: #ffffff !important;
+}
+
+.hero__cta {
+  margin-top: 0.5rem;
+}
+
+// ============ Botones Material ============
+.boton-whatsapp {
+  &, &.mat-mdc-unelevated-button {
+    background-color: var(--color-whatsapp) !important;
+    color: #0d1f13 !important;
+  }
+
+  &--fab.mat-mdc-mini-fab {
+    background-color: var(--color-whatsapp) !important;
+    color: #0d1f13 !important;
+  }
+}
+
+.boton-secundario {
+  &, &.mat-mdc-outlined-button {
+    border-color: var(--color-linea) !important;
+    color: var(--color-texto) !important;
+
+    &:hover {
+      border-color: #fff !important;
+      color: #fff !important;
+    }
+  }
+
+  &--fab.mat-mdc-mini-fab {
+    background-color: transparent !important;
+    color: var(--color-texto) !important;
+    border: 1px solid var(--color-linea);
+
+    &:hover {
+      border-color: #fff;
+      color: #fff !important;
+    }
+  }
+}
+
+// ============ Quiénes somos ============
+.quienes {
+  background: var(--color-panel);
+  padding: clamp(3rem, 6vw, 4.5rem) 1.5rem;
+
+  &__contenido {
+    max-width: 640px;
+    margin: 0 auto;
+
+    h2 {
+      font-size: 1.9rem;
+      margin-bottom: 1.25rem;
+    }
+
+    p {
+      color: var(--color-texto-suave);
+      margin: 0 0 1rem;
+    }
+  }
+}
+
+// ============ Servicios ============
+.servicios {
+  padding: clamp(3rem, 6vw, 5rem) 1.5rem;
+  max-width: 1000px;
+  margin: 0 auto;
+
+  &__titulo {
+    font-size: 1.9rem;
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+
+  &__grilla {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.25rem;
+  }
+}
+
+.servicio {
+  &.mat-mdc-card {
+    background: var(--color-panel) !important;
+    border: 1px solid var(--color-linea) !important;
+    box-shadow: none !important;
+    color: var(--color-texto);
+  }
+
+  &__icono {
+    color: #fff;
+    font-size: 26px;
+    width: 26px;
+    height: 26px;
+    margin-bottom: 0.75rem;
+  }
+
+  h3 {
+    font-size: 1.15rem;
+    margin-bottom: 0.5rem;
+  }
+
+  p {
+    color: var(--color-texto-suave);
+    margin: 0;
+    font-size: 0.95rem;
+  }
+}
+
+// ============ Contacto ============
+.contacto {
+  @include fondo-rayas(var(--color-panel));
+  padding: clamp(3rem, 6vw, 4.5rem) 1.5rem;
+  text-align: center;
+
+  h2 {
+    font-size: 1.9rem;
+    margin-bottom: 0.75rem;
+  }
+
+  &__intro {
+    color: var(--color-texto-suave);
+    max-width: 46ch;
+    margin: 0 auto 2.5rem;
+  }
+
+  &__lista {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  &__item.mat-mdc-card {
+    background: var(--color-fondo) !important;
+    border: 1px solid var(--color-linea) !important;
+    box-shadow: none !important;
+  }
+
+  &__contenido {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    text-align: left;
+    gap: 1rem;
+  }
+
+  &__numero {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--color-texto);
+
+    small {
+      display: block;
+      font-weight: 400;
+      font-size: 0.75rem;
+      color: var(--color-texto-suave);
+    }
+  }
+
+  &__botones {
+    display: flex;
+    gap: 0.5rem;
+    flex-shrink: 0;
+  }
+
+  &__ubicacion {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 2.5rem;
+    color: var(--color-texto-suave);
+    font-size: 0.95rem;
+
+    mat-icon {
+      color: #fff;
+    }
+
+    a {
+      transition: color 0.2s ease;
+      &:hover {
+        color: #fff;
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+// ============ Pie de página ============
+.pie {
+  text-align: center;
+  padding: 3rem 1.5rem 2.5rem;
+
+  &__redes {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+
+  &__red {
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: 1px solid var(--color-linea);
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      color: var(--color-texto-suave);
+    }
+
+    &:hover {
+      border-color: #fff;
+
+      mat-icon {
+        color: #fff;
+      }
+
+      .pie__svg {
+        fill: #fff;
+      }
+    }
+  }
+
+  &__svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    fill: var(--color-texto-suave);
+  }
+
+  &__texto {
+    color: var(--color-texto-suave);
+    font-size: 0.95rem;
+    margin: 0 0 0.4rem;
+  }
+
+  &__legal {
+    color: #6b6b6b;
+    font-size: 0.82rem;
+    margin: 0;
+  }
+}
+
+// ============ Responsive ============
+@media (max-width: 480px) {
+  .contacto__contenido {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .contacto__botones {
+    align-self: flex-end;
+  }
+
+  .nav__marca {
+    align-items: flex-start;
+  }
+}

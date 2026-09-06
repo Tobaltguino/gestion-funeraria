@@ -1,1 +1,173 @@
-<p>home works!</p>
+<div class="pagina">
+
+  <!-- ===== Nav ===== -->
+  <mat-toolbar class="nav">
+    <!-- Izquierda: Marca y Logo -->
+    <a routerLink="/" class="nav__marca">
+      <img src="assets/logo-funeraria.svg" alt="Logo A la luz de Cristo" class="nav__logo">
+    </a>
+
+    <!-- Centro: Enlaces de Navegación (Solo se verán en PC) -->
+    <div class="nav__centro">
+      <nav class="nav__links">
+        <a routerLink="/">Inicio</a>
+        <a routerLink="/" fragment="quienes">Sobre nosotros</a>
+        <a routerLink="/" fragment="servicios">Servicios</a>
+        <a routerLink="/" fragment="contacto">Contacto</a>
+      </nav>
+    </div>
+
+    <!-- Derecha: Acceso -->
+    <div class="nav__derecha">
+      <a mat-button routerLink="/login" class="nav__boton-acceso">
+        <mat-icon>person</mat-icon>
+        Acceso
+      </a>
+    </div>
+  </mat-toolbar>
+
+  <!-- ===== Hero: banner principal ===== -->
+  <section class="hero">
+    <div class="hero__contenido">
+      <h1 class="hero__titulo">Brindamos apoyo<br>en momentos difíciles</h1>
+
+      <div class="hero__subtitulo">
+        <p>Estamos disponibles 24 Hrs.</p>
+        <p>Calidez humana y asesoría especializada</p>
+      </div>
+
+      <div class="hero__regla"></div>
+
+      <div class="hero__contacto">
+        <p class="hero__linea">
+          <mat-icon>call</mat-icon>
+          <a [href]="enlaceLlamada(telefonoFijoLimpio)">{{ telefonoFijo }}</a>
+          <span class="separador-guion">-</span>
+          <ng-container *ngFor="let c of celulares; let last = last">
+            <mat-icon class="hero__linea-separador-icono">smartphone</mat-icon>
+            <a [href]="enlaceWhatsapp(c.numeroLimpio)" target="_blank" rel="noopener">{{ c.numero }}</a>
+            <span *ngIf="!last" class="separador-guion">-</span>
+          </ng-container>
+        </p>
+
+        <p class="hero__linea">
+          <a [href]="instagram.url" target="_blank" rel="noopener" class="hero__linea-red">
+            <svg viewBox="0 0 24 24" class="icono-red"><path d="M12 2.2c2.7 0 3 0 4 .1 1 .1 1.7.2 2.3.5.6.2 1.1.6 1.6 1.1.5.5.8 1 1.1 1.6.3.6.4 1.3.5 2.3.1 1 .1 1.3.1 4s0 3-.1 4c-.1 1-.2 1.7-.5 2.3-.2.6-.6 1.1-1.1 1.6-.5.5-1 .8-1.6 1.1-.6.3-1.3.4-2.3.5-1 .1-1.3.1-4 .1s-3 0-4-.1c-1-.1-1.7-.2-2.3-.5-.6-.2-1.1-.6-1.6-1.1-.5-.5-.8-1-1.1-1.6-.3-.6-.4-1.3-.5-2.3-.1-1-.1-1.3-.1-4s0-3 .1-4c.1-1 .2-1.7.5-2.3.2-.6.6-1.1 1.1-1.6.5-.5 1-.8 1.6-1.1.6-.3 1.3-.4 2.3-.5 1-.1 1.3-.1 4-.1Zm0 1.8c-2.6 0-2.9 0-4 .1-.8.1-1.3.2-1.6.3-.4.2-.7.3-1 .6-.3.3-.5.6-.6 1-.1.3-.3.8-.3 1.6-.1 1.1-.1 1.4-.1 4s0 2.9.1 4c.1.8.2 1.3.3 1.6.2.4.3.7.6 1 .3.3.6.5 1 .6.3.1.8.3 1.6.3 1.1.1 1.4.1 4 .1s2.9 0 4-.1c.8-.1 1.3-.2 1.6-.3.4-.2.7-.3 1-.6.3-.3.5-.6.6-1 .1-.3.3-.8.3-1.6.1-1.1.1-1.4.1-4s0-2.9-.1-4c-.1-.8-.2-1.3-.3-1.6-.2-.4-.3-.7-.6-1-.3-.3-.6-.5-1-.6-.3-.1-.8-.3-1.6-.3-1.1-.1-1.4-.1-4-.1Zm0 3.4a4.6 4.6 0 1 1 0 9.2 4.6 4.6 0 0 1 0-9.2Zm0 1.8a2.8 2.8 0 1 0 0 5.6 2.8 2.8 0 0 0 0-5.6Zm4.8-2a1.1 1.1 0 1 1 0 2.2 1.1 1.1 0 0 1 0-2.2Z"/></svg>
+            {{ instagram.usuario }}
+          </a>
+          <a [href]="facebook.url" target="_blank" rel="noopener" class="hero__linea-red">
+            <svg viewBox="0 0 24 24" class="icono-red"><path d="M13.5 21v-7.5H16l.4-3H13.5V8.4c0-.9.2-1.5 1.5-1.5H16.5V4.2C16.2 4.2 15.2 4 14 4c-2.4 0-4 1.5-4 4.1v2.4H7.5v3H10V21h3.5Z"/></svg>
+            {{ facebook.nombre }}
+          </a>
+          <a [href]="'mailto:' + correo" class="hero__linea-red">
+            <mat-icon>mail</mat-icon>
+            {{ correo }}
+          </a>
+        </p>
+
+        <p class="hero__linea hero__linea-mapa">
+          <mat-icon>location_on</mat-icon>
+          <a [href]="enlaceMapa()" target="_blank" rel="noopener">{{ direccion }}</a>
+        </p>
+      </div>
+
+      <a mat-flat-button class="boton-whatsapp hero__cta" [href]="enlaceWhatsapp(celulares[0].numeroLimpio)" target="_blank" rel="noopener">
+        Escribir por WhatsApp
+      </a>
+    </div>
+  </section>
+
+  <!-- ===== Quiénes somos ===== -->
+  <section class="quienes" id="quienes">
+    <div class="quienes__contenido">
+      <h2>Quiénes somos</h2>
+      <p>
+        Somos una funeraria familiar de Arica que lleva años acompañando a
+        nuestra comunidad. Creemos que despedir a un ser querido es también un
+        acto de fe y de amor, por eso trabajamos junto a cada familia,
+        respetando sus tiempos, sus creencias y su forma de recordar.
+      </p>
+      <p>
+        Nuestro equipo está disponible en todo momento para orientar, resolver
+        trámites y ocuparse de los detalles prácticos, de modo que ustedes
+        puedan concentrarse en acompañarse entre sí.
+      </p>
+    </div>
+  </section>
+
+  <!-- ===== Servicios ===== -->
+  <section class="servicios" id="servicios">
+    <h2 class="servicios__titulo">Nuestros servicios</h2>
+    <div class="servicios__grilla">
+      <mat-card class="servicio" *ngFor="let s of servicios" appearance="outlined">
+        <mat-card-content>
+          <mat-icon class="servicio__icono">{{ s.icono }}</mat-icon>
+          <h3>{{ s.titulo }}</h3>
+          <p>{{ s.descripcion }}</p>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </section>
+
+  <!-- ===== Contacto ===== -->
+  <section class="contacto" id="contacto">
+    <h2>Conversemos</h2>
+    <p class="contacto__intro">
+      Puede escribirnos o llamarnos a cualquier hora. Responderemos apenas
+      recibamos su mensaje.
+    </p>
+
+    <div class="contacto__lista">
+      <mat-card class="contacto__item" *ngFor="let c of celulares" appearance="outlined">
+        <mat-card-content class="contacto__contenido">
+          <span class="contacto__numero">{{ c.numero }}</span>
+          <div class="contacto__botones">
+            <a mat-mini-fab class="boton-whatsapp boton-whatsapp--fab" [href]="enlaceWhatsapp(c.numeroLimpio)" target="_blank" rel="noopener" [attr.aria-label]="'Escribir por WhatsApp a ' + c.numero">
+              <mat-icon>chat</mat-icon>
+            </a>
+            <a mat-mini-fab class="boton-secundario boton-secundario--fab" [href]="enlaceLlamada(c.numero)" [attr.aria-label]="'Llamar a ' + c.numero">
+              <mat-icon>call</mat-icon>
+            </a>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="contacto__item" appearance="outlined">
+        <mat-card-content class="contacto__contenido">
+          <span class="contacto__numero">{{ telefonoFijo }} <small>(oficina)</small></span>
+          <div class="contacto__botones">
+            <a mat-mini-fab class="boton-secundario boton-secundario--fab" [href]="enlaceLlamada(telefonoFijoLimpio)" aria-label="Llamar a la oficina">
+              <mat-icon>call</mat-icon>
+            </a>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <div class="contacto__ubicacion">
+      <mat-icon>location_on</mat-icon>
+      <a [href]="enlaceMapa()" target="_blank" rel="noopener">{{ direccion }}</a>
+    </div>
+  </section>
+
+  <!-- ===== Pie de página ===== -->
+  <footer class="pie">
+    <div class="pie__redes">
+      <a [href]="enlaceWhatsapp(celulares[0].numeroLimpio)" target="_blank" rel="noopener" aria-label="WhatsApp" class="pie__red">
+        <svg viewBox="0 0 24 24" class="pie__svg"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.1-1.3A10 10 0 1 0 12 2Zm5.7 14.2c-.2.7-1.4 1.3-2 1.4-.5.1-1.1.2-3.6-.8-3-1.2-4.9-4.2-5-4.4-.1-.2-1.2-1.6-1.2-3s.7-2.1 1-2.4c.3-.3.6-.4.8-.4h.6c.2 0 .4 0 .6.5.2.5.7 1.8.8 1.9.1.2.1.3 0 .5-.1.2-.1.3-.3.5l-.4.5c-.1.2-.3.4-.1.7.2.3.9 1.4 1.9 2.3 1.3 1.1 2.4 1.5 2.7 1.6.3.1.5.1.7-.1.2-.2.8-.9 1-1.2.2-.3.4-.2.7-.1.3.1 1.7.8 2 .9.3.2.5.2.6.4.1.2.1.9-.1 1.6Z"/></svg>
+      </a>
+      <a [href]="facebook.url" target="_blank" rel="noopener" aria-label="Facebook" class="pie__red">
+        <svg viewBox="0 0 24 24" class="pie__svg"><path d="M13.5 21v-7.5H16l.4-3H13.5V8.4c0-.9.2-1.5 1.5-1.5H16.5V4.2C16.2 4.2 15.2 4 14 4c-2.4 0-4 1.5-4 4.1v2.4H7.5v3H10V21h3.5Z"/></svg>
+      </a>
+      <a [href]="instagram.url" target="_blank" rel="noopener" aria-label="Instagram" class="pie__red">
+        <svg viewBox="0 0 24 24" class="pie__svg"><path d="M12 2.2c2.7 0 3 0 4 .1 1 .1 1.7.2 2.3.5.6.2 1.1.6 1.6 1.1.5.5.8 1 1.1 1.6.3.6.4 1.3.5 2.3.1 1 .1 1.3.1 4s0 3-.1 4c-.1 1-.2 1.7-.5 2.3-.2.6-.6 1.1-1.1 1.6-.5.5-1 .8-1.6 1.1-.6.3-1.3.4-2.3.5-1 .1-1.3.1-4 .1s-3 0-4-.1c-1-.1-1.7-.2-2.3-.5-.6-.2-1.1-.6-1.6-1.1-.5-.5-.8-1-1.1-1.6-.3-.6-.4-1.3-.5-2.3-.1-1-.1-1.3-.1-4s0-3 .1-4c.1-1 .2-1.7.5-2.3.2-.6.6-1.1 1.1-1.6.5-.5 1-.8 1.6-1.1.6-.3 1.3-.4 2.3-.5 1-.1 1.3-.1 4-.1Zm0 1.8c-2.6 0-2.9 0-4 .1-.8.1-1.3.2-1.6.3-.4.2-.7.3-1 .6-.3.3-.5.6-.6 1-.1.3-.3.8-.3 1.6-.1 1.1-.1 1.4-.1 4s0 2.9.1 4c.1.8.2 1.3.3 1.6.2.4.3.7.6 1 .3.3.6.5 1 .6.3.1.8.3 1.6.3 1.1.1 1.4.1 4 .1s2.9 0 4-.1c.8-.1 1.3-.2 1.6-.3.4-.2.7-.3 1-.6.3-.3.5-.6.6-1 .1-.3.3-.8.3-1.6.1-1.1.1-1.4.1-4s0-2.9-.1-4c-.1-.8-.2-1.3-.3-1.6-.2-.4-.3-.7-.6-1-.3-.3-.6-.5-1-.6-.3-.1-.8-.3-1.6-.3-1.1-.1-1.4-.1-4-.1Zm0 3.4a4.6 4.6 0 1 1 0 9.2 4.6 4.6 0 0 1 0-9.2Zm0 1.8a2.8 2.8 0 1 0 0 5.6 2.8 2.8 0 0 0 0-5.6Zm4.8-2a1.1 1.1 0 1 1 0 2.2 1.1 1.1 0 0 1 0-2.2Z"/></svg>
+      </a>
+      <a [href]="'mailto:' + correo" aria-label="Correo" class="pie__red">
+        <mat-icon>mail</mat-icon>
+      </a>
+    </div>
+    <p class="pie__texto">Funeraria A la Luz de Cristo &middot; Arica &middot; Calidez humana y asesoría especializada</p>
+    <p class="pie__legal">&copy; {{ anioActual }} A la Luz de Cristo. Todos los derechos reservados.</p>
+  </footer>
+
+</div>

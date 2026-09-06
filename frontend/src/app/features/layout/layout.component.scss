@@ -1,0 +1,154 @@
+/* Obliga al componente Layout a ocupar todo el espacio */
+:host {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
+.admin-container {
+  position: absolute;
+  top: 0; bottom: 0; left: 0; right: 0;
+  background-color: #f4f4f5; /* Gris muy claro para el área de trabajo */
+}
+
+/* ==========================================
+   BARRA LATERAL (SIDENAV)
+   ========================================== */
+.admin-sidenav {
+  width: 250px; 
+  background-color: #0c0c0c; 
+  color: #ffffff;
+  border-right: 1px solid rgba(255, 255, 255, 0.05); 
+}
+
+.sidenav-header {
+  height: 64px; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  padding: 0.5rem 1rem;
+
+  .sidenav-logo {
+    max-width: 90%; 
+    max-height: 45px; 
+    object-fit: contain; 
+  }
+}
+
+.admin-nav-list {
+  padding-top: 1rem !important;
+
+  .mdc-list-item {
+    margin: 4px 12px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+
+    /* AQUI FORZAMOS EL TEXTO BLANCO Y MÁS CHICO */
+    .mdc-list-item__primary-text,
+    [matListItemTitle],
+    span {
+      color: #ffffff !important; 
+      font-size: 0.85rem !important; /* Letra más chica (aprox 13.5px) */
+      font-weight: 400;
+      letter-spacing: 0.3px; /* Pequeño espaciado para mejor lectura */
+    }
+
+    .mat-icon {
+      color: #ffffff !important;
+      transform: scale(0.9); /* Achicamos ligeramente el ícono para que haga juego con el texto */
+    }
+
+    /* Efecto Hover */
+    &:hover {
+      background-color: rgba(255,255,255,0.1) !important;
+    }
+
+    /* Opción Activa (Ruta actual) */
+    &.active-link {
+      background-color: #ffffff !important;
+      
+      /* Cuando está activo, el texto se vuelve negro */
+      .mdc-list-item__primary-text,
+      [matListItemTitle],
+      span {
+        color: #000000 !important;
+        font-weight: 600;
+      }
+      .mat-icon { color: #000000 !important; }
+    }
+  }
+}
+
+/* ==========================================
+   ÁREA PRINCIPAL Y BARRA SUPERIOR
+   ========================================== */
+.admin-toolbar {
+  background-color: #0a0a0a; 
+  color: #ffffff; 
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+  position: relative;
+  z-index: 2;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+/* Botón de hamburguesa */
+.menu-btn {
+  color: #ffffff !important; 
+}
+
+/* Botón del usuario en la esquina superior derecha */
+.user-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  color: #ffffff !important; 
+  
+  .user-name {
+    margin: 0 4px;
+    font-size: 0.85rem; /* Achicamos el texto del administrador en la barra superior */
+  }
+}
+
+/* Menú desplegable al hacer clic en el usuario (blanco para que se lea bien) */
+.menu-profile-info {
+  padding: 16px;
+  outline: none;
+  
+  .profile-name {
+    margin: 0;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #111;
+  }
+  .profile-role {
+    margin: 4px 0 0;
+    font-size: 0.75rem;
+    color: #666;
+    letter-spacing: 1px;
+  }
+}
+
+/* Área donde irán las tablas y componentes hijos */
+.main-workspace {
+  padding: 2rem;
+  height: calc(100% - 64px);
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+/* Pantalla de carga */
+.loading-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #0c0c0c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}

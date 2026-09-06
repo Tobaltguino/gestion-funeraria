@@ -1,0 +1,98 @@
+.dialog-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #111111;
+  margin-bottom: 0;
+  padding-bottom: 0.5rem;
+}
+
+.dialog-content {
+  padding-top: 0.5rem !important;
+}
+
+.dialog-subtitle {
+  color: #666666;
+  font-size: 0.95rem;
+  margin-bottom: 1.5rem;
+}
+
+.w-100 {
+  width: 100% !important;
+  display: block;
+}
+
+.dialog-actions {
+  padding: 1rem 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+/* ==========================================
+   BOTONES
+   ========================================== */
+.btn-submit {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  font-weight: 500;
+  border-radius: 4px;
+
+  &:hover:not([disabled]) {
+    background-color: #333333 !important;
+  }
+}
+
+/* Solución al botón invisible */
+.btn-cancelar {
+  color: #555555 !important; /* Gris oscuro para que contraste con el fondo blanco */
+  font-weight: 500;
+  margin-right: 8px;
+  
+  &:hover {
+    color: #000000 !important;
+    background-color: #f5f5f5 !important;
+  }
+}
+
+/* ==========================================
+   ALERTAS
+   ========================================== */
+.alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.8rem;
+  padding: 1rem;
+  border-radius: 6px;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+  line-height: 1.4;
+
+  mat-icon { font-size: 22px; width: 22px; height: 22px; }
+  p { margin: 0; }
+}
+.alert-success { background-color: #e6f4ea; color: #137333; border: 1px solid #ceead6; }
+.alert-error { background-color: #fce8e6; color: #c5221f; border: 1px solid #fad2cf; }
+
+/* ==========================================
+   FORZAR MATERIAL AL FONDO BLANCO DEL MODAL
+   ========================================== */
+::ng-deep .modal-input {
+  /* Separación para que el ícono no aplaste la letra */
+  .mat-mdc-form-field-icon-prefix { 
+    color: #555555 !important; 
+    padding-right: 12px !important; 
+  }
+  
+  .mdc-text-field--outlined { background-color: #fafafa !important; }
+  .mat-mdc-input-element { color: #000000 !important; }
+  
+  .mdc-notched-outline__leading,
+  .mdc-notched-outline__notch,
+  .mdc-notched-outline__trailing { border-color: #cccccc !important; }
+  
+  .mdc-text-field--focused .mdc-notched-outline__leading,
+  .mdc-text-field--focused .mdc-notched-outline__notch,
+  .mdc-text-field--focused .mdc-notched-outline__trailing { border-color: #000000 !important; }
+  
+  .mdc-floating-label { color: #666666 !important; }
+  .mdc-text-field--focused .mdc-floating-label { color: #000000 !important; }
+}

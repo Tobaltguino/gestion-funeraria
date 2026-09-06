@@ -1,1 +1,56 @@
-<p>login works!</p>
+<div class="login-wrapper">
+  
+  <!-- Botón sutil para volver a la página principal -->
+  <a routerLink="/" class="back-btn">
+    <mat-icon>arrow_back</mat-icon>
+    Volver al inicio
+  </a>
+
+  <!-- Tarjeta Central Elegante -->
+  <mat-card class="login-card" appearance="outlined">
+    
+    <div class="login-header">
+      <img src="assets/logo-funeraria.svg" alt="A la Luz de Cristo" class="login-logo">
+      <h1 class="login-title">Portal Administrativo</h1>
+      <p class="login-subtitle">Ingrese sus credenciales para acceder al sistema</p>
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+      
+      <!-- Campo RUT -->
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>RUT del Usuario</mat-label>
+        <mat-icon matPrefix>badge</mat-icon>
+        <input matInput formControlName="rut" placeholder="Ej: 12.345.678-9">
+      </mat-form-field>
+
+      <!-- Campo Contraseña -->
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Contraseña</mat-label>
+        <mat-icon matPrefix>lock</mat-icon>
+        <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password">
+        <button mat-icon-button matSuffix type="button" (click)="hidePassword = !hidePassword">
+          <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+        </button>
+      </mat-form-field>
+
+      <!-- Opciones adicionales (Recordar y Olvidé contraseña) -->
+      <div class="form-options">
+        <mat-checkbox formControlName="recordar">Recordar mi RUT</mat-checkbox>
+        
+        <a href="#" class="forgot-password" (click)="abrirRecuperarPassword($event)">
+          ¿Olvidó su contraseña?
+        </a>
+      </div>
+
+      <!-- Botón de Envío -->
+      <button mat-flat-button class="btn-submit w-100" type="submit" [disabled]="loginForm.invalid || loading">
+        <span *ngIf="!loading">Ingresar al Sistema</span>
+        <mat-spinner *ngIf="loading" diameter="24" color="accent"></mat-spinner>
+      </button>
+
+    </form>
+    
+  </mat-card>
+
+</div>

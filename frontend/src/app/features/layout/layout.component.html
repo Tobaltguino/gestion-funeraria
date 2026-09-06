@@ -1,1 +1,61 @@
-<p>layout works!</p>
+<mat-sidenav-container class="admin-container" *ngIf="!cargando">
+  
+  <!-- Barra Lateral (Menú) -->
+  <mat-sidenav #sidenav mode="side" opened class="admin-sidenav">
+    <div class="sidenav-header">
+      <img src="assets/logo-funeraria.svg" alt="Logo" class="sidenav-logo">
+    </div>
+
+    <mat-nav-list class="admin-nav-list">
+      <!-- Generación dinámica de los enlaces según el rol -->
+      <a mat-list-item *ngFor="let opcion of menuFiltrado" [routerLink]="opcion.ruta" routerLinkActive="active-link">
+        <mat-icon matListItemIcon>{{ opcion.icono }}</mat-icon>
+        <span matListItemTitle>{{ opcion.titulo }}</span>
+      </a>
+    </mat-nav-list>
+  </mat-sidenav>
+
+  <!-- Contenido Principal -->
+  <mat-sidenav-content class="admin-content">
+    
+    <!-- Barra Superior -->
+    <mat-toolbar class="admin-toolbar">
+      <button mat-icon-button (click)="sidenav.toggle()" class="menu-btn">
+        <mat-icon>menu</mat-icon>
+      </button>
+
+      <span class="spacer"></span>
+
+      <!-- Menú de Usuario -->
+      <button mat-button [matMenuTriggerFor]="userMenu" class="user-btn">
+        <mat-icon>account_circle</mat-icon>
+        <span class="user-name">{{ usuarioActual?.nombre || 'Usuario' }}</span>
+        <mat-icon>arrow_drop_down</mat-icon>
+      </button>
+
+      <mat-menu #userMenu="matMenu">
+        <div class="menu-profile-info">
+          <p class="profile-name">{{ usuarioActual?.nombre }}</p>
+          <p class="profile-role">{{ usuarioActual?.rol | uppercase }}</p>
+        </div>
+        <mat-divider></mat-divider>
+        <button mat-menu-item (click)="cerrarSesion()">
+          <mat-icon>logout</mat-icon>
+          <span>Cerrar Sesión</span>
+        </button>
+      </mat-menu>
+    </mat-toolbar>
+
+    <!-- Área de visualización de los componentes hijos -->
+    <main class="main-workspace">
+      <router-outlet></router-outlet>
+    </main>
+
+  </mat-sidenav-content>
+
+</mat-sidenav-container>
+
+<!-- Spinner de carga inicial -->
+<div class="loading-overlay" *ngIf="cargando">
+  <mat-spinner diameter="40"></mat-spinner>
+</div>

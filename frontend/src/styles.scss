@@ -1,1 +1,177 @@
-/* You can add global styles to this file, and also import other style files */
+@import '@angular/material/prebuilt-themes/deeppurple-amber.css';
+
+/* ==========================================
+   1. VARIABLES GLOBALES (Tokens de Diseño)
+   ========================================== */
+:root {
+  /* Colores base (Tema Oscuro/Elegante) */
+  --color-fondo: #0c0c0c;
+  --color-panel: #151515;
+  --color-texto: #f4f2ee;
+  --color-texto-suave: #b4afa6;
+  --color-linea: #2c2c2c;
+  
+  /* Colores de marca */
+  --color-brand: #ffffff; /* Blanco principal para contrastar en fondo negro */
+  --color-brand-contrast: #000000; /* Texto negro sobre botones blancos */
+  --color-whatsapp: #25d366;
+  --color-enlace: #0056b3;
+
+  /* Tipografías */
+  --fuente-titulo: 'Playfair Display', Georgia, serif;
+  --fuente-texto: 'PT Serif', Georgia, serif;
+}
+
+/* ==========================================
+   2. ESTILOS BASE (HTML, Body, Reseteos)
+   ========================================== */
+html, body {
+  height: 100%;
+  margin: 0;
+  background-color: var(--color-fondo);
+  color: var(--color-texto);
+  font-family: var(--fuente-texto);
+  line-height: 1.6;
+}
+
+/* Esto obliga al contenedor principal de Angular a ocupar toda la pantalla */
+app-root {
+  display: block;
+  height: 100vh;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--fuente-titulo);
+  margin: 0;
+}
+
+/* ==========================================
+   3. ANGULAR MATERIAL GLOBALES (Sobrescritura)
+   ========================================== */
+
+/* --- BOTONES --- */
+.mat-mdc-button-base {
+  font-family: var(--fuente-texto) !important;
+  letter-spacing: 0.5px;
+  border-radius: 4px !important; /* Bordes rectos y elegantes */
+}
+
+/* Botones Principales (Flat / Raised) */
+.mat-mdc-flat-button, 
+.mat-mdc-raised-button {
+  background-color: var(--color-brand) !important;
+  color: var(--color-brand-contrast) !important;
+  
+  &:hover:not([disabled]) {
+    background-color: #e0e0e0 !important;
+  }
+  
+  &[disabled] {
+    background-color: #333333 !important;
+    color: #777777 !important;
+  }
+}
+
+/* Botones Secundarios (Outlined) */
+.mat-mdc-outlined-button {
+  border-color: var(--color-linea) !important;
+  color: var(--color-texto) !important;
+
+  &:hover:not([disabled]) {
+    border-color: var(--color-brand) !important;
+    color: var(--color-brand) !important;
+  }
+}
+
+/* --- INPUTS (Entry / Text Fields) --- */
+.mat-mdc-form-field {
+  width: 100%;
+  
+  /* Fondo del input */
+  .mdc-text-field--outlined {
+    background-color: var(--color-panel) !important;
+  }
+  
+  /* Color de los bordes por defecto */
+  .mdc-notched-outline__leading,
+  .mdc-notched-outline__notch,
+  .mdc-notched-outline__trailing {
+    border-color: var(--color-linea) !important;
+    border-width: 1px !important;
+  }
+  
+  /* Color del borde al hacer click (Focus) */
+  .mdc-text-field--focused .mdc-notched-outline__leading,
+  .mdc-text-field--focused .mdc-notched-outline__notch,
+  .mdc-text-field--focused .mdc-notched-outline__trailing {
+    border-color: var(--color-brand) !important;
+  }
+
+  /* Color del texto y el placeholder */
+  .mat-mdc-input-element,
+  .mat-mdc-select-value-text {
+    color: var(--color-texto) !important;
+    
+    &::placeholder {
+      color: var(--color-texto-suave) !important;
+    }
+  }
+
+  /* Etiqueta superior (Label) */
+  .mdc-floating-label {
+    color: var(--color-texto-suave) !important;
+  }
+  .mdc-text-field--focused .mdc-floating-label {
+    color: var(--color-brand) !important;
+  }
+
+  /* Iconos dentro del input (Prefix / Suffix) */
+  .mat-mdc-form-field-icon-prefix,
+  .mat-mdc-form-field-icon-suffix {
+    color: var(--color-texto-suave) !important;
+  }
+}
+
+/* --- SELECTS (Listas desplegables) --- */
+.mat-mdc-select-panel {
+  background-color: var(--color-panel) !important;
+  border: 1px solid var(--color-linea);
+  
+  .mat-mdc-option {
+    color: var(--color-texto) !important;
+    
+    &:hover, &.mdc-list-item--selected {
+      background-color: rgba(255, 255, 255, 0.05) !important; /* Resalte suave */
+      color: var(--color-brand) !important;
+    }
+  }
+}
+
+/* --- CHECKBOXES --- */
+.mat-mdc-checkbox {
+  /* Color del borde sin marcar */
+  .mdc-checkbox__unselected-icon {
+    border-color: var(--color-texto-suave) !important;
+  }
+
+  /* Color de fondo y borde cuando está marcado */
+  .mdc-checkbox--selected .mdc-checkbox__native-control:enabled ~ .mdc-checkbox__background {
+    background-color: var(--color-brand) !important;
+    border-color: var(--color-brand) !important;
+  }
+
+  /* Color del "ticket" (checkmark) interior */
+  .mdc-checkbox__checkmark-path {
+    stroke: var(--color-brand-contrast) !important;
+  }
+
+  /* Color del texto al lado del checkbox */
+  .mdc-label {
+    color: var(--color-texto) !important;
+  }
+}

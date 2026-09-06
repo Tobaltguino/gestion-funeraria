@@ -1,0 +1,39 @@
+<h2 mat-dialog-title class="dialog-title">Recuperar Acceso</h2>
+
+<mat-dialog-content class="dialog-content">
+  <p class="dialog-subtitle" *ngIf="!mensajeExito">
+    Ingrese su RUT y le enviaremos un enlace seguro a su correo electrónico.
+  </p>
+
+  <!-- Mensajes de Alerta -->
+  <div class="alert alert-success" *ngIf="mensajeExito">
+    <mat-icon>check_circle</mat-icon>
+    <p>{{ mensajeExito }}</p>
+  </div>
+
+  <div class="alert alert-error" *ngIf="mensajeError">
+    <mat-icon>error</mat-icon>
+    <p>{{ mensajeError }}</p>
+  </div>
+
+  <!-- Formulario -->
+  <form [formGroup]="recuperarForm" (ngSubmit)="onSubmit()" *ngIf="!mensajeExito">
+    <mat-form-field appearance="outline" class="w-100 modal-input">
+      <mat-label>RUT del Usuario</mat-label>
+      <mat-icon matPrefix>badge</mat-icon>
+      <input matInput formControlName="rut" placeholder="Ej: 12.345.678-9">
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="dialog-actions">
+  <!-- Agregamos la clase btn-cancelar aquí -->
+  <button mat-button class="btn-cancelar" type="button" (click)="cerrar()" [disabled]="loading">
+    {{ mensajeExito ? 'Cerrar' : 'Cancelar' }}
+  </button>
+  
+  <button mat-flat-button class="btn-submit" type="button" (click)="onSubmit()" *ngIf="!mensajeExito" [disabled]="recuperarForm.invalid || loading">
+    <span *ngIf="!loading">Enviar instrucciones</span>
+    <mat-spinner *ngIf="loading" diameter="20" color="accent"></mat-spinner>
+  </button>
+</mat-dialog-actions>
