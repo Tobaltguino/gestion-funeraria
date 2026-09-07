@@ -1,1 +1,99 @@
-<p>carrozas works!</p>
+<div class="page-container">
+  
+  <div class="page-header">
+    <div class="header-title">
+      <h2>Flota de Carrozas</h2>
+      <p class="subtitle">Gestión de vehículos fúnebres y su estado.</p>
+    </div>
+    
+    <button mat-flat-button class="btn-crear-verde" *ngIf="esAdmin" (click)="abrirDialogoCarroza()">
+      <mat-icon>add_box</mat-icon>
+      Nueva Carroza
+    </button>
+  </div>
+
+  <div class="loading-container" *ngIf="cargando">
+    <mat-spinner diameter="50"></mat-spinner>
+  </div>
+
+  <div class="table-container" *ngIf="!cargando">
+    <table mat-table [dataSource]="carrozas" class="w-100">
+
+      <ng-container matColumnDef="imagen">
+        <th mat-header-cell *matHeaderCellDef> Imagen </th>
+        <td mat-cell *matCellDef="let carroza">
+          <img *ngIf="carroza.imagenes && carroza.imagenes.length > 0; else noImage" 
+               [src]="carroza.imagenes[0]" 
+               class="tabla-thumbnail" 
+               alt="Foto de {{ carroza.marca }}">
+          <ng-template #noImage>
+            <div class="tabla-thumbnail no-image">
+              <mat-icon>directions_car</mat-icon>
+            </div>
+          </ng-template>
+        </td>
+      </ng-container>
+
+      <!-- Columna Vehículo combinada (Marca, Modelo y Color) -->
+      <ng-container matColumnDef="vehiculo">
+        <th mat-header-cell *matHeaderCellDef> Vehículo </th>
+        <td mat-cell *matCellDef="let carroza"> 
+          <span style="font-weight: 500; display: block;">{{ carroza.marca }} {{ carroza.modelo }}</span>
+          <span style="font-size: 0.85rem; color: #666;">Color: {{ carroza.color }}</span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="patente">
+        <th mat-header-cell *matHeaderCellDef> Patente </th>
+        <td mat-cell *matCellDef="let carroza"> 
+          <span style="background: #eee; padding: 4px 8px; border-radius: 4px; font-family: monospace; font-weight: bold; border: 1px solid #ccc;">
+            {{ carroza.patente | uppercase }}
+          </span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="estado">
+        <th mat-header-cell *matHeaderCellDef> Estado </th>
+        <td mat-cell *matCellDef="let carroza">
+          <span class="stock-badge" 
+                [ngStyle]="{
+                  'background-color': carroza.estado === 'Disponible' ? '#e8f5e9' : (carroza.estado === 'Mantenimiento' ? '#ffebee' : '#fff3e0'),
+                  'color': carroza.estado === 'Disponible' ? '#2e7d32' : (carroza.estado === 'Mantenimiento' ? '#c62828' : '#ef6c00')
+                }">
+            {{ carroza.estado }}
+          </span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="acciones">
+        <th mat-header-cell *matHeaderCellDef class="text-center"> Acciones </th>
+        <td mat-cell *matCellDef="let carroza" class="acciones-cell text-center">
+          
+          <button mat-icon-button color="primary" matTooltip="Ver Detalles y Fotos" (click)="abrirVisor(carroza)">
+            <mat-icon>visibility</mat-icon>
+          </button>
+
+          <ng-container *ngIf="esAdmin">
+            <button mat-icon-button class="btn-editar-amarillo" matTooltip="Editar Carroza" (click)="abrirDialogoCarroza(carroza)">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button class="btn-eliminar-rojo" matTooltip="Eliminar Carroza" (click)="eliminarCarroza(carroza)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </ng-container>
+          
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="columnasMostrar"></tr>
+      <tr mat-row *matRowDef="let row; columns: columnasMostrar;"></tr>
+      
+      <tr class="mat-row" *matNoDataRow>
+        <td class="mat-cell" colspan="5" style="text-align: center; padding: 3rem;">
+          <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: #ccc;">directions_car</mat-icon>
+          <p style="margin-top: 10px; color: #666;">No hay carrozas registradas en la flota.</p>
+        </td>
+      </tr>
+    </table>
+  </div>
+</div>

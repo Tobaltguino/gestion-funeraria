@@ -1,0 +1,52 @@
+<div class="visor-header">
+  <h2 mat-dialog-title class="dialog-title">{{ carroza.marca }} {{ carroza.modelo }}</h2>
+  <button mat-icon-button (click)="cerrarDialogo()">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+
+<mat-dialog-content class="dialog-content">
+  <div class="visor-info-rapida">
+    <div class="info-item" style="margin-bottom: 8px;">
+      <mat-icon>directions_car</mat-icon>
+      <span>Patente: <strong style="text-transform: uppercase;">{{ carroza.patente }}</strong></span>
+    </div>
+    <div class="info-item">
+      <mat-icon>palette</mat-icon>
+      <span>Color: <strong>{{ carroza.color }}</strong></span>
+    </div>
+  </div>
+
+  <h3 class="visor-gallery-title">Galería de Imágenes ({{ carroza.imagenes.length }})</h3>
+  
+  <div class="visor-gallery-grid" *ngIf="carroza.imagenes && carroza.imagenes.length > 0; else noFotos">
+    <div class="visor-thumbnail" *ngFor="let url of carroza.imagenes; let i = index" (click)="abrirImagenGrande(i)">
+      <img [src]="url" alt="Foto Carroza">
+      <div class="hover-overlay"><mat-icon>zoom_in</mat-icon></div>
+    </div>
+  </div>
+
+  <ng-template #noFotos>
+    <div class="visor-no-image">
+      <mat-icon>image_not_supported</mat-icon>
+      <p>No hay fotografías registradas.</p>
+    </div>
+  </ng-template>
+</mat-dialog-content>
+
+<!-- LIGHTBOX GLOBAL -->
+<div class="lightbox-overlay" *ngIf="imagenPantallaCompletaIndex !== -1" (click)="cerrarImagenGrande()">
+  <button mat-icon-button class="lightbox-btn-close" (click)="cerrarImagenGrande()">
+    <mat-icon>close</mat-icon>
+  </button>
+  <button mat-icon-button class="lightbox-nav-btn prev" (click)="imagenAnterior($event)" *ngIf="carroza.imagenes.length > 1">
+    <mat-icon>chevron_left</mat-icon>
+  </button>
+  <img [src]="carroza.imagenes[imagenPantallaCompletaIndex]" class="lightbox-image" (click)="$event.stopPropagation()">
+  <button mat-icon-button class="lightbox-nav-btn next" (click)="imagenSiguiente($event)" *ngIf="carroza.imagenes.length > 1">
+    <mat-icon>chevron_right</mat-icon>
+  </button>
+  <div class="lightbox-counter">
+    {{ imagenPantallaCompletaIndex + 1 }} / {{ carroza.imagenes.length }}
+  </div>
+</div>

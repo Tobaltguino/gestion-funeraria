@@ -15,7 +15,7 @@
   </div>
 
   <!-- Galería de Miniaturas -->
-  <h3 class="visor-gallery-title">Galería de Imágenes ({{ urna.imagenes?.length || 0 }})</h3>
+  <h3 class="visor-gallery-title">Galería de Imágenes ({{ urna.imagenes.length }})</h3>
   
   <div class="visor-gallery-grid" *ngIf="urna.imagenes && urna.imagenes.length > 0; else noFotos">
     <div class="visor-thumbnail" *ngFor="let url of urna.imagenes; let i = index" (click)="abrirImagenGrande(i)">
@@ -52,6 +52,6 @@
   </button>
   
   <div class="lightbox-counter">
-    {{ imagenPantallaCompletaIndex + 1 }} / {{ urna.imagenes?.length }}
+    {{ imagenPantallaCompletaIndex + 1 }} / {{ urna.imagenes.length }}
   </div>
 </div>

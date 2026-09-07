@@ -61,6 +61,8 @@ export class UrnasComponent implements OnInit {
 
   async cargarUrnas() {
     this.cargando = true;
+    this.cdr.detectChanges();
+    
     try {
       this.urnas = await this.urnaService.obtenerUrnas();
     } catch (error) {

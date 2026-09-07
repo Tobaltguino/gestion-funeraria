@@ -1,0 +1,87 @@
+<h2 mat-dialog-title>{{ esEdicion ? 'Editar Carroza' : 'Registrar Nueva Carroza' }}</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="carrozaForm" class="dialog-form">
+    
+    <!-- Fila 1: Marca y Modelo -->
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Marca</mat-label>
+        <input matInput formControlName="marca" placeholder="Ej: Lincoln">
+        <mat-error *ngIf="carrozaForm.get('marca')?.hasError('required')">Requerido</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Modelo</mat-label>
+        <input matInput formControlName="modelo" placeholder="Ej: Continental">
+        <mat-error *ngIf="carrozaForm.get('modelo')?.hasError('required')">Requerido</mat-error>
+      </mat-form-field>
+    </div>
+
+    <!-- Fila 2: Color, Patente y Estado -->
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Color</mat-label>
+        <input matInput formControlName="color" placeholder="Ej: Negro">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Patente</mat-label>
+        <input matInput formControlName="patente" placeholder="AB-CD-12" style="text-transform: uppercase;">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Estado</mat-label>
+        <mat-select formControlName="estado">
+          <mat-option *ngFor="let estado of estados" [value]="estado">
+            {{ estado }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <!-- SECCIÓN IMÁGENES -->
+    <div class="image-gallery-container mt-3">
+      <span class="gallery-label">Fotografías del Vehículo</span>
+      
+      <!-- Input oculto para subir archivos -->
+      <input type="file" #fileInput multiple accept="image/*" (change)="onFileSelected($event)" style="display: none;">
+
+      <div class="gallery-grid">
+        
+        <!-- 1. Imágenes Actuales (Edición) -->
+        <div class="gallery-item" *ngFor="let img of imagenesActuales; let i = index">
+          <img [src]="img" alt="Foto Actual">
+          <button type="button" class="btn-remove" (click)="removerImagenActual(i)">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+
+        <!-- 2. Nuevas Imágenes (Con clase 'new-image') -->
+        <div class="gallery-item new-image" *ngFor="let item of nuevosArchivos; let i = index">
+          <img [src]="item.preview" alt="Nueva foto">
+          <button type="button" class="btn-remove" (click)="removerNuevaImagen(i)">
+            <mat-icon>close</mat-icon>
+          </button>
+          <span class="badge-new">Nueva</span>
+        </div>
+
+        <!-- 3. Botón de Agregar (Aparecerá a la derecha/al final) -->
+        <div class="gallery-add-btn" (click)="fileInput.click()">
+          <mat-icon>add_photo_alternate</mat-icon>
+          <span>Subir Fotos</span>
+        </div>
+
+      </div>
+    </div>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button class="btn-cancelar" (click)="cerrar()" [disabled]="guardando">Cancelar</button>
+  <button mat-flat-button color="primary" (click)="guardar()" [disabled]="carrozaForm.invalid || guardando">
+    <mat-icon *ngIf="!guardando">save</mat-icon>
+    <mat-spinner *ngIf="guardando" diameter="20" style="margin-right: 8px;"></mat-spinner>
+    {{ guardando ? 'Guardando...' : 'Guardar' }}
+  </button>
+</mat-dialog-actions>
