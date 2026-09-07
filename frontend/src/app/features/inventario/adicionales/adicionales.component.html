@@ -1,1 +1,86 @@
-<p>adicionales works!</p>
+<div class="page-container">
+  
+  <div class="page-header">
+    <div class="header-title">
+      <h2>Catálogo de Adicionales</h2>
+      <p class="subtitle">Gestión de servicios y productos complementarios.</p>
+    </div>
+    
+    <button mat-flat-button class="btn-crear-verde" *ngIf="esAdmin" (click)="abrirDialogoAdicional()">
+      <mat-icon>add_box</mat-icon>
+      Nuevo Adicional
+    </button>
+  </div>
+
+  <div class="loading-container" *ngIf="cargando">
+    <mat-spinner diameter="50"></mat-spinner>
+  </div>
+
+  <div class="table-container" *ngIf="!cargando">
+    <table mat-table [dataSource]="adicionales" class="w-100">
+
+      <!-- Columna: Imagen (NUEVA) -->
+      <ng-container matColumnDef="imagen">
+        <th mat-header-cell *matHeaderCellDef> Imagen </th>
+        <td mat-cell *matCellDef="let ad">
+          <img *ngIf="ad.imagenes && ad.imagenes.length > 0; else noImage" 
+               [src]="ad.imagenes[0]" 
+               class="tabla-thumbnail" 
+               alt="Foto de {{ ad.nombre }}">
+          <ng-template #noImage>
+            <div class="tabla-thumbnail no-image">
+              <mat-icon>post_add</mat-icon>
+            </div>
+          </ng-template>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="nombre">
+        <th mat-header-cell *matHeaderCellDef> Nombre / Servicio </th>
+        <td mat-cell *matCellDef="let ad" style="font-weight: 500;"> 
+          {{ ad.nombre }} 
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="categoria">
+        <th mat-header-cell *matHeaderCellDef> Categoría </th>
+        <td mat-cell *matCellDef="let ad"> 
+          <span style="background: #e3f2fd; padding: 4px 10px; border-radius: 6px; color: #1565c0; font-weight: 500; font-size: 0.85rem;">
+            {{ ad.categoria }}
+          </span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="acciones">
+        <th mat-header-cell *matHeaderCellDef class="text-center"> Acciones </th>
+        <td mat-cell *matCellDef="let ad" class="acciones-cell text-center">
+          
+          <!-- Botón de Visor (NUEVO) -->
+          <button mat-icon-button color="primary" matTooltip="Ver Detalles y Fotos" (click)="abrirVisor(ad)">
+            <mat-icon>visibility</mat-icon>
+          </button>
+
+          <ng-container *ngIf="esAdmin">
+            <button mat-icon-button class="btn-editar-amarillo" matTooltip="Editar Adicional" (click)="abrirDialogoAdicional(ad)">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button class="btn-eliminar-rojo" matTooltip="Eliminar Adicional" (click)="eliminarAdicional(ad)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </ng-container>
+          
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="columnasMostrar"></tr>
+      <tr mat-row *matRowDef="let row; columns: columnasMostrar;"></tr>
+      
+      <tr class="mat-row" *matNoDataRow>
+        <td class="mat-cell" colspan="4" style="text-align: center; padding: 3rem;">
+          <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: #ccc;">post_add</mat-icon>
+          <p style="margin-top: 10px; color: #666;">No hay servicios adicionales registrados.</p>
+        </td>
+      </tr>
+    </table>
+  </div>
+</div>

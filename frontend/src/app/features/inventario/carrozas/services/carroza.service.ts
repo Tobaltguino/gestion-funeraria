@@ -20,7 +20,6 @@ export class CarrozaService {
       .from('carrozas')
       .select('*')
       .is('fecha_eliminacion', null)
-      .eq('eliminado', false) // Aprovechamos tu columna booleana
       .order('marca', { ascending: true }); // Ordenamos por marca
 
     if (error) throw error;
@@ -54,7 +53,6 @@ export class CarrozaService {
     const { error } = await this.supabase
       .from('carrozas')
       .update({ 
-        eliminado: true,
         fecha_eliminacion: new Date().toISOString() 
       })
       .eq('id', id);

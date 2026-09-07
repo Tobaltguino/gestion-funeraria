@@ -12,7 +12,6 @@ export interface Carroza {
   patente: string;
   estado: CarrozaEstado;
   imagenes: string[];
-  eliminado?: boolean;
   fecha_eliminacion?: string | null;
   fecha_creada?: string;
   fecha_actualizada?: string;

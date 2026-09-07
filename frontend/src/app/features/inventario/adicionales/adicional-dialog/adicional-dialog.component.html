@@ -1,0 +1,79 @@
+<h2 mat-dialog-title>{{ esEdicion ? 'Editar Adicional' : 'Registrar Nuevo Adicional' }}</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="adicionalForm" class="dialog-form">
+    
+    <!-- Fila 1: Nombre y Categoría -->
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Nombre / Servicio</mat-label>
+        <input matInput formControlName="nombre" placeholder="Ej: Arreglo Floral Base">
+        <mat-error *ngIf="adicionalForm.get('nombre')?.hasError('required')">Requerido</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Categoría</mat-label>
+        <input matInput formControlName="categoria" placeholder="Ej: Flores">
+        <mat-error *ngIf="adicionalForm.get('categoria')?.hasError('required')">Requerido</mat-error>
+      </mat-form-field>
+    </div>
+
+    <!-- Fila 2: Precios -->
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Precio Costo</mat-label>
+        <span matTextPrefix>$&nbsp;</span>
+        <input matInput type="number" formControlName="precio_costo" min="0">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Precio Venta</mat-label>
+        <span matTextPrefix>$&nbsp;</span>
+        <input matInput type="number" formControlName="precio_venta" min="0">
+      </mat-form-field>
+    </div>
+
+    <!-- SECCIÓN IMÁGENES -->
+    <div class="image-gallery-container mt-3">
+      <span class="gallery-label">Fotografías del Adicional</span>
+      
+      <input type="file" #fileInput multiple accept="image/*" (change)="onFileSelected($event)" style="display: none;">
+
+      <div class="gallery-grid">
+        
+        <!-- Imágenes Actuales -->
+        <div class="gallery-item" *ngFor="let img of imagenesActuales; let i = index">
+          <img [src]="img" alt="Foto Actual">
+          <button type="button" class="btn-remove" (click)="removerImagenActual(i)">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+
+        <!-- Nuevas Imágenes -->
+        <div class="gallery-item new-image" *ngFor="let item of nuevosArchivos; let i = index">
+          <img [src]="item.preview" alt="Nueva foto">
+          <button type="button" class="btn-remove" (click)="removerNuevaImagen(i)">
+            <mat-icon>close</mat-icon>
+          </button>
+          <span class="badge-new">Nueva</span>
+        </div>
+
+        <!-- Botón Agregar -->
+        <div class="gallery-add-btn" (click)="fileInput.click()">
+          <mat-icon>add_photo_alternate</mat-icon>
+          <span>Subir Fotos</span>
+        </div>
+
+      </div>
+    </div>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button class="btn-cancelar" (click)="cerrar()" [disabled]="guardando">Cancelar</button>
+  <button mat-flat-button color="primary" (click)="guardar()" [disabled]="adicionalForm.invalid || guardando">
+    <mat-icon *ngIf="!guardando">save</mat-icon>
+    <mat-spinner *ngIf="guardando" diameter="20" style="margin-right: 8px;"></mat-spinner>
+    {{ guardando ? 'Guardando...' : 'Guardar' }}
+  </button>
+</mat-dialog-actions>
