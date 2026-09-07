@@ -1,0 +1,91 @@
+<h2 mat-dialog-title>{{ esEdicion ? 'Editar Pedido' : 'Generar Nuevo Pedido' }}</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="pedidoForm" class="dialog-form">
+    
+    <!-- Fila 1: Selección de Urna con Buscador -->
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Urna a Solicitar</mat-label>
+        
+        <mat-select formControlName="urna_id" [disabled]="cargandoUrnas">
+          <mat-option *ngIf="cargandoUrnas" disabled>
+            Cargando inventario...
+          </mat-option>
+
+          <div style="padding: 10px 16px; position: sticky; top: 0; background: white; z-index: 2; border-bottom: 1px solid #eee;">
+            <input type="text" placeholder="Buscar urna por nombre..." 
+                   (input)="filtrarUrnas($event)" 
+                   (keydown)="$event.stopPropagation()"
+                   style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; outline: none;">
+          </div>
+
+          <mat-option *ngFor="let urna of urnasFiltradas" [value]="urna.id">
+            <span [ngStyle]="{'color': urna.stock_actual <= urna.kpi_alerta_stock ? '#d32f2f' : 'inherit'}">
+              {{ urna.nombre }} (Stock: {{ urna.stock_actual }})
+            </span>
+            <span *ngIf="urna.stock_actual <= urna.kpi_alerta_stock" 
+                  style="color: #d32f2f; font-size: 0.8em; margin-left: 8px; font-weight: 500;">
+              ¡Stock Crítico!
+            </span>
+          </mat-option>
+          
+          <mat-option *ngIf="urnasFiltradas.length === 0 && !cargandoUrnas" disabled>
+            No se encontraron urnas con ese nombre...
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="pedidoForm.get('urna_id')?.hasError('required')">Debe seleccionar una urna</mat-error>
+      </mat-form-field>
+    </div>
+
+    <!-- Fila 2: Cantidad y Estado -->
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Cantidad a Pedir</mat-label>
+        <input matInput type="number" formControlName="cantidad" min="1" placeholder="Ej: 5">
+        <mat-error *ngIf="pedidoForm.get('cantidad')?.hasError('required')">Requerido</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Estado del Pedido</mat-label>
+        <mat-select formControlName="estado_manual">
+          <mat-option *ngFor="let estado of estados" [value]="estado">
+            {{ estado }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <!-- Fila 3: Fechas (Pedido y Recepción) -->
+    <div class="form-row">
+      
+      <!-- Fecha de Creación del Pedido -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Fecha de Pedido</mat-label>
+        <input matInput type="date" formControlName="fecha_pedido">
+        <mat-error *ngIf="pedidoForm.get('fecha_pedido')?.hasError('required')">Debe indicar la fecha</mat-error>
+      </mat-form-field>
+
+      <!-- Fecha de Llegada (Solo visible si estado es Recibido) -->
+      <mat-form-field appearance="outline" class="full-width" *ngIf="pedidoForm.get('estado_manual')?.value === 'Recibido'">
+        <mat-label>Fecha de Recepción</mat-label>
+        <input matInput type="date" formControlName="fecha_llegada">
+        <mat-hint>Indique cuándo ingresó el pedido al inventario</mat-hint>
+      </mat-form-field>
+
+      <!-- Div vacío para mantener la estructura simétrica si NO está en estado "Recibido" -->
+      <div class="full-width" *ngIf="pedidoForm.get('estado_manual')?.value !== 'Recibido'"></div>
+      
+    </div>
+    
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button class="btn-cancelar" (click)="cerrar()" [disabled]="guardando">Cancelar</button>
+  <button mat-flat-button color="primary" (click)="guardar()" [disabled]="pedidoForm.invalid || guardando || cargandoUrnas">
+    <mat-icon *ngIf="!guardando">save</mat-icon>
+    <mat-spinner *ngIf="guardando" diameter="20" style="margin-right: 8px;"></mat-spinner>
+    {{ guardando ? 'Guardando...' : 'Guardar' }}
+  </button>
+</mat-dialog-actions>

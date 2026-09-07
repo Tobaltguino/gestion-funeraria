@@ -1,1 +1,112 @@
-<p>pedidos works!</p>
+<div class="page-container">
+  
+  <div class="page-header">
+    <div class="header-title">
+      <h2>Registro de Pedidos</h2>
+      <p class="subtitle">Gestión de abastecimiento y estado de solicitudes de urnas.</p>
+    </div>
+    
+    <!-- Botón visible SOLO si es Administrador -->
+    <button mat-flat-button class="btn-crear-verde" *ngIf="esAdmin" (click)="abrirDialogoPedido()">
+      <mat-icon>add_shopping_cart</mat-icon>
+      Nuevo Pedido
+    </button>
+  </div>
+
+  <div class="loading-container" *ngIf="cargando">
+    <mat-spinner diameter="50"></mat-spinner>
+  </div>
+
+  <div class="table-container" *ngIf="!cargando">
+    <table mat-table [dataSource]="pedidos" class="w-100">
+
+      <!-- Columna: Urna (Relacional) -->
+      <ng-container matColumnDef="urna">
+        <th mat-header-cell *matHeaderCellDef> Urna Solicitada </th>
+        <td mat-cell *matCellDef="let pedido"> 
+          <!-- Usamos el operador de navegación segura (?) por si acaso -->
+          <span style="font-weight: 500;">{{ pedido.urnas?.nombre || 'Urna no especificada' }}</span>
+        </td>
+      </ng-container>
+
+      <!-- Columna: Cantidad -->
+      <ng-container matColumnDef="cantidad">
+        <th mat-header-cell *matHeaderCellDef> Cantidad </th>
+        <td mat-cell *matCellDef="let pedido"> 
+          <strong>{{ pedido.cantidad }}</strong> un.
+        </td>
+      </ng-container>
+
+      <!-- Columna: Fecha de Pedido -->
+      <ng-container matColumnDef="fecha_pedido">
+        <th mat-header-cell *matHeaderCellDef> Fecha del Pedido </th>
+        <td mat-cell *matCellDef="let pedido"> 
+          <span style="color: #555;">
+            <mat-icon style="font-size: 16px; width: 16px; height: 16px; vertical-align: middle; margin-right: 4px;">calendar_today</mat-icon>
+            {{ pedido.fecha_pedido | date:'dd/MM/yyyy' }}
+          </span>
+        </td>
+      </ng-container>
+
+      <!-- Columna: Fecha de Llegada -->
+      <ng-container matColumnDef="fecha_llegada">
+        <th mat-header-cell *matHeaderCellDef> Fecha Llegada </th>
+        <td mat-cell *matCellDef="let pedido"> 
+          <span *ngIf="pedido.fecha_llegada" style="color: #2e7d32; font-weight: 500;">
+            <mat-icon style="font-size: 16px; width: 16px; height: 16px; vertical-align: middle; margin-right: 4px;">event_available</mat-icon>
+            {{ pedido.fecha_llegada | date:'dd/MM/yyyy' }}
+          </span>
+          <span *ngIf="!pedido.fecha_llegada" style="color: #9e9e9e; font-style: italic;">
+            Pendiente
+          </span>
+        </td>
+      </ng-container>
+
+      <!-- Columna: Estado (Con colores dinámicos) -->
+      <ng-container matColumnDef="estado">
+        <th mat-header-cell *matHeaderCellDef> Estado </th>
+        <td mat-cell *matCellDef="let pedido">
+          <span class="stock-badge" 
+                [ngStyle]="{
+                  'background-color': pedido.estado_manual === 'Recibido' ? '#e8f5e9' : (pedido.estado_manual === 'Cancelado' ? '#ffebee' : '#fff3e0'),
+                  'color': pedido.estado_manual === 'Recibido' ? '#2e7d32' : (pedido.estado_manual === 'Cancelado' ? '#c62828' : '#ef6c00')
+                }">
+            {{ pedido.estado_manual }}
+          </span>
+        </td>
+      </ng-container>
+
+      <!-- Columna: Acciones -->
+      <ng-container matColumnDef="acciones">
+        <th mat-header-cell *matHeaderCellDef class="text-center"> Acciones </th>
+        <td mat-cell *matCellDef="let pedido" class="acciones-cell text-center">
+          
+          <ng-container *ngIf="esAdmin">
+            <button mat-icon-button class="btn-editar-amarillo" matTooltip="Editar Pedido" (click)="abrirDialogoPedido(pedido)">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button class="btn-eliminar-rojo" matTooltip="Eliminar Pedido" (click)="eliminarPedido(pedido)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </ng-container>
+
+          <ng-container *ngIf="!esAdmin">
+            <span style="color: #9e9e9e; font-size: 0.85rem;">Solo lectura</span>
+          </ng-container>
+          
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="columnasMostrar"></tr>
+      <tr mat-row *matRowDef="let row; columns: columnasMostrar;"></tr>
+      
+      <!-- Estado Vacío -->
+      <tr class="mat-row" *matNoDataRow>
+        <td class="mat-cell" colspan="5" style="text-align: center; padding: 3rem;">
+          <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: #ccc;">receipt_long</mat-icon>
+          <p style="margin-top: 10px; color: #666;">No hay historial de pedidos registrados.</p>
+        </td>
+      </tr>
+    </table>
+  </div>
+</div>
