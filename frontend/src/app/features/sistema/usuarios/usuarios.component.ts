@@ -16,6 +16,7 @@ import { AuthService } from '../../../core/auth/auth.service';
 import { PerfilUsuario } from '../../../core/auth/auth.interface';
 import { UsuarioDialogComponent } from './usuario-dialog/usuario-dialog.component';
 import { NotificationService } from '../../../shared/services/notification.service';
+import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-usuarios',
@@ -96,26 +97,54 @@ export class UsuariosComponent implements OnInit {
 
   async alternarEstado(usuario: PerfilUsuario) {
     const accion = usuario.activo ? 'bloquear (desactivar)' : 'desbloquear (activar)';
-    if (confirm(`¿Estás seguro de que deseas ${accion} a ${usuario.nombre}?`)) {
-      try {
-        await this.usuarioService.alternarEstado(usuario.id, usuario.activo);
-        this.notification.success(`El estado de ${usuario.nombre} ha sido actualizado.`);
-        await this.cargarUsuarios(); 
-      } catch (error) {
-        this.notification.error('Hubo un error al cambiar el estado del usuario.');
+    const colorBoton = usuario.activo ? 'warn' : 'primary'; // Rojo para bloquear, normal para activar
+    
+    // 1. Abrimos el modal de confirmación
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '400px',
+      data: {
+        titulo: 'Confirmar Acción',
+        mensaje: `¿Estás seguro de que deseas <strong>${accion}</strong> a <strong>${usuario.nombre}</strong>?`,
+        textoBoton: usuario.activo ? 'Bloquear' : 'Activar',
+        colorBoton: colorBoton
       }
-    }
+    });
+
+    // 2. Esperamos la respuesta del usuario
+    dialogRef.afterClosed().subscribe(async (confirmado) => {
+      if (confirmado) {
+        try {
+          await this.usuarioService.alternarEstado(usuario.id, usuario.activo);
+          this.notification.success(`El estado de ${usuario.nombre} ha sido actualizado.`);
+          await this.cargarUsuarios(); 
+        } catch (error) {
+          this.notification.error('Hubo un error al cambiar el estado del usuario.');
+        }
+      }
+    });
   }
 
   async eliminarUsuario(usuario: PerfilUsuario) {
-    if (confirm(`⚠️ ATENCIÓN: ¿Estás seguro de eliminar a ${usuario.nombre}?\nEsta acción lo removerá del sistema.`)) {
-      try {
-        await this.usuarioService.eliminarUsuario(usuario.id);
-        this.notification.success(`El usuario ${usuario.nombre} ha sido eliminado.`);
-        await this.cargarUsuarios(); 
-      } catch (error) {
-        this.notification.error('Hubo un error al eliminar el usuario.');
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '450px',
+      data: {
+        titulo: '⚠️ Eliminar Usuario',
+        mensaje: `¿Estás completamente seguro de eliminar a <strong>${usuario.nombre}</strong>?<br><br>Esta acción lo removerá permanentemente del sistema.`,
+        textoBoton: 'Eliminar',
+        colorBoton: 'warn' // Botón rojo
       }
-    }
+    });
+
+    dialogRef.afterClosed().subscribe(async (confirmado) => {
+      if (confirmado) {
+        try {
+          await this.usuarioService.eliminarUsuario(usuario.id);
+          this.notification.success(`El usuario ${usuario.nombre} ha sido eliminado.`);
+          await this.cargarUsuarios(); 
+        } catch (error) {
+          this.notification.error('Hubo un error al eliminar el usuario.');
+        }
+      }
+    });
   }
 }

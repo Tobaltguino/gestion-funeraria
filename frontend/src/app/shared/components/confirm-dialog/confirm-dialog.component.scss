@@ -1,0 +1,23 @@
+.dialog-title {
+  font-weight: 600;
+  color: #000000;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Espacio entre el ícono y el texto */
+}
+
+.dialog-content p {
+  font-size: 16px;
+  color: #333333;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.dialog-actions {
+  padding: 16px 24px;
+}
+
+.btn-cancelar {
+  color: #555555;
+}
