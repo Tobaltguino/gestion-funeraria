@@ -1,0 +1,91 @@
+<h2 mat-dialog-title class="dialog-title">
+  {{ esEdicion ? 'Editar Urna' : 'Nueva Urna' }}
+</h2>
+
+<mat-dialog-content class="dialog-content">
+  <form [formGroup]="formulario" class="formulario-usuario">
+    
+    <!-- Nombre / Modelo -->
+    <mat-form-field appearance="outline">
+      <mat-label>Nombre o Modelo de la Urna</mat-label>
+      <input matInput formControlName="nombre" placeholder="Ej: Urna Caoba Premium" autocomplete="off">
+      <mat-icon matPrefix>inventory_2</mat-icon>
+      <mat-error *ngIf="formulario.get('nombre')?.hasError('required')">El nombre es requerido</mat-error>
+    </mat-form-field>
+
+    <!-- Precios (Costo y Venta) -->
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <mat-label>Precio Costo ($)</mat-label>
+        <input matInput type="number" formControlName="precio_costo" min="0">
+        <mat-icon matPrefix>payments</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Precio Venta ($)</mat-label>
+        <input matInput type="number" formControlName="precio_venta" min="0">
+        <mat-icon matPrefix>sell</mat-icon>
+      </mat-form-field>
+    </div>
+
+    <!-- Stock y Alerta -->
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <mat-label>Stock Actual</mat-label>
+        <input matInput type="number" formControlName="stock_actual" min="0">
+        <mat-icon matPrefix>format_list_numbered</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Alerta de Stock (KPI)</mat-label>
+        <input matInput type="number" formControlName="kpi_alerta_stock" min="0">
+        <mat-icon matPrefix>notification_important</mat-icon>
+      </mat-form-field>
+    </div>
+
+    <!-- GALERÍA DE IMÁGENES -->
+    <div class="image-gallery-container">
+      <label class="gallery-label">Fotografías de la Urna</label>
+      
+      <!-- Input oculto MULTIPLE -->
+      <input type="file" #fileInput (change)="onFilesSelected($event)" accept="image/*" multiple style="display: none;">
+      
+      <div class="gallery-grid">
+        
+        <!-- 1. Mostrar Imágenes que ya existen en la base de datos -->
+        <div class="gallery-item" *ngFor="let url of imagenesExistentes; let i = index">
+          <img [src]="url" alt="Foto existente">
+          <button type="button" class="btn-remove" (click)="removerImagenExistente(i)" matTooltip="Eliminar foto">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+
+        <!-- 2. Mostrar Nuevas Imágenes seleccionadas localmente -->
+        <div class="gallery-item new-image" *ngFor="let preview of vistasPreviasNuevas; let i = index">
+          <img [src]="preview" alt="Nueva foto">
+          <button type="button" class="btn-remove" (click)="removerImagenNueva(i)" matTooltip="Descartar foto">
+            <mat-icon>close</mat-icon>
+          </button>
+          <span class="badge-new">Nueva</span>
+        </div>
+
+        <!-- 3. Botón para agregar más fotos -->
+        <div class="gallery-add-btn" (click)="fileInput.click()">
+          <mat-icon>add_photo_alternate</mat-icon>
+          <span>Añadir Fotos</span>
+        </div>
+
+      </div>
+    </div>
+
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="dialog-actions">
+  <button mat-button class="btn-cancelar" (click)="cerrar()" [disabled]="cargando">Cancelar</button>
+  
+  <button mat-flat-button class="btn-submit" (click)="guardar()" [disabled]="formulario.invalid || cargando">
+    <mat-spinner diameter="20" *ngIf="cargando" style="margin-right: 8px; display: inline-block;"></mat-spinner>
+    {{ cargando ? 'Guardando...' : (esEdicion ? 'Actualizar' : 'Crear Urna') }}
+  </button>
+</mat-dialog-actions>

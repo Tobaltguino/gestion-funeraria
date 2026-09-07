@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
-import { SupabaseService } from '../../../core/supabase/supabase';
-import { PerfilUsuario } from '../../../core/auth/auth.interface';
-import { CrearUsuarioDTO, ActualizarUsuarioDTO } from './usuario.dto'; // <-- Importamos los DTOs
+import { SupabaseService } from '../../../../core/supabase/supabase';
+import { PerfilUsuario } from '../../../../core/auth/auth.interface';
+import { CrearUsuarioDTO, ActualizarUsuarioDTO } from '../models/usuario.dto';
 
 @Injectable({
   providedIn: 'root'

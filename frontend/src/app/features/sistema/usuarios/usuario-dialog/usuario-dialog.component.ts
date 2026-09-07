@@ -13,7 +13,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule } from '@angular/material/snack-bar'; // <-- Módulo agregado
 
 import { Role } from '../../../../shared/enums/role.enum';
-import { UsuarioService } from '../usuario.service';
+import { UsuarioService } from '../services/usuario.service';
 import { PerfilUsuario } from '../../../../core/auth/auth.interface';
 import { RutFormatDirective } from '../../../../shared/directives/rut-format';
 import { NotificationService } from '../../../../shared/services/notification.service';

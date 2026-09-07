@@ -1,4 +1,4 @@
-import { Role } from "../../../shared/enums/role.enum";
+import { Role } from "../../../../shared/enums/role.enum";
 
 // DTO para la creación de un nuevo usuario (Enviado a la Edge Function)
 export interface CrearUsuarioDTO {

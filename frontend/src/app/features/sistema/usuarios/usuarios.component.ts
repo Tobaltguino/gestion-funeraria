@@ -11,7 +11,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog'; 
 import { MatSnackBarModule } from '@angular/material/snack-bar'; // <-- Módulo agregado
 
-import { UsuarioService } from './usuario.service';
+import { UsuarioService } from './services/usuario.service';
 import { AuthService } from '../../../core/auth/auth.service';
 import { PerfilUsuario } from '../../../core/auth/auth.interface';
 import { UsuarioDialogComponent } from './usuario-dialog/usuario-dialog.component';

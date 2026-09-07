@@ -41,7 +41,8 @@ app-root { display: block; height: 100vh; }
 a { color: inherit; text-decoration: none; }
 h1, h2, h3, h4, h5, h6 { font-family: var(--fuente-titulo); margin: 0; }
 
-.w-100 { width: 100% !important; display: block; }
+/* 🔥 CORRECCIÓN: Se eliminó el display: block que rompía las tablas */
+.w-100 { width: 100% !important; }
 
 /* ==========================================
    3. ANGULAR MATERIAL (Sobrescritura Global)
@@ -174,7 +175,6 @@ h1, h2, h3, h4, h5, h6 { font-family: var(--fuente-titulo); margin: 0; }
   display: flex;
   align-items: center;
   justify-content: center;
-  /* Fondo solemne solo para la pantalla de Auth */
   background-color: #0a0a0a;
   background-image: radial-gradient(circle at center, #1a1a1a 0%, #050505 100%);
   padding: 1rem;
@@ -273,17 +273,17 @@ h1, h2, h3, h4, h5, h6 { font-family: var(--fuente-titulo); margin: 0; }
 
   table { width: 100%; background: transparent; }
 
-  /* 🔥 ENCABEZADO NEGRO (Actualizado para Angular 18 MDC) 🔥 */
+  /* Encabezado Negro */
   .mat-mdc-header-row {
-    background-color: #111111 !important; /* Pinta toda la fila superior de negro */
+    background-color: #111111 !important; 
   }
 
   .mat-mdc-header-cell {
     font-weight: 500 !important;
-    color: #ffffff !important; /* Letras blancas */
+    color: #ffffff !important; 
     font-size: 0.95rem;
     letter-spacing: 0.5px;
-    border-bottom: none !important; /* Quitamos la línea de abajo */
+    border-bottom: none !important; 
   }
 
   /* Celdas normales de datos */
@@ -304,6 +304,43 @@ h1, h2, h3, h4, h5, h6 { font-family: var(--fuente-titulo); margin: 0; }
   }
 
   tr.inactivo { opacity: 0.6; background-color: #f5f5f5; }
+
+  /* --- Elementos visuales internos de la tabla (Imágenes y Badges) --- */
+  .tabla-thumbnail {
+    width: 48px;
+    height: 48px;
+    object-fit: cover; 
+    border-radius: 6px;
+    border: 1px solid #e0e0e0;
+    display: block;
+    margin: 8px 0;
+  }
+
+  .no-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f5f5f5;
+    color: #9e9e9e;
+    mat-icon { font-size: 24px; width: 24px; height: 24px; }
+  }
+
+  .stock-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    background-color: #e6f4ea;
+    color: #137333; 
+    border: 1px solid #ceead6;
+  }
+
+  .stock-critico {
+    background-color: #fce8e6;
+    color: #c5221f; 
+    border-color: #fad2cf;
+  }
 }
 
 /* ==========================================
@@ -381,4 +418,250 @@ h1, h2, h3, h4, h5, h6 { font-family: var(--fuente-titulo); margin: 0; }
   .mat-mdc-button.mat-mdc-snack-bar-action {
     color: #92400e !important; /* "X" de color naranja oscuro */
   }
+}
+
+/* ==========================================
+   9. GALERÍA DE IMÁGENES (Subida y Previsualización)
+   ========================================== */
+.image-gallery-container {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.gallery-label {
+  font-size: 0.9rem;
+  color: var(--color-texto-suave);
+  font-weight: 500;
+}
+
+.gallery-grid {
+  display: grid;
+  /* Grid responsivo: cada cuadrito mínimo 100px, máximo lo que sobre */
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.gallery-item {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1; /* Fuerza a que sean cuadrados perfectos */
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  overflow: hidden;
+  background-color: #ffffff;
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .btn-remove {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background-color: rgba(211, 47, 47, 0.9); 
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s;
+    
+    mat-icon { font-size: 16px; width: 16px; height: 16px; }
+    &:hover { transform: scale(1.1); background-color: #d32f2f; }
+  }
+}
+
+/* Distintivo para fotos que apenas se van a subir */
+.new-image {
+  border: 2px dashed #4caf50; 
+  
+  .badge-new {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background-color: rgba(76, 175, 80, 0.9);
+    color: white;
+    font-size: 0.7rem;
+    text-align: center;
+    padding: 2px 0;
+    font-weight: bold;
+  }
+}
+
+/* Botón central para añadir más fotos */
+.gallery-add-btn {
+  width: 100%;
+  aspect-ratio: 1;
+  border: 2px dashed var(--color-linea);
+  border-radius: 8px;
+  background-color: var(--color-input-bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #9e9e9e;
+  transition: all 0.2s ease;
+
+  mat-icon { font-size: 32px; width: 32px; height: 32px; margin-bottom: 4px; }
+  span { font-size: 0.8rem; font-weight: 500; text-align: center; }
+
+  &:hover {
+    border-color: var(--color-brand);
+    color: var(--color-brand);
+    background-color: #f5f5f5;
+  }
+}
+
+/* ==========================================
+   10. VISOR DE DETALLES Y LIGHTBOX (Global)
+   ========================================== */
+.visor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 24px 0;
+  
+  .dialog-title {
+    padding-bottom: 0;
+    margin-bottom: 0;
+  }
+}
+
+.visor-info-rapida {
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  
+  .info-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #333;
+    mat-icon { color: #555; }
+  }
+}
+
+.visor-gallery-title {
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin-bottom: 12px;
+  color: #111;
+}
+
+.visor-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 16px;
+  padding-bottom: 10px;
+}
+
+.visor-thumbnail {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #ddd;
+  cursor: pointer;
+  background-color: #fff;
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  .hover-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgba(0,0,0,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    mat-icon { font-size: 32px; width: 32px; height: 32px; }
+  }
+
+  &:hover {
+    img { transform: scale(1.05); }
+    .hover-overlay { opacity: 1; }
+  }
+}
+
+.visor-no-image {
+  text-align: center;
+  padding: 40px 20px;
+  color: #999;
+  mat-icon { font-size: 48px; width: 48px; height: 48px; margin-bottom: 10px;}
+}
+
+/* --- LIGHTBOX (PANTALLA COMPLETA) --- */
+.lightbox-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(0, 0, 0, 0.93);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lightbox-image {
+  max-width: 90vw;
+  max-height: 85vh;
+  object-fit: contain;
+  border-radius: 4px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+  user-select: none;
+}
+
+.lightbox-btn-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  color: white;
+  transform: scale(1.2);
+  background: rgba(255,255,255,0.1);
+  &:hover { background: rgba(255,255,255,0.25); }
+}
+
+.lightbox-nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%) scale(1.5);
+  color: white;
+  background: rgba(255,255,255,0.1);
+  transition: all 0.2s;
+  
+  &:hover { background: rgba(255,255,255,0.3); }
+  
+  &.prev { left: 30px; }
+  &.next { right: 30px; }
+}
+
+.lightbox-counter {
+  position: absolute;
+  bottom: 25px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: white;
+  font-family: var(--fuente-texto);
+  font-size: 1.1rem;
+  background: rgba(0,0,0,0.6);
+  padding: 6px 16px;
+  border-radius: 20px;
+  letter-spacing: 1px;
 }

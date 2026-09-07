@@ -1,1 +1,98 @@
-<p>urnas works!</p>
+<div class="page-container">
+  
+  <!-- Encabezado -->
+  <div class="page-header">
+    <div class="header-title">
+      <h2>Inventario de Urnas</h2>
+      <p class="subtitle">Gestión de stock y modelos.</p>
+    </div>
+    
+    <!-- Botón visible SOLO si es Administrador -->
+    <button mat-flat-button class="btn-crear-verde" *ngIf="esAdmin" (click)="abrirDialogoUrna()">
+      <mat-icon>add_box</mat-icon>
+      Nueva Urna
+    </button>
+  </div>
+
+  <!-- Spinner de Carga -->
+  <div class="loading-container" *ngIf="cargando">
+    <mat-spinner diameter="50"></mat-spinner>
+  </div>
+
+  <!-- Contenedor de la Tabla -->
+  <div class="table-container" *ngIf="!cargando">
+    <table mat-table [dataSource]="urnas" class="w-100">
+
+      <!-- Columna: Imagen -->
+      <ng-container matColumnDef="imagen">
+        <th mat-header-cell *matHeaderCellDef> Imagen </th>
+        <td mat-cell *matCellDef="let urna">
+          <!-- Si hay imágenes en el arreglo, mostramos la primera. Si no, un cuadro gris con ícono -->
+          <img *ngIf="urna.imagenes && urna.imagenes.length > 0; else noImage" 
+               [src]="urna.imagenes[0]" 
+               class="tabla-thumbnail" 
+               alt="Foto de {{ urna.nombre }}">
+          <ng-template #noImage>
+            <div class="tabla-thumbnail no-image">
+              <mat-icon>inventory_2</mat-icon>
+            </div>
+          </ng-template>
+        </td>
+      </ng-container>
+
+      <!-- Columna: Nombre -->
+      <ng-container matColumnDef="nombre">
+        <th mat-header-cell *matHeaderCellDef> Modelo / Nombre </th>
+        <td mat-cell *matCellDef="let urna" style="font-weight: 500;"> 
+          {{ urna.nombre }} 
+        </td>
+      </ng-container>
+
+      <!-- Columna: Stock (Con indicador visual) -->
+      <ng-container matColumnDef="stock">
+        <th mat-header-cell *matHeaderCellDef> Stock </th>
+        <td mat-cell *matCellDef="let urna">
+          <!-- La clase 'stock-critico' se activa si el stock actual es igual o menor al kpi -->
+          <span class="stock-badge" [ngClass]="{'stock-critico': urna.stock_actual <= urna.kpi_alerta_stock}">
+            {{ urna.stock_actual }} un.
+          </span>
+        </td>
+      </ng-container>
+
+      <!-- Columna: Acciones -->
+      <ng-container matColumnDef="acciones">
+        <th mat-header-cell *matHeaderCellDef class="text-center"> Acciones </th>
+        <td mat-cell *matCellDef="let urna" class="acciones-cell text-center">
+          
+          <!-- Botón de Ver Detalles/Galería (VISIBLE PARA TODOS) -->
+          <button mat-icon-button color="primary" matTooltip="Ver Detalles y Fotos" (click)="abrirVisor(urna)">
+            <mat-icon>visibility</mat-icon>
+          </button>
+
+          <!-- Botones funcionales (SOLO ADMIN) -->
+          <ng-container *ngIf="esAdmin">
+            <button mat-icon-button class="btn-editar-amarillo" matTooltip="Editar Urna" (click)="abrirDialogoUrna(urna)">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button class="btn-eliminar-rojo" matTooltip="Eliminar Urna" (click)="eliminarUrna(urna)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </ng-container>
+          
+        </td>
+      </ng-container>
+
+      <!-- Renderizado de las filas -->
+      <tr mat-header-row *matHeaderRowDef="columnasMostrar"></tr>
+      <tr mat-row *matRowDef="let row; columns: columnasMostrar;"></tr>
+      
+      <!-- Mensaje cuando la tabla está vacía -->
+      <tr class="mat-row" *matNoDataRow>
+        <td class="mat-cell" colspan="4" style="text-align: center; padding: 3rem;">
+          <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: #ccc;">inbox</mat-icon>
+          <p style="margin-top: 10px; color: #666;">No hay urnas registradas en el inventario.</p>
+        </td>
+      </tr>
+    </table>
+  </div>
+</div>
