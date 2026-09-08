@@ -6,22 +6,66 @@
   <form [formGroup]="formulario" class="formulario-usuario">
     
     <!-- Nombre / Modelo -->
-    <mat-form-field appearance="outline">
+    <mat-form-field appearance="outline" class="full-width">
       <mat-label>Nombre o Modelo de la Urna</mat-label>
       <input matInput formControlName="nombre" placeholder="Ej: Urna Caoba Premium" autocomplete="off">
       <mat-icon matPrefix>inventory_2</mat-icon>
       <mat-error *ngIf="formulario.get('nombre')?.hasError('required')">El nombre es requerido</mat-error>
     </mat-form-field>
 
+    <!-- Características de la Urna (Enums) -->
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Tipo de Urna</mat-label>
+        <mat-select formControlName="tipo_urna">
+          <!-- Opción nula por defecto -->
+          <mat-option [value]="null" style="color: #999; font-style: italic;">
+            -Sin Seleccionar-
+          </mat-option>
+          <!-- Opciones reales -->
+          <mat-option *ngFor="let tipo of tipos" [value]="tipo">
+            {{ tipo }}
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="formulario.get('tipo_urna')?.hasError('required')">Requerido</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Tamaño</mat-label>
+        <mat-select formControlName="tamano">
+          <mat-option [value]="null" style="color: #999; font-style: italic;">
+            -Sin Seleccionar-
+          </mat-option>
+          <mat-option *ngFor="let tam of tamanos" [value]="tam">
+            {{ tam }}
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="formulario.get('tamano')?.hasError('required')">Requerido</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Cuerpos</mat-label>
+        <mat-select formControlName="cuerpo">
+          <mat-option [value]="null" style="color: #999; font-style: italic;">
+            -Sin Seleccionar-
+          </mat-option>
+          <mat-option *ngFor="let cuerpo of cuerpos" [value]="cuerpo">
+            {{ cuerpo }}
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="formulario.get('cuerpo')?.hasError('required')">Requerido</mat-error>
+      </mat-form-field>
+    </div>
+
     <!-- Precios (Costo y Venta) -->
     <div class="form-row">
-      <mat-form-field appearance="outline">
+      <mat-form-field appearance="outline" class="full-width">
         <mat-label>Precio Costo ($)</mat-label>
         <input matInput type="number" formControlName="precio_costo" min="0">
         <mat-icon matPrefix>payments</mat-icon>
       </mat-form-field>
 
-      <mat-form-field appearance="outline">
+      <mat-form-field appearance="outline" class="full-width">
         <mat-label>Precio Venta ($)</mat-label>
         <input matInput type="number" formControlName="precio_venta" min="0">
         <mat-icon matPrefix>sell</mat-icon>
@@ -30,13 +74,13 @@
 
     <!-- Stock y Alerta -->
     <div class="form-row">
-      <mat-form-field appearance="outline">
+      <mat-form-field appearance="outline" class="full-width">
         <mat-label>Stock Actual</mat-label>
         <input matInput type="number" formControlName="stock_actual" min="0">
         <mat-icon matPrefix>format_list_numbered</mat-icon>
       </mat-form-field>
 
-      <mat-form-field appearance="outline">
+      <mat-form-field appearance="outline" class="full-width">
         <mat-label>Alerta de Stock (KPI)</mat-label>
         <input matInput type="number" formControlName="kpi_alerta_stock" min="0">
         <mat-icon matPrefix>notification_important</mat-icon>
@@ -44,7 +88,7 @@
     </div>
 
     <!-- GALERÍA DE IMÁGENES -->
-    <div class="image-gallery-container">
+    <div class="image-gallery-container mt-3">
       <label class="gallery-label">Fotografías de la Urna</label>
       
       <!-- Input oculto MULTIPLE -->
@@ -84,7 +128,7 @@
 <mat-dialog-actions align="end" class="dialog-actions">
   <button mat-button class="btn-cancelar" (click)="cerrar()" [disabled]="cargando">Cancelar</button>
   
-  <button mat-flat-button class="btn-submit" (click)="guardar()" [disabled]="formulario.invalid || cargando">
+  <button mat-flat-button color="primary" class="btn-submit" (click)="guardar()" [disabled]="formulario.invalid || cargando">
     <mat-spinner diameter="20" *ngIf="cargando" style="margin-right: 8px; display: inline-block;"></mat-spinner>
     {{ cargando ? 'Guardando...' : (esEdicion ? 'Actualizar' : 'Crear Urna') }}
   </button>

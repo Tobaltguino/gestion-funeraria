@@ -6,13 +6,14 @@ import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/materia
 // Angular Material
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select'; // <-- ¡IMPORTANTE! Agregado para los desplegables
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { UrnaService } from '../services/urna.service';
 import { NotificationService } from '../../../../shared/services/notification.service';
-import { Urna } from '../models/urna.interface';
+import { Urna, UrnaCuerpo, UrnaTamano, UrnaTipo } from '../models/urna.interface';
 
 @Component({
   selector: 'app-urna-dialog',
@@ -23,6 +24,7 @@ import { Urna } from '../models/urna.interface';
     MatDialogModule,
     MatFormFieldModule,
     MatInputModule,
+    MatSelectModule, // <-- Registrado aquí
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule
@@ -45,8 +47,11 @@ export class UrnaDialogComponent implements OnInit {
   archivosNuevos: File[] = [];
   vistasPreviasNuevas: string[] = [];
   
-  // 🔥 Llevamos registro de las imágenes que el usuario quitó para borrarlas del Bucket
   imagenesParaEliminarDelBucket: string[] = []; 
+
+  tipos = Object.values(UrnaTipo);
+  tamanos = Object.values(UrnaTamano);
+  cuerpos = Object.values(UrnaCuerpo);
 
   ngOnInit() {
     this.esEdicion = !!this.data;
@@ -59,6 +64,12 @@ export class UrnaDialogComponent implements OnInit {
   iniciarFormulario() {
     this.formulario = this.fb.group({
       nombre: [this.data?.nombre || '', [Validators.required, Validators.minLength(3)]],
+      
+      // Ahora por defecto serán null si es una urna nueva
+      tipo_urna: [this.data?.tipo_urna || null, Validators.required],
+      tamano: [this.data?.tamano || null, Validators.required],
+      cuerpo: [this.data?.cuerpo || null, Validators.required],
+
       precio_costo: [this.data?.precio_costo || '', [Validators.required, Validators.min(0)]],
       precio_venta: [this.data?.precio_venta || '', [Validators.required, Validators.min(0)]],
       stock_actual: [this.data?.stock_actual || '', [Validators.required, Validators.min(0)]],
@@ -76,7 +87,7 @@ export class UrnaDialogComponent implements OnInit {
         img.src = event.target.result;
         img.onload = () => {
           const canvas = document.createElement('canvas');
-          const MAX_WIDTH = 1200; // Redimensionar si es muy grande
+          const MAX_WIDTH = 1200;
           let width = img.width;
           let height = img.height;
 
@@ -90,14 +101,12 @@ export class UrnaDialogComponent implements OnInit {
           const ctx = canvas.getContext('2d');
           ctx?.drawImage(img, 0, 0, width, height);
 
-          // Convertir a WebP con 80% de calidad (Excelente relación calidad/peso)
           canvas.toBlob((blob) => {
             if (blob) {
-              // Recreamos el archivo con la nueva extensión
               const newFile = new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".webp", { type: 'image/webp' });
               resolve(newFile);
             } else {
-              resolve(file); // Si falla algo, devolvemos la original
+              resolve(file); 
             }
           }, 'image/webp', 0.8);
         };
@@ -116,7 +125,6 @@ export class UrnaDialogComponent implements OnInit {
         continue;
       }
 
-      // Convertimos a WebP antes de guardar en memoria
       const archivoWebP = await this.comprimirAWebP(file);
       this.archivosNuevos.push(archivoWebP);
 
@@ -132,7 +140,6 @@ export class UrnaDialogComponent implements OnInit {
   }
 
   removerImagenExistente(index: number) {
-    // Si borramos una existente, la mandamos a la lista negra
     this.imagenesParaEliminarDelBucket.push(this.imagenesExistentes[index]);
     this.imagenesExistentes.splice(index, 1);
     this.cdr.detectChanges(); 
@@ -156,8 +163,6 @@ export class UrnaDialogComponent implements OnInit {
       const formValues = this.formulario.value;
       const nombreUrna = formValues.nombre;
 
-      // 1. Subir las imágenes nuevas con el nombre dinámico y WebP
-      // Aprovechamos el índice del mapa + las existentes para que el número final no se repita
       const promesasSubida = this.archivosNuevos.map((file, i) => 
         this.urnaService.subirImagen(file, nombreUrna, this.imagenesExistentes.length + i + 1)
       );
@@ -165,7 +170,6 @@ export class UrnaDialogComponent implements OnInit {
       const urlsNuevas = await Promise.all(promesasSubida);
       const imagenesFinales = [...this.imagenesExistentes, ...urlsNuevas];
 
-      // 2. Ejecutar la limpieza en Supabase de las fotos que el usuario borró de la galería
       if (this.imagenesParaEliminarDelBucket.length > 0) {
         const promesasBorrado = this.imagenesParaEliminarDelBucket.map(url => 
           this.urnaService.eliminarImagenStorage(url)
@@ -173,9 +177,12 @@ export class UrnaDialogComponent implements OnInit {
         await Promise.all(promesasBorrado);
       }
 
-      // 3. Preparar los datos
+      // 3. Preparar los datos incorporando los Enums
       const urnaData: Partial<Urna> = {
         nombre: nombreUrna,
+        tipo_urna: formValues.tipo_urna,
+        tamano: formValues.tamano,
+        cuerpo: formValues.cuerpo,
         precio_costo: Number(formValues.precio_costo),
         precio_venta: Number(formValues.precio_venta),
         stock_actual: Number(formValues.stock_actual),
@@ -183,7 +190,6 @@ export class UrnaDialogComponent implements OnInit {
         imagenes: imagenesFinales 
       };
 
-      // 4. Guardar en Base de Datos
       if (this.esEdicion) {
         await this.urnaService.actualizarUrna(this.data!.id, urnaData);
         this.notification.success('Urna actualizada correctamente.');
@@ -203,7 +209,6 @@ export class UrnaDialogComponent implements OnInit {
   }
 
   cerrar() {
-    // Si cancela, NO borramos nada del bucket porque la operación se anuló
     this.dialogRef.close(false);
   }
 }
