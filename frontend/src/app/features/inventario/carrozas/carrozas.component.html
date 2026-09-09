@@ -1,31 +1,74 @@
 <div class="page-container">
   
+  <!-- Encabezado -->
   <div class="page-header">
     <div class="header-title">
-      <h2>Flota de Carrozas</h2>
-      <p class="subtitle">Gestión de vehículos fúnebres y su estado.</p>
+      <h2>Flota de Coche Mortuorio</h2>
+      <p class="subtitle">Gestión de vehículos y disponibilidad.</p>
     </div>
     
+    <!-- Botón visible SOLO si es Administrador -->
     <button mat-flat-button class="btn-crear-verde" *ngIf="esAdmin" (click)="abrirDialogoCarroza()">
-      <mat-icon>add_box</mat-icon>
-      Nueva Carroza
+      <mat-icon>directions_car</mat-icon>
+      Nueva Coche Mortuorio
     </button>
   </div>
 
+  <!-- SECCIÓN DE FILTROS -->
+  <div class="filtros-container" *ngIf="!cargando" style="display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; align-items: center; background: #fff; padding: 16px 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+    
+    <mat-form-field appearance="outline" style="flex: 1; min-width: 180px; margin-bottom: -1.25em;">
+      <mat-label>Patente</mat-label>
+      <input matInput [(ngModel)]="filtroPatente" (keyup)="aplicarFiltros()" autocomplete="off">
+      <mat-icon matPrefix>search</mat-icon>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" style="width: 160px; margin-bottom: -1.25em;">
+      <mat-label>Marca</mat-label>
+      <mat-select [(ngModel)]="filtroMarca" (selectionChange)="aplicarFiltros()">
+        <mat-option value="">Todas</mat-option>
+        <mat-option *ngFor="let marca of marcas" [value]="marca">{{ marca }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" style="width: 150px; margin-bottom: -1.25em;">
+      <mat-label>Color</mat-label>
+      <mat-select [(ngModel)]="filtroColor" (selectionChange)="aplicarFiltros()">
+        <mat-option value="">Todos</mat-option>
+        <mat-option *ngFor="let color of colores" [value]="color">{{ color }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" style="width: 160px; margin-bottom: -1.25em;">
+      <mat-label>Estado</mat-label>
+      <mat-select [(ngModel)]="filtroEstado" (selectionChange)="aplicarFiltros()">
+        <mat-option value="">Todos</mat-option>
+        <mat-option *ngFor="let estado of estados" [value]="estado">{{ estado }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <button mat-icon-button color="primary" matTooltip="Limpiar Filtros" (click)="limpiarFiltros()" style="margin-top: 8px;">
+      <mat-icon>filter_alt_off</mat-icon>
+    </button>
+  </div>
+
+  <!-- Spinner de Carga -->
   <div class="loading-container" *ngIf="cargando">
     <mat-spinner diameter="50"></mat-spinner>
   </div>
 
+  <!-- Contenedor de la Tabla -->
   <div class="table-container" *ngIf="!cargando">
-    <table mat-table [dataSource]="carrozas" class="w-100">
+    <table mat-table [dataSource]="dataSource" class="w-100">
 
+      <!-- Columna: Imagen -->
       <ng-container matColumnDef="imagen">
         <th mat-header-cell *matHeaderCellDef> Imagen </th>
         <td mat-cell *matCellDef="let carroza">
           <img *ngIf="carroza.imagenes && carroza.imagenes.length > 0; else noImage" 
                [src]="carroza.imagenes[0]" 
                class="tabla-thumbnail" 
-               alt="Foto de {{ carroza.marca }}">
+               alt="Foto de la carroza">
           <ng-template #noImage>
             <div class="tabla-thumbnail no-image">
               <mat-icon>directions_car</mat-icon>
@@ -34,37 +77,41 @@
         </td>
       </ng-container>
 
-      <!-- Columna Vehículo combinada (Marca, Modelo y Color) -->
+      <!-- Columna: Vehículo (Agrupa Marca, Modelo y Color) -->
       <ng-container matColumnDef="vehiculo">
         <th mat-header-cell *matHeaderCellDef> Vehículo </th>
         <td mat-cell *matCellDef="let carroza"> 
-          <span style="font-weight: 500; display: block;">{{ carroza.marca }} {{ carroza.modelo }}</span>
-          <span style="font-size: 0.85rem; color: #666;">Color: {{ carroza.color }}</span>
+          <div style="display: flex; flex-direction: column; gap: 2px;">
+            <strong style="font-size: 1rem; color: #333;">{{ carroza.marca }} {{ carroza.modelo }}</strong>
+            <span style="font-size: 0.85rem; color: #666;">Color: {{ carroza.color }}</span>
+          </div>
         </td>
       </ng-container>
 
+      <!-- Columna: Patente -->
       <ng-container matColumnDef="patente">
         <th mat-header-cell *matHeaderCellDef> Patente </th>
-        <td mat-cell *matCellDef="let carroza"> 
-          <span style="background: #eee; padding: 4px 8px; border-radius: 4px; font-family: monospace; font-weight: bold; border: 1px solid #ccc;">
+        <td mat-cell *matCellDef="let carroza">
+          <span style="background: #f1f3f4; padding: 4px 10px; border-radius: 4px; border: 1px solid #ccc; font-family: monospace; font-weight: bold; letter-spacing: 1px; color: #333;">
             {{ carroza.patente | uppercase }}
           </span>
         </td>
       </ng-container>
 
+      <!-- Columna: Estado -->
       <ng-container matColumnDef="estado">
         <th mat-header-cell *matHeaderCellDef> Estado </th>
         <td mat-cell *matCellDef="let carroza">
-          <span class="stock-badge" 
-                [ngStyle]="{
-                  'background-color': carroza.estado === 'Disponible' ? '#e8f5e9' : (carroza.estado === 'Mantenimiento' ? '#ffebee' : '#fff3e0'),
-                  'color': carroza.estado === 'Disponible' ? '#2e7d32' : (carroza.estado === 'Mantenimiento' ? '#c62828' : '#ef6c00')
-                }">
+          <span class="stock-badge" [ngStyle]="{
+            'background-color': carroza.estado === 'Disponible' ? '#e8f5e9' : (carroza.estado === 'En Uso' ? '#fff3e0' : '#ffebee'),
+            'color': carroza.estado === 'Disponible' ? '#2e7d32' : (carroza.estado === 'En Uso' ? '#ef6c00' : '#c62828')
+          }">
             {{ carroza.estado }}
           </span>
         </td>
       </ng-container>
 
+      <!-- Columna: Acciones -->
       <ng-container matColumnDef="acciones">
         <th mat-header-cell *matHeaderCellDef class="text-center"> Acciones </th>
         <td mat-cell *matCellDef="let carroza" class="acciones-cell text-center">
@@ -88,10 +135,11 @@
       <tr mat-header-row *matHeaderRowDef="columnasMostrar"></tr>
       <tr mat-row *matRowDef="let row; columns: columnasMostrar;"></tr>
       
+      <!-- Mensaje sin resultados -->
       <tr class="mat-row" *matNoDataRow>
         <td class="mat-cell" colspan="5" style="text-align: center; padding: 3rem;">
-          <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: #ccc;">directions_car</mat-icon>
-          <p style="margin-top: 10px; color: #666;">No hay carrozas registradas en la flota.</p>
+          <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: #ccc;">search_off</mat-icon>
+          <p style="margin-top: 10px; color: #666;">No se encontraron carrozas con los filtros aplicados.</p>
         </td>
       </tr>
     </table>

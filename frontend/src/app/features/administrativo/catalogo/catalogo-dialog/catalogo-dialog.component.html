@@ -1,0 +1,85 @@
+<h2 mat-dialog-title class="dialog-title">{{ esEdicion ? 'Editar Plan Funerario' : 'Registrar Nuevo Plan' }}</h2>
+<p class="dialog-subtitle" style="padding: 0 24px;">Configure el nombre, las características y la galería fotográfica del servicio.</p>
+
+<mat-dialog-content class="dialog-content">
+  <form [formGroup]="planForm" class="dialog-form">
+    
+    <!-- Fila 1: Nombre del Plan -->
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Nombre del Plan</mat-label>
+        <input matInput formControlName="nombre" placeholder="Ej: Servicio Premium">
+        <mat-error *ngIf="planForm.get('nombre')?.hasError('required')">El nombre es requerido</mat-error>
+      </mat-form-field>
+    </div>
+
+    <!-- SECCIÓN: CARACTERÍSTICAS DINÁMICAS (FormArray) -->
+    <div style="margin-top: 10px; padding: 16px; background-color: var(--color-input-bg); border-radius: 8px; border: 1px solid var(--color-linea);">
+      
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <span style="font-weight: 600; color: var(--color-texto);">El servicio incluye:</span>
+        <button mat-flat-button class="btn-crear-verde" style="height: 36px; padding: 0 16px;" type="button" (click)="agregarIncluye()">
+          <mat-icon>add</mat-icon> Añadir línea
+        </button>
+      </div>
+
+      <div formArrayName="incluye">
+        <div *ngFor="let control of incluyeControls; let i = index" style="display: flex; gap: 8px; align-items: flex-start; margin-bottom: 8px;">
+          
+          <mat-form-field appearance="outline" style="flex: 1; margin-bottom: 0;">
+            <mat-label>Característica {{ i + 1 }}</mat-label>
+            <input matInput [formControlName]="i" placeholder="Ej: Urna Mackeley lisa o tallada">
+          </mat-form-field>
+          
+          <button mat-icon-button class="btn-eliminar-rojo" type="button" (click)="removerIncluye(i)" style="margin-top: 4px;" [disabled]="incluyeControls.length === 1">
+            <mat-icon>delete</mat-icon>
+          </button>
+          
+        </div>
+      </div>
+    </div>
+
+    <!-- SECCIÓN IMÁGENES -->
+    <div class="image-gallery-container" style="margin-top: 24px;">
+      <span class="gallery-label">Fotografías del Plan</span>
+      
+      <input type="file" #fileInput multiple accept="image/*" (change)="onFileSelected($event)" style="display: none;">
+
+      <div class="gallery-grid">
+        
+        <!-- Imágenes Actuales -->
+        <div class="gallery-item" *ngFor="let img of imagenesActuales; let i = index">
+          <img [src]="img" alt="Foto Actual">
+          <button type="button" class="btn-remove" (click)="removerImagenActual(i)">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+
+        <!-- Nuevas Imágenes -->
+        <div class="gallery-item new-image" *ngFor="let item of nuevosArchivos; let i = index">
+          <img [src]="item.preview" alt="Nueva foto">
+          <button type="button" class="btn-remove" (click)="removerNuevaImagen(i)">
+            <mat-icon>close</mat-icon>
+          </button>
+          <span class="badge-new">Nueva</span>
+        </div>
+
+        <!-- Botón Agregar -->
+        <div class="gallery-add-btn" (click)="fileInput.click()">
+          <mat-icon>add_photo_alternate</mat-icon>
+          <span>Subir Fotos</span>
+        </div>
+
+      </div>
+    </div>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" style="padding-top: 20px;">
+  <button mat-button class="btn-cancelar" (click)="cerrar()" [disabled]="guardando">Cancelar</button>
+  <button mat-flat-button class="btn-submit" (click)="guardar()" [disabled]="planForm.invalid || guardando">
+    <mat-icon *ngIf="!guardando">save</mat-icon>
+    <mat-spinner *ngIf="guardando" diameter="20" style="margin-right: 8px;"></mat-spinner>
+    {{ guardando ? 'Guardando...' : 'Guardar Plan' }}
+  </button>
+</mat-dialog-actions>

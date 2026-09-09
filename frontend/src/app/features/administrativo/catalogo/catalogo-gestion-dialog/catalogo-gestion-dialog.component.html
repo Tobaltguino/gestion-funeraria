@@ -1,0 +1,91 @@
+<div class="visor-header" style="padding-bottom: 15px; border-bottom: 1px solid var(--color-linea);">
+  <div>
+    <h2 mat-dialog-title class="dialog-title" style="padding-bottom: 0;">Gestión de Catálogo</h2>
+    <p class="dialog-subtitle" style="margin-bottom: 0; margin-top: 4px;">Administra los planes funerarios visibles en la página principal.</p>
+  </div>
+  <button mat-icon-button (click)="cerrarDialogo()">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+
+<mat-dialog-content class="dialog-content">
+  
+  <!-- Barra de Acciones -->
+  <div style="display: flex; justify-content: flex-end; margin-bottom: 16px;">
+    <button mat-flat-button class="btn-crear-verde" (click)="abrirDialogoFormulario()">
+      <mat-icon>add_box</mat-icon>
+      Crear Nuevo Plan
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-container" *ngIf="cargando">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+
+  <!-- Tabla -->
+  <div class="table-container" *ngIf="!cargando">
+    <table mat-table [dataSource]="dataSource" class="w-100">
+
+      <!-- Columna: Imagen -->
+      <ng-container matColumnDef="imagen">
+        <th mat-header-cell *matHeaderCellDef> Portada </th>
+        <td mat-cell *matCellDef="let plan">
+          <div style="position: relative; display: inline-block;" *ngIf="plan.imagenes && plan.imagenes.length > 0; else noImage">
+             <img [src]="plan.imagenes[0]" alt="{{ plan.nombre }}" class="tabla-thumbnail">
+             <!-- Contador de fotos extra -->
+             <span *ngIf="plan.imagenes.length > 1" style="position: absolute; bottom: 6px; right: -4px; background-color: var(--color-brand); color: var(--color-brand-contrast); font-size: 0.65rem; font-weight: bold; padding: 2px 6px; border-radius: 10px; border: 1px solid var(--color-panel);">
+               +{{ plan.imagenes.length - 1 }}
+             </span>
+          </div>
+          <ng-template #noImage>
+            <div class="tabla-thumbnail no-image">
+               <mat-icon>image_not_supported</mat-icon>
+            </div>
+          </ng-template>
+        </td>
+      </ng-container>
+
+      <!-- Columna: Plan -->
+      <ng-container matColumnDef="plan">
+        <th mat-header-cell *matHeaderCellDef> Plan </th>
+        <td mat-cell *matCellDef="let plan">
+          <strong style="color: var(--color-texto); font-size: 1rem;">{{ plan.nombre }}</strong>
+        </td>
+      </ng-container>
+
+      <!-- Columna: Características (Resumen) -->
+      <ng-container matColumnDef="caracteristicas">
+        <th mat-header-cell *matHeaderCellDef> Características </th>
+        <td mat-cell *matCellDef="let plan">
+          <span style="color: var(--color-texto-suave); font-size: 0.9rem;">
+            Contiene <strong>{{ plan.incluye ? plan.incluye.length : 0 }}</strong> elementos incluidos.
+          </span>
+        </td>
+      </ng-container>
+
+      <!-- Columna: Acciones -->
+      <ng-container matColumnDef="acciones">
+        <th mat-header-cell *matHeaderCellDef class="text-center"> Acciones </th>
+        <td mat-cell *matCellDef="let plan" class="acciones-cell text-center">
+          <button mat-icon-button class="btn-editar-amarillo" matTooltip="Editar Plan" (click)="abrirDialogoFormulario(plan)">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button class="btn-eliminar-rojo" matTooltip="Eliminar Plan" (click)="eliminarPlan(plan)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="columnasMostrar"></tr>
+      <tr mat-row *matRowDef="let row; columns: columnasMostrar;"></tr>
+      
+      <tr class="mat-row" *matNoDataRow>
+        <td class="mat-cell" colspan="4" style="text-align: center; padding: 2rem;">
+          <mat-icon style="font-size: 40px; color: var(--color-linea);">list_alt</mat-icon>
+          <p style="margin-top: 10px; color: var(--color-texto-suave);">No hay planes registrados en el catálogo.</p>
+        </td>
+      </tr>
+    </table>
+  </div>
+</mat-dialog-content>

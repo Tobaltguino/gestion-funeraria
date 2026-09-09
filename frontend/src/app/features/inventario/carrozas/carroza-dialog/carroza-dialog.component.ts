@@ -11,7 +11,9 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { CarrozaService } from '../services/carroza.service';
 import { NotificationService } from '../../../../shared/services/notification.service';
-import { Carroza, CarrozaEstado } from '../models/carroza.interface';
+
+// Importar los modelos y Enums
+import { Carroza, CarrozaColor, CarrozaEstado, CarrozaMarca } from '../models/carroza.interface';
 
 @Component({
   selector: 'app-carroza-dialog',
@@ -32,7 +34,24 @@ export class CarrozaDialogComponent implements OnInit {
   carrozaForm: FormGroup;
   esEdicion = false;
   guardando = false;
+  
+  // Opciones para los Selects
   estados = Object.values(CarrozaEstado);
+  marcas = Object.values(CarrozaMarca);
+  colores = Object.values(CarrozaColor);
+
+  // Diccionario de modelos por marca (Camionetas y Furgones)
+  modelosPorMarca: Record<string, string[]> = {
+    'Mercedes-Benz': ['Sprinter', 'Vito', 'Clase V'],
+    'Ford': ['F-150', 'Ranger', 'Transit', 'Explorer'],
+    'Chevrolet': ['Silverado', 'Colorado', 'Express', 'Tahoe'],
+    'Hyundai': ['H-1', 'Staria', 'Santa Cruz', 'Palisade', 'Santa Fe'],
+    'Kia': ['Carnival', 'Frontier', 'Sorento'],
+    'Peugeot': ['Boxer', 'Expert', 'Landtrek', 'Partner'],
+    'Otras': ['Furgón Estándar', 'Camioneta Pick-up', 'Sedán Adaptado', 'Otro']
+  };
+  
+  modelosDisponibles: string[] = [];
 
   // Control de Imágenes
   imagenesActuales: string[] = []; 
@@ -44,20 +63,49 @@ export class CarrozaDialogComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: Carroza | null
   ) {
     this.esEdicion = !!data;
+    
+    // Inicializamos el formulario con null por defecto para obligar a seleccionar
     this.carrozaForm = this.fb.group({
-      marca: [data?.marca || '', Validators.required],
-      modelo: [data?.modelo || '', Validators.required],
-      color: [data?.color || '', Validators.required],
+      marca: [data?.marca || null, Validators.required],
+      // El modelo inicia deshabilitado si no hay marca (nueva carroza)
+      modelo: [{ value: data?.modelo || null, disabled: !data?.marca }, Validators.required],
+      color: [data?.color || null, Validators.required],
       patente: [data?.patente || '', Validators.required],
-      estado: [data?.estado || CarrozaEstado.DISPONIBLE, Validators.required]
+      estado: [data?.estado || null, Validators.required]
     });
+
+    // Si es edición y ya tenía marca, cargamos sus modelos correspondientes
+    if (this.esEdicion && data?.marca) {
+      this.modelosDisponibles = this.modelosPorMarca[data.marca] || [];
+    }
 
     if (this.esEdicion && data?.imagenes) {
       this.imagenesActuales = [...data.imagenes];
     }
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    // Escuchar cambios en el selector de Marca en tiempo real
+    this.carrozaForm.get('marca')?.valueChanges.subscribe(marcaSeleccionada => {
+      const modeloCtrl = this.carrozaForm.get('modelo');
+      
+      if (marcaSeleccionada) {
+        // Cargar los modelos de la marca seleccionada
+        this.modelosDisponibles = this.modelosPorMarca[marcaSeleccionada] || [];
+        modeloCtrl?.enable();
+        
+        // Si la marca cambió, limpiamos el modelo que estaba seleccionado
+        if (this.carrozaForm.value.modelo && !this.modelosDisponibles.includes(this.carrozaForm.value.modelo)) {
+          modeloCtrl?.setValue(null);
+        }
+      } else {
+        // Si vuelve a "Sin Seleccionar", bloqueamos y limpiamos
+        this.modelosDisponibles = [];
+        modeloCtrl?.disable();
+        modeloCtrl?.setValue(null);
+      }
+    });
+  }
 
   // --- Lógica de Imágenes (Idéntica a Urnas) ---
   async onFileSelected(event: any) {
@@ -135,27 +183,25 @@ export class CarrozaDialogComponent implements OnInit {
     }
 
     this.guardando = true;
-    const formValues = this.carrozaForm.value;
-    const patenteLimpiada = formValues.patente.replace(/[^a-zA-Z0-9]/g, ''); // Para nombres de archivo
+    
+    // Obtenemos los valores puros, incluso los campos que puedan estar deshabilitados temporalmente
+    const formValues = this.carrozaForm.getRawValue();
+    const patenteLimpiada = formValues.patente.replace(/[^a-zA-Z0-9]/g, '');
 
     try {
-      // 1. Subir nuevas imágenes al Storage
       const urlsNuevas: string[] = [];
       for (let i = 0; i < this.nuevosArchivos.length; i++) {
         const url = await this.carrozaService.subirImagen(this.nuevosArchivos[i].file, patenteLimpiada, Date.now() + i);
         urlsNuevas.push(url);
       }
 
-      // 2. Eliminar del Storage las imágenes borradas
       for (const urlAEliminar of this.imagenesAEliminar) {
         await this.carrozaService.eliminarImagenStorage(urlAEliminar);
       }
 
-      // 3. Juntar las URLs finales
       const imagenesFinales = [...this.imagenesActuales, ...urlsNuevas];
       const carrozaData: Partial<Carroza> = { ...formValues, imagenes: imagenesFinales };
 
-      // 4. Guardar en Base de Datos
       if (this.esEdicion && this.data) {
         await this.carrozaService.actualizarCarroza(this.data.id, carrozaData);
         this.notification.success('Carroza actualizada correctamente.');

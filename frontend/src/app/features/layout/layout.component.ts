@@ -56,6 +56,7 @@ export class LayoutComponent implements OnInit {
     {
       seccion: 'ADMINISTRATIVO',
       opciones: [
+        { titulo: 'Catálogo', ruta: '/catalogo', icono: 'menu_book', rolesPermitidos: [Role.ADMIN, Role.EMPLEADO] },
         { titulo: 'Servicios', ruta: '/servicios', icono: 'assignment', rolesPermitidos: [Role.ADMIN, Role.EMPLEADO] },
         { titulo: 'Agenda Carrozas', ruta: '/agenda', icono: 'calendar_month', rolesPermitidos: [Role.ADMIN, Role.EMPLEADO] }
       ]
@@ -64,7 +65,7 @@ export class LayoutComponent implements OnInit {
       seccion: 'INVENTARIO',
       opciones: [
         { titulo: 'Urnas', ruta: '/inventario/urnas', icono: 'inventory_2', rolesPermitidos: [Role.ADMIN, Role.EMPLEADO] },
-        { titulo: 'Carrozas', ruta: '/inventario/carrozas', icono: 'directions_car', rolesPermitidos: [Role.ADMIN, Role.EMPLEADO] },
+        { titulo: 'Coche Mortuorio', ruta: '/inventario/carrozas', icono: 'directions_car', rolesPermitidos: [Role.ADMIN, Role.EMPLEADO] },
         { titulo: 'Adicionales', ruta: '/inventario/adicionales', icono: 'category', rolesPermitidos: [Role.ADMIN, Role.EMPLEADO] },
         { titulo: 'Pedidos', ruta: '/inventario/pedidos', icono: 'shopping_cart', rolesPermitidos: [Role.ADMIN, Role.EMPLEADO] }
       ]

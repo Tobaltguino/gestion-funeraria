@@ -37,7 +37,7 @@ export class HomeComponent {
 
   // ===== Datos reales de contacto =====
   readonly telefonoFijo = '(58) 2426056';
-  readonly telefonoFijoLimpio = '+56582426056';
+  readonly telefonoFijoLimpio = '+56994586410';
 
   readonly celulares: Celular[] = [
     { numero: '+569 71090319', numeroLimpio: '56971090319' },

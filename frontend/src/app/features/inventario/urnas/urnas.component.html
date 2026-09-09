@@ -14,11 +14,11 @@
     </button>
   </div>
 
-  <!-- SECCIÓN DE FILTROS (NUEVO) -->
+  <!-- SECCIÓN DE FILTROS -->
   <div class="filtros-container" *ngIf="!cargando" style="display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; align-items: center; background: #fff; padding: 16px 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
     
-    <mat-form-field appearance="outline" style="flex: 1; min-width: 200px; margin-bottom: -1.25em;">
-      <mat-label>Buscar por modelo...</mat-label>
+    <mat-form-field appearance="outline" style="flex: 1; min-width: 180px; margin-bottom: -1.25em;">
+      <mat-label>Modelo</mat-label>
       <input matInput [(ngModel)]="filtroNombre" (keyup)="aplicarFiltros()" autocomplete="off">
       <mat-icon matPrefix>search</mat-icon>
     </mat-form-field>
@@ -27,7 +27,7 @@
       <mat-label>Tipo</mat-label>
       <mat-select [(ngModel)]="filtroTipo" (selectionChange)="aplicarFiltros()">
         <mat-option value="">Todos</mat-option>
-        <mat-option *ngFor="let tipo of tipos" [value]="tipo" style="text-transform: capitalize;">{{ tipo }}</mat-option>
+        <mat-option *ngFor="let tipo of tipos" [value]="tipo">{{ tipo }}</mat-option>
       </mat-select>
     </mat-form-field>
 
@@ -35,7 +35,7 @@
       <mat-label>Tamaño</mat-label>
       <mat-select [(ngModel)]="filtroTamano" (selectionChange)="aplicarFiltros()">
         <mat-option value="">Todos</mat-option>
-        <mat-option *ngFor="let tam of tamanos" [value]="tam" style="text-transform: capitalize;">{{ tam }}</mat-option>
+        <mat-option *ngFor="let tam of tamanos" [value]="tam">{{ tam }}</mat-option>
       </mat-select>
     </mat-form-field>
 
@@ -43,13 +43,9 @@
       <mat-label>Cuerpos</mat-label>
       <mat-select [(ngModel)]="filtroCuerpo" (selectionChange)="aplicarFiltros()">
         <mat-option value="">Todos</mat-option>
-        <mat-option *ngFor="let cuerpo of cuerpos" [value]="cuerpo" style="text-transform: capitalize;">{{ cuerpo }}</mat-option>
+        <mat-option *ngFor="let cuerpo of cuerpos" [value]="cuerpo">{{ cuerpo }}</mat-option>
       </mat-select>
     </mat-form-field>
-
-    <mat-checkbox [(ngModel)]="filtroStockCritico" (change)="aplicarFiltros()" color="warn" style="margin-top: 8px;">
-      Solo Stock Crítico
-    </mat-checkbox>
 
     <button mat-icon-button color="primary" matTooltip="Limpiar Filtros" (click)="limpiarFiltros()" style="margin-top: 8px;">
       <mat-icon>filter_alt_off</mat-icon>

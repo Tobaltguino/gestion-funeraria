@@ -67,7 +67,6 @@ export class UrnasComponent implements OnInit {
   filtroTipo: string = '';
   filtroTamano: string = '';
   filtroCuerpo: string = '';
-  filtroStockCritico: boolean = false;
 
   async ngOnInit() {
     this.configurarFiltroPersonalizado();
@@ -102,7 +101,6 @@ export class UrnasComponent implements OnInit {
   // --- LÓGICA DE FILTRADO MÚLTIPLE ---
   
   configurarFiltroPersonalizado() {
-    // Sobrescribimos cómo Angular Material evalúa cada fila
     this.dataSource.filterPredicate = (data: Urna, filter: string) => {
       const searchTerms = JSON.parse(filter);
 
@@ -110,9 +108,9 @@ export class UrnasComponent implements OnInit {
       const matchTipo = searchTerms.tipo ? data.tipo_urna === searchTerms.tipo : true;
       const matchTamano = searchTerms.tamano ? data.tamano === searchTerms.tamano : true; 
       const matchCuerpo = searchTerms.cuerpo ? data.cuerpo === searchTerms.cuerpo : true;
-      const matchStock = searchTerms.stockCritico ? data.stock_actual <= data.kpi_alerta_stock : true;
 
-      return matchNombre && matchTipo && matchTamano && matchCuerpo && matchStock;
+      // Eliminamos la validación del stock
+      return matchNombre && matchTipo && matchTamano && matchCuerpo;
     };
   }
 
@@ -121,10 +119,8 @@ export class UrnasComponent implements OnInit {
       nombre: this.filtroNombre,
       tipo: this.filtroTipo,
       tamano: this.filtroTamano,
-      cuerpo: this.filtroCuerpo,
-      stockCritico: this.filtroStockCritico
+      cuerpo: this.filtroCuerpo
     };
-    // Pasamos el objeto convertido a string al filtro
     this.dataSource.filter = JSON.stringify(searchFilter);
   }
 
@@ -133,7 +129,6 @@ export class UrnasComponent implements OnInit {
     this.filtroTipo = '';
     this.filtroTamano = '';
     this.filtroCuerpo = '';
-    this.filtroStockCritico = false;
     this.aplicarFiltros();
   }
 

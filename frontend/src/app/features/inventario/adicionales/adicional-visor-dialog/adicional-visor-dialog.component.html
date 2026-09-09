@@ -11,13 +11,26 @@
       <mat-icon>sell</mat-icon>
       <span>Precio Costo: <strong>${{ adicional.precio_costo }}</strong></span>
     </div>
+    
     <div class="info-item" style="margin-bottom: 8px;">
       <mat-icon>point_of_sale</mat-icon>
       <span>Precio Venta: <strong>${{ adicional.precio_venta }}</strong></span>
     </div>
-    <div class="info-item">
-      <mat-icon>category</mat-icon>
-      <span>Categoría: <strong>{{ adicional.categoria }}</strong></span>
+    
+    <!-- NUEVO: Disponibilidad con colores dinámicos -->
+    <div class="info-item" style="margin-bottom: 8px;">
+      <mat-icon>info</mat-icon>
+      <span>Estado: 
+        <strong [ngStyle]="{'color': adicional.disponible ? '#2e7d32' : '#c62828'}">
+          {{ adicional.disponible ? 'Disponible' : 'No Disponible' }}
+        </strong>
+      </span>
+    </div>
+
+    <!-- NUEVO: Descripción (Solo se muestra si el adicional tiene una) -->
+    <div class="info-item" *ngIf="adicional.descripcion">
+      <mat-icon>description</mat-icon>
+      <span style="white-space: pre-wrap;">Descripción: <strong>{{ adicional.descripcion }}</strong></span>
     </div>
   </div>
 

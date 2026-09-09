@@ -1,0 +1,73 @@
+<div class="landing-container">
+  
+  <!-- HERO BANNER -->
+  <div class="hero-section">
+    <div class="hero-content">
+      <h1 class="hero-title">Catálogo de Planes Funerarios</h1>
+      <p class="hero-subtitle">Acompañamiento integral con dignidad, respeto y la más alta calidad para honrar a sus seres queridos.</p>
+      
+      <!-- Botón de Administración Exclusivo -->
+      <button *ngIf="esAdmin" mat-flat-button class="btn-admin-floating" (click)="abrirGestionAdmin()">
+        <mat-icon>settings</mat-icon>
+        Administrar Catálogo
+      </button>
+    </div>
+  </div>
+
+  <div class="loading-container" *ngIf="cargando">
+    <mat-spinner diameter="50"></mat-spinner>
+  </div>
+
+  <!-- GRILLA DE PLANES -->
+  <div class="planes-grid" *ngIf="!cargando && planes.length > 0">
+    
+    <div class="plan-card" *ngFor="let plan of planes">
+      
+      <!-- Imagen de Portada -->
+      <div class="card-header" matRipple (click)="abrirVisor(plan)">
+        <img *ngIf="plan.imagenes && plan.imagenes.length > 0" [src]="plan.imagenes[0]" alt="{{ plan.nombre }}">
+        <div class="no-image-placeholder" *ngIf="!plan.imagenes || plan.imagenes.length === 0">
+          <mat-icon>image_not_supported</mat-icon>
+        </div>
+        
+        <div class="photo-badge" *ngIf="plan.imagenes && plan.imagenes.length > 1">
+          <mat-icon>photo_library</mat-icon>
+          <span>+{{ plan.imagenes.length - 1 }}</span>
+        </div>
+      </div>
+
+      <!-- Contenido del Plan -->
+      <div class="card-body">
+        <h2 class="plan-title">{{ plan.nombre }}</h2>
+        
+        <div class="plan-features">
+          <p class="features-header">El servicio incluye:</p>
+          <ul class="features-list">
+            <li *ngFor="let item of (plan.incluye || [])">
+              <mat-icon class="check-icon">check_circle</mat-icon>
+              <span>{{ item }}</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Acción -->
+      <div class="card-footer">
+        <button mat-flat-button color="primary" class="w-100 btn-detalles" (click)="abrirVisor(plan)">
+          <mat-icon>visibility</mat-icon>
+          Ver Galería de Fotos
+        </button>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="!cargando && planes.length === 0">
+    <mat-icon>sentiment_dissatisfied</mat-icon>
+    <h3>No hay planes disponibles</h3>
+    <p>Aún no se han configurado los planes funerarios en el catálogo.</p>
+  </div>
+
+</div>

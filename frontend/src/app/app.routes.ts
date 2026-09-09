@@ -17,6 +17,7 @@ import { DashboardComponent } from './features/dashboard/dashboard.component';
 
 import { ServiciosComponent } from './features/administrativo/servicios/servicios.component';
 import { AgendaComponent } from './features/administrativo/agenda/agenda.component';
+import { CatalogoComponent } from './features/administrativo/catalogo/catalogo.component';
 
 import { UrnasComponent } from './features/inventario/urnas/urnas.component';
 import { CarrozasComponent } from './features/inventario/carrozas/carrozas.component';
@@ -53,6 +54,11 @@ export const routes: Routes = [
       },
 
       // --- ADMINISTRATIVO (Ambos) ---
+      { 
+        path: 'catalogo', 
+        component: CatalogoComponent,
+        data: { roles: [Role.ADMIN, Role.EMPLEADO] } 
+      },
       { 
         path: 'servicios', 
         component: ServiciosComponent,

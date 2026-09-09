@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select'; // <-- Importante añadir esto
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -17,7 +18,7 @@ import { Adicional } from '../models/adicional.interface';
   standalone: true,
   imports: [
     CommonModule, ReactiveFormsModule, MatDialogModule, MatFormFieldModule,
-    MatInputModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule
+    MatInputModule, MatSelectModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule
   ],
   templateUrl: './adicional-dialog.component.html'
 })
@@ -43,7 +44,8 @@ export class AdicionalDialogComponent implements OnInit {
     this.esEdicion = !!data;
     this.adicionalForm = this.fb.group({
       nombre: [data?.nombre || '', Validators.required],
-      categoria: [data?.categoria || '', Validators.required],
+      descripcion: [data?.descripcion || ''], // Es opcional, no le ponemos required
+      disponible: [data?.disponible !== undefined ? data.disponible : true, Validators.required],
       precio_costo: [data?.precio_costo || 0, [Validators.required, Validators.min(0)]],
       precio_venta: [data?.precio_venta || 0, [Validators.required, Validators.min(0)]]
     });
@@ -146,6 +148,8 @@ export class AdicionalDialogComponent implements OnInit {
       }
 
       const imagenesFinales = [...this.imagenesActuales, ...urlsNuevas];
+      
+      // Aquí formValues ya incluye 'descripcion' y 'disponible'
       const adicionalData: Partial<Adicional> = { ...formValues, imagenes: imagenesFinales };
 
       if (this.esEdicion && this.data) {

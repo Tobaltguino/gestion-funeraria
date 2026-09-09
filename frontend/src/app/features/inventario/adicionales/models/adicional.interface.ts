@@ -1,7 +1,8 @@
 export interface Adicional {
   id: string;
   nombre: string;
-  categoria: string;
+  descripcion?: string;     
+  disponible: boolean;       
   precio_costo: number;
   precio_venta: number;
   imagenes: string[]; 

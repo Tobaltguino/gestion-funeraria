@@ -4,11 +4,27 @@ export enum CarrozaEstado {
   MANTENIMIENTO = 'Mantenimiento'
 }
 
+export enum CarrozaColor {
+  BLANCO = 'Blanco',
+  NEGRO = 'Negro',
+  GRIS = 'Gris'
+}
+
+export enum CarrozaMarca {
+  MERCEDES = 'Mercedes-Benz',
+  FORD = 'Ford',
+  CHEVROLET = 'Chevrolet',
+  HYUNDAI = 'Hyundai',
+  KIA = 'Kia',
+  PEUGEOT = 'Peugeot',
+  OTRAS = 'Otras'
+}
+
 export interface Carroza {
   id: string;
-  marca: string;
+  marca: CarrozaMarca; // Actualizado a Enum
   modelo: string;
-  color: string;
+  color: CarrozaColor; // Actualizado a Enum
   patente: string;
   estado: CarrozaEstado;
   imagenes: string[];

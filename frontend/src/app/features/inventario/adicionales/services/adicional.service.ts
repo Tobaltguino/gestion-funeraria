@@ -18,7 +18,6 @@ export class AdicionalService {
       .from('adicionales')
       .select('*')
       .is('fecha_eliminacion', null)
-      .order('categoria', { ascending: true })
       .order('nombre', { ascending: true });
 
     if (error) throw error;

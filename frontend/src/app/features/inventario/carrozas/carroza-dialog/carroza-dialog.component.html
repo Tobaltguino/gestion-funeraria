@@ -3,17 +3,32 @@
 <mat-dialog-content>
   <form [formGroup]="carrozaForm" class="dialog-form">
     
-    <!-- Fila 1: Marca y Modelo -->
+    <!-- Fila 1: Marca y Modelo (Dependientes) -->
     <div class="form-row">
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Marca</mat-label>
-        <input matInput formControlName="marca" placeholder="Ej: Lincoln">
+        <mat-select formControlName="marca">
+          <mat-option [value]="null" style="color: #999; font-style: italic;">
+            -- Sin Seleccionar --
+          </mat-option>
+          <mat-option *ngFor="let m of marcas" [value]="m">
+            {{ m }}
+          </mat-option>
+        </mat-select>
         <mat-error *ngIf="carrozaForm.get('marca')?.hasError('required')">Requerido</mat-error>
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Modelo</mat-label>
-        <input matInput formControlName="modelo" placeholder="Ej: Continental">
+        <mat-select formControlName="modelo">
+          <mat-option [value]="null" style="color: #999; font-style: italic;">
+            -- Sin Seleccionar --
+          </mat-option>
+          <mat-option *ngFor="let mod of modelosDisponibles" [value]="mod">
+            {{ mod }}
+          </mat-option>
+        </mat-select>
+        <mat-hint *ngIf="carrozaForm.get('modelo')?.disabled">Seleccione una marca primero</mat-hint>
         <mat-error *ngIf="carrozaForm.get('modelo')?.hasError('required')">Requerido</mat-error>
       </mat-form-field>
     </div>
@@ -22,21 +37,34 @@
     <div class="form-row">
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Color</mat-label>
-        <input matInput formControlName="color" placeholder="Ej: Negro">
+        <mat-select formControlName="color">
+          <mat-option [value]="null" style="color: #999; font-style: italic;">
+            -- Sin Seleccionar --
+          </mat-option>
+          <mat-option *ngFor="let color of colores" [value]="color">
+            {{ color }}
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="carrozaForm.get('color')?.hasError('required')">Requerido</mat-error>
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Patente</mat-label>
         <input matInput formControlName="patente" placeholder="AB-CD-12" style="text-transform: uppercase;">
+        <mat-error *ngIf="carrozaForm.get('patente')?.hasError('required')">Requerido</mat-error>
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Estado</mat-label>
         <mat-select formControlName="estado">
+          <mat-option [value]="null" style="color: #999; font-style: italic;">
+            -- Sin Seleccionar --
+          </mat-option>
           <mat-option *ngFor="let estado of estados" [value]="estado">
             {{ estado }}
           </mat-option>
         </mat-select>
+        <mat-error *ngIf="carrozaForm.get('estado')?.hasError('required')">Requerido</mat-error>
       </mat-form-field>
     </div>
 
@@ -66,7 +94,7 @@
           <span class="badge-new">Nueva</span>
         </div>
 
-        <!-- 3. Botón de Agregar (Aparecerá a la derecha/al final) -->
+        <!-- 3. Botón de Agregar -->
         <div class="gallery-add-btn" (click)="fileInput.click()">
           <mat-icon>add_photo_alternate</mat-icon>
           <span>Subir Fotos</span>
