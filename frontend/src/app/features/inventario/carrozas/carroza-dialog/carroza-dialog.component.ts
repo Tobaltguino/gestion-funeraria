@@ -11,6 +11,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { CarrozaService } from '../services/carroza.service';
 import { NotificationService } from '../../../../shared/services/notification.service';
+import { PatenteDirective } from '../../../../shared/directives/patente.directive';
 
 // Importar los modelos y Enums
 import { Carroza, CarrozaColor, CarrozaEstado, CarrozaMarca } from '../models/carroza.interface';
@@ -20,7 +21,7 @@ import { Carroza, CarrozaColor, CarrozaEstado, CarrozaMarca } from '../models/ca
   standalone: true,
   imports: [
     CommonModule, ReactiveFormsModule, MatDialogModule, MatFormFieldModule,
-    MatInputModule, MatSelectModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule
+    MatInputModule, MatSelectModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule, PatenteDirective
   ],
   templateUrl: './carroza-dialog.component.html',
   styleUrls: ['./carroza-dialog.component.scss']
