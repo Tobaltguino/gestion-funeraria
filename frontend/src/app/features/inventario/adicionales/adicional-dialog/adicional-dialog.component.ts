@@ -4,14 +4,15 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select'; // <-- Importante añadir esto
+import { MatSelectModule } from '@angular/material/select'; 
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { AdicionalService } from '../services/adicional.service';
 import { NotificationService } from '../../../../shared/services/notification.service';
-import { Adicional } from '../models/adicional.interface';
+// NUEVO: Importamos CategoriaAdicional
+import { Adicional, CategoriaAdicional } from '../models/adicional.interface';
 
 @Component({
   selector: 'app-adicional-dialog',
@@ -32,6 +33,9 @@ export class AdicionalDialogComponent implements OnInit {
   esEdicion = false;
   guardando = false;
 
+  // NUEVO: Definimos las categorías para el select del formulario
+  listaCategorias: string[] = Object.values(CategoriaAdicional);
+
   // Control de Imágenes
   imagenesActuales: string[] = []; 
   nuevosArchivos: { file: File, preview: string }[] = []; 
@@ -44,7 +48,8 @@ export class AdicionalDialogComponent implements OnInit {
     this.esEdicion = !!data;
     this.adicionalForm = this.fb.group({
       nombre: [data?.nombre || '', Validators.required],
-      descripcion: [data?.descripcion || ''], // Es opcional, no le ponemos required
+      categoria: [data?.categoria || '', Validators.required], // NUEVO CONTROL
+      descripcion: [data?.descripcion || ''], 
       disponible: [data?.disponible !== undefined ? data.disponible : true, Validators.required],
       precio_costo: [data?.precio_costo || 0, [Validators.required, Validators.min(0)]],
       precio_venta: [data?.precio_venta || 0, [Validators.required, Validators.min(0)]]
@@ -149,7 +154,6 @@ export class AdicionalDialogComponent implements OnInit {
 
       const imagenesFinales = [...this.imagenesActuales, ...urlsNuevas];
       
-      // Aquí formValues ya incluye 'descripcion' y 'disponible'
       const adicionalData: Partial<Adicional> = { ...formValues, imagenes: imagenesFinales };
 
       if (this.esEdicion && this.data) {

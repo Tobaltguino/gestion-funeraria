@@ -3,7 +3,7 @@
 <mat-dialog-content>
   <form [formGroup]="adicionalForm" class="dialog-form">
     
-    <!-- Fila 1: Nombre y Disponibilidad -->
+    <!-- Fila 1: Nombre y Categoría -->
     <div class="form-row">
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Nombre / Servicio</mat-label>
@@ -12,12 +12,13 @@
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Estado</mat-label>
-        <mat-select formControlName="disponible">
-          <mat-option [value]="true">Disponible</mat-option>
-          <mat-option [value]="false">No Disponible</mat-option>
+        <mat-label>Categoría</mat-label>
+        <mat-select formControlName="categoria" placeholder="Seleccione categoría">
+          <mat-option *ngFor="let cat of listaCategorias" [value]="cat">
+            {{ cat }}
+          </mat-option>
         </mat-select>
-        <mat-error *ngIf="adicionalForm.get('disponible')?.hasError('required')">Requerido</mat-error>
+        <mat-error *ngIf="adicionalForm.get('categoria')?.hasError('required')">Requerido</mat-error>
       </mat-form-field>
     </div>
 
@@ -29,7 +30,7 @@
       </mat-form-field>
     </div>
 
-    <!-- Fila 3: Precios -->
+    <!-- Fila 3: Precios y Estado -->
     <div class="form-row">
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Precio Costo</mat-label>
@@ -41,6 +42,16 @@
         <mat-label>Precio Venta</mat-label>
         <span matTextPrefix>$&nbsp;</span>
         <input matInput type="number" formControlName="precio_venta" min="0">
+      </mat-form-field>
+
+      <!-- Movimos la disponibilidad a esta fila para cuadrar la estructura -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Estado</mat-label>
+        <mat-select formControlName="disponible">
+          <mat-option [value]="true">Disponible</mat-option>
+          <mat-option [value]="false">No Disponible</mat-option>
+        </mat-select>
+        <mat-error *ngIf="adicionalForm.get('disponible')?.hasError('required')">Requerido</mat-error>
       </mat-form-field>
     </div>
 
