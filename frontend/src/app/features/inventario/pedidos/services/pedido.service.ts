@@ -17,8 +17,8 @@ export class PedidoService {
 
   async obtenerPedidos(): Promise<Pedido[]> {
     const { data, error } = await this.supabase
-      .from('pedidos')
-      .select('*, urnas(*)') // ¡Magia relacional! Trae el pedido y los datos de la urna
+      .from('inv_pedidos')
+      .select('*, inv_urnas(*)') // ¡Magia relacional! Trae el pedido y los datos de la urna
       .is('fecha_eliminacion', null)
       .order('fecha_pedido', { ascending: false }); // Los más recientes primero
 
@@ -33,7 +33,7 @@ export class PedidoService {
     }
 
     const { data, error } = await this.supabase
-      .from('pedidos')
+      .from('inv_pedidos')
       .insert(pedido)
       .select()
       .single();
@@ -44,7 +44,7 @@ export class PedidoService {
 
   async actualizarPedido(id: string, pedido: Partial<Pedido>): Promise<Pedido> {
     const { data, error } = await this.supabase
-      .from('pedidos')
+      .from('inv_pedidos')
       .update(pedido)
       .eq('id', id)
       .select()
@@ -56,7 +56,7 @@ export class PedidoService {
 
   async eliminarPedido(id: string): Promise<void> {
     const { error } = await this.supabase
-      .from('pedidos')
+      .from('inv_pedidos')
       .update({ fecha_eliminacion: new Date().toISOString() })
       .eq('id', id);
 

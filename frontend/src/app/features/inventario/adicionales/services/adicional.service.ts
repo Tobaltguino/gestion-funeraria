@@ -15,7 +15,7 @@ export class AdicionalService {
 
   async obtenerAdicionales(): Promise<Adicional[]> {
     const { data, error } = await this.supabase
-      .from('adicionales')
+      .from('inv_adicionales')
       .select('*')
       .is('fecha_eliminacion', null)
       .order('nombre', { ascending: true });
@@ -26,7 +26,7 @@ export class AdicionalService {
 
   async crearAdicional(adicional: Partial<Adicional>): Promise<Adicional> {
     const { data, error } = await this.supabase
-      .from('adicionales')
+      .from('inv_adicionales')
       .insert(adicional)
       .select()
       .single();
@@ -37,7 +37,7 @@ export class AdicionalService {
 
   async actualizarAdicional(id: string, adicional: Partial<Adicional>): Promise<Adicional> {
     const { data, error } = await this.supabase
-      .from('adicionales')
+      .from('inv_adicionales')
       .update(adicional)
       .eq('id', id)
       .select()
@@ -49,7 +49,7 @@ export class AdicionalService {
 
   async eliminarAdicional(id: string): Promise<void> {
     const { error } = await this.supabase
-      .from('adicionales')
+      .from('inv_adicionales')
       .update({ fecha_eliminacion: new Date().toISOString() })
       .eq('id', id);
 

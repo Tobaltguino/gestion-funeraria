@@ -17,7 +17,7 @@ export class CarrozaService {
 
   async obtenerCarrozas(): Promise<Carroza[]> {
     const { data, error } = await this.supabase
-      .from('carrozas')
+      .from('inv_carrozas')
       .select('*')
       .is('fecha_eliminacion', null)
       .order('marca', { ascending: true }); // Ordenamos por marca
@@ -28,7 +28,7 @@ export class CarrozaService {
 
   async crearCarroza(carroza: Partial<Carroza>): Promise<Carroza> {
     const { data, error } = await this.supabase
-      .from('carrozas')
+      .from('inv_carrozas')
       .insert(carroza)
       .select()
       .single();
@@ -39,7 +39,7 @@ export class CarrozaService {
 
   async actualizarCarroza(id: string, carroza: Partial<Carroza>): Promise<Carroza> {
     const { data, error } = await this.supabase
-      .from('carrozas')
+      .from('inv_carrozas')
       .update(carroza)
       .eq('id', id)
       .select()
@@ -51,7 +51,7 @@ export class CarrozaService {
 
   async eliminarCarroza(id: string): Promise<void> {
     const { error } = await this.supabase
-      .from('carrozas')
+      .from('inv_carrozas')
       .update({ 
         fecha_eliminacion: new Date().toISOString() 
       })
