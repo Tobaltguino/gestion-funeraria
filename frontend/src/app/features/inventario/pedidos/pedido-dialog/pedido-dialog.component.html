@@ -8,7 +8,7 @@
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Urna a Solicitar</mat-label>
         
-        <mat-select formControlName="urna_id" [disabled]="cargandoUrnas">
+        <mat-select formControlName="urna_id">
           <mat-option *ngIf="cargandoUrnas" disabled>
             Cargando inventario...
           </mat-option>
@@ -56,21 +56,25 @@
       </mat-form-field>
     </div>
 
-    <!-- Fila 3: Fechas (Pedido y Recepción) -->
+    <!-- Fila 3: Fechas (Pedido y Recepción con Datepicker) -->
     <div class="form-row">
       
       <!-- Fecha de Creación del Pedido -->
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Fecha de Pedido</mat-label>
-        <input matInput type="date" formControlName="fecha_pedido">
+        <input matInput [matDatepicker]="pickerPedido" formControlName="fecha_pedido">
+        <mat-datepicker-toggle matIconSuffix [for]="pickerPedido"></mat-datepicker-toggle>
+        <mat-datepicker #pickerPedido></mat-datepicker>
         <mat-error *ngIf="pedidoForm.get('fecha_pedido')?.hasError('required')">Debe indicar la fecha</mat-error>
       </mat-form-field>
 
       <!-- Fecha de Llegada (Solo visible si estado es Recibido) -->
       <mat-form-field appearance="outline" class="full-width" *ngIf="pedidoForm.get('estado_manual')?.value === 'Recibido'">
         <mat-label>Fecha de Recepción</mat-label>
-        <input matInput type="date" formControlName="fecha_llegada">
-        <mat-hint>Indique cuándo ingresó el pedido al inventario</mat-hint>
+        <input matInput [matDatepicker]="pickerLlegada" formControlName="fecha_llegada">
+        <mat-datepicker-toggle matIconSuffix [for]="pickerLlegada"></mat-datepicker-toggle>
+        <mat-datepicker #pickerLlegada></mat-datepicker>
+        <mat-hint>Indique cuándo ingresó el pedido</mat-hint>
       </mat-form-field>
 
       <!-- Div vacío para mantener la estructura simétrica si NO está en estado "Recibido" -->
