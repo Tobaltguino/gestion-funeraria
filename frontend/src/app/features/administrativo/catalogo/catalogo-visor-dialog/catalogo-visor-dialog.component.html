@@ -11,7 +11,13 @@
   <div class="visor-info-rapida" style="margin-bottom: 20px;">
     <h3 style="font-size: 1rem; font-weight: 600; margin-bottom: 8px; color: var(--color-texto);">El servicio incluye:</h3>
     <ul style="margin: 0; padding-left: 1.2rem; color: var(--color-texto-suave); font-size: 0.9rem; line-height: 1.6;">
-      <li *ngFor="let item of (plan.incluye || [])">{{ item }}</li>
+      
+      <!-- ACTUALIZADO PARA USAR LA TABLA INTERMEDIA -->
+      <li *ngFor="let item of (plan.adm_plan_adicionales || [])">
+        <strong *ngIf="item.cantidad > 1">{{ item.cantidad }}x </strong>
+        {{ item.inv_adicionales?.nombre }}
+      </li>
+      
     </ul>
   </div>
 

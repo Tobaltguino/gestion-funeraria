@@ -59,7 +59,8 @@
         <th mat-header-cell *matHeaderCellDef> Características </th>
         <td mat-cell *matCellDef="let plan">
           <span style="color: var(--color-texto-suave); font-size: 0.9rem;">
-            Contiene <strong>{{ plan.incluye ? plan.incluye.length : 0 }}</strong> elementos incluidos.
+            <!-- ACTUALIZAMOS plan.incluye POR plan.adm_plan_adicionales -->
+            Contiene <strong>{{ plan.adm_plan_adicionales ? plan.adm_plan_adicionales.length : 0 }}</strong> elementos incluidos.
           </span>
         </td>
       </ng-container>
