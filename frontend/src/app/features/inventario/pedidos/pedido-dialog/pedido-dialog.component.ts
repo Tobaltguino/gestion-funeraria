@@ -10,6 +10,10 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+// Nuevos imports para el Datepicker
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { provideNativeDateAdapter } from '@angular/material/core';
 
 // Servicios y Modelos
 import { PedidoService } from '../services/pedido.service';
@@ -23,8 +27,10 @@ import { Urna } from '../../urnas/models/urna.interface';
   standalone: true,
   imports: [
     CommonModule, ReactiveFormsModule, MatDialogModule, MatFormFieldModule,
-    MatInputModule, MatSelectModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule
+    MatInputModule, MatSelectModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule,
+    MatDatepickerModule, MatNativeDateModule // Agregados al imports
   ],
+  providers: [provideNativeDateAdapter()],
   templateUrl: './pedido-dialog.component.html'
 })
 export class PedidoDialogComponent implements OnInit {
@@ -49,32 +55,27 @@ export class PedidoDialogComponent implements OnInit {
   ) {
     this.esEdicion = !!data;
     
-    // Si ya había fecha de pedido, la usamos. Si es nuevo, sugerimos la fecha actual.
-    const fechaPedidoFormat = data?.fecha_pedido 
-      ? data.fecha_pedido.split('T')[0] 
-      : new Date().toISOString().split('T')[0];
-
-    // Formateo de fecha de llegada si existe
-    const fechaLlegadaFormat = data?.fecha_llegada ? data.fecha_llegada.split('T')[0] : '';
+    // El Datepicker funciona mejor con objetos Date de JavaScript
+    const fechaPedidoVal = data?.fecha_pedido ? new Date(data.fecha_pedido) : new Date();
+    const fechaLlegadaVal = data?.fecha_llegada ? new Date(data.fecha_llegada) : '';
 
     this.pedidoForm = this.fb.group({
-      urna_id: [data?.urna_id || '', Validators.required],
+      urna_id: [{ value: data?.urna_id || '', disabled: true }, Validators.required],
       cantidad: [data?.cantidad || 1, [Validators.required, Validators.min(1)]],
       estado_manual: [data?.estado_manual || PedidoEstado.PENDIENTE, Validators.required],
-      fecha_pedido: [fechaPedidoFormat, Validators.required],
+      fecha_pedido: [fechaPedidoVal, Validators.required],
       fecha_llegada: [{ 
-        value: fechaLlegadaFormat, 
+        value: fechaLlegadaVal, 
         disabled: data?.estado_manual !== PedidoEstado.RECIBIDO 
       }]
     });
 
-    // Escuchamos los cambios del estado en tiempo real para la fecha de llegada
     this.pedidoForm.get('estado_manual')?.valueChanges.subscribe(estado => {
       const fechaCtrl = this.pedidoForm.get('fecha_llegada');
       if (estado === PedidoEstado.RECIBIDO) {
         fechaCtrl?.enable();
         if (!fechaCtrl?.value) {
-          fechaCtrl?.setValue(new Date().toISOString().split('T')[0]);
+          fechaCtrl?.setValue(new Date());
         }
       } else {
         fechaCtrl?.disable();
@@ -96,6 +97,7 @@ export class PedidoDialogComponent implements OnInit {
       this.notification.error('No se pudo cargar el catálogo de urnas para el pedido.');
     } finally {
       this.cargandoUrnas = false;
+      this.pedidoForm.get('urna_id')?.enable(); // <--- Habilitamos el select aquí
       this.cdr.detectChanges();
     }
   }
@@ -116,8 +118,14 @@ export class PedidoDialogComponent implements OnInit {
     this.guardando = true;
     const formValues = this.pedidoForm.getRawValue();
     
-    // Regla de seguridad
-    if (formValues.estado_manual !== PedidoEstado.RECIBIDO) {
+    // Convertimos los objetos Date de vuelta a string ISO para la base de datos
+    if (formValues.fecha_pedido instanceof Date) {
+      formValues.fecha_pedido = formValues.fecha_pedido.toISOString();
+    }
+    
+    if (formValues.estado_manual === PedidoEstado.RECIBIDO && formValues.fecha_llegada instanceof Date) {
+      formValues.fecha_llegada = formValues.fecha_llegada.toISOString();
+    } else if (formValues.estado_manual !== PedidoEstado.RECIBIDO) {
       formValues.fecha_llegada = null;
     }
 

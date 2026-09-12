@@ -18,7 +18,7 @@ export class AuthService {
   // 2. Obtener el perfil tipado
   async obtenerPerfilUsuario(userId: string): Promise<PerfilUsuario | null> {
     const { data, error } = await this.supabase
-      .from('usuarios')
+      .from('sist_usuarios')
       .select('id, nombre, rol, rut, telefono')
       .eq('id', userId)
       .single();

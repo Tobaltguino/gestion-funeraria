@@ -12,7 +12,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule } from '@angular/material/snack-bar'; // <-- Módulo agregado
 
 import { AuthService } from '../../../core/auth/auth.service';
-import { RutFormatDirective } from '../../../shared/directives/rut-format';
+import { RutFormatDirective } from '../../../shared/directives/rut-format.directive';
 import { NotificationService } from '../../../shared/services/notification.service';
 
 @Component({

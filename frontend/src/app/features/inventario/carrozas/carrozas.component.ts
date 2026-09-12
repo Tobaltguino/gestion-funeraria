@@ -19,6 +19,7 @@ import { AuthService } from '../../../core/auth/auth.service';
 import { Role } from '../../../shared/enums/role.enum';
 import { NotificationService } from '../../../shared/services/notification.service';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { PatenteDirective } from '../../../shared/directives/patente.directive';
 
 // Importa tus componentes de diálogo (Ajusta las rutas si es necesario)
 import { CarrozaDialogComponent } from './carroza-dialog/carroza-dialog.component';
@@ -41,7 +42,8 @@ import { Carroza, CarrozaColor, CarrozaEstado, CarrozaMarca } from './models/car
     MatTooltipModule,
     MatFormFieldModule,
     MatInputModule,
-    MatSelectModule
+    MatSelectModule,
+    PatenteDirective
   ],
   templateUrl: './carrozas.component.html',
   styleUrls: ['./carrozas.component.scss']

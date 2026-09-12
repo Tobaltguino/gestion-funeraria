@@ -21,7 +21,7 @@ import { NotificationService } from '../../../shared/services/notification.servi
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { AdicionalDialogComponent } from './adicional-dialog/adicional-dialog.component';
 import { AdicionalVisorDialogComponent } from './adicional-visor-dialog/adicional-visor-dialog.component';
-import { Adicional } from './models/adicional.interface';
+import { Adicional, CategoriaAdicional } from './models/adicional.interface';
 
 @Component({
   selector: 'app-adicionales',
@@ -45,12 +45,16 @@ export class AdicionalesComponent implements OnInit {
   cargando = true;
   esAdmin = false;
 
-  // Actualizamos las columnas a mostrar
-  columnasMostrar: string[] = ['imagen', 'servicio', 'descripcion', 'estado', 'acciones'];
+  // NUEVO: Agregamos 'categoria' al arreglo de columnas
+  columnasMostrar: string[] = ['imagen', 'servicio', 'categoria', 'descripcion', 'estado', 'acciones'];
+
+  // NUEVO: Lista de categorías disponibles para el filtro
+  listaCategorias: string[] = Object.values(CategoriaAdicional);
 
   // Variables para filtros
   filtroNombre: string = '';
-  filtroDisponible: string = ''; // '' = Todos, 'true' = Disponibles, 'false' = No Disponibles
+  filtroDisponible: string = ''; 
+  filtroCategoria: string = ''; // NUEVO: Variable para el selector de categoría
 
   async ngOnInit() {
     this.configurarFiltroPersonalizado();
@@ -81,7 +85,7 @@ export class AdicionalesComponent implements OnInit {
     }
   }
 
-  // --- LÓGICA DE FILTRADO ---
+  // --- LÓGICA DE FILTRADO ACTUALIZADA ---
   configurarFiltroPersonalizado() {
     this.dataSource.filterPredicate = (data: Adicional, filter: string) => {
       const searchTerms = JSON.parse(filter);
@@ -95,14 +99,18 @@ export class AdicionalesComponent implements OnInit {
         matchDisponible = data.disponible === false;
       }
 
-      return matchNombre && matchDisponible;
+      // NUEVO: Validación de categoría
+      const matchCategoria = searchTerms.categoria === '' || data.categoria === searchTerms.categoria;
+
+      return matchNombre && matchDisponible && matchCategoria;
     };
   }
 
   aplicarFiltros() {
     const searchFilter = {
       nombre: this.filtroNombre,
-      disponible: this.filtroDisponible
+      disponible: this.filtroDisponible,
+      categoria: this.filtroCategoria // NUEVO
     };
     this.dataSource.filter = JSON.stringify(searchFilter);
   }
@@ -110,6 +118,7 @@ export class AdicionalesComponent implements OnInit {
   limpiarFiltros() {
     this.filtroNombre = '';
     this.filtroDisponible = '';
+    this.filtroCategoria = ''; // NUEVO
     this.aplicarFiltros();
   }
 

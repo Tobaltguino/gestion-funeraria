@@ -50,8 +50,8 @@
 
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Patente</mat-label>
-        <input matInput formControlName="patente" placeholder="AB-CD-12" style="text-transform: uppercase;">
-        <mat-error *ngIf="carrozaForm.get('patente')?.hasError('required')">Requerido</mat-error>
+        <input matInput formControlName="patente" appPatente maxlength="8" placeholder="Ej: AB-CD-12">
+        <mat-icon matPrefix>directions_car</mat-icon>
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="full-width">

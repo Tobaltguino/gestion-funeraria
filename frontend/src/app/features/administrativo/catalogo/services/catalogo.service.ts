@@ -19,7 +19,7 @@ export class CatalogoService {
   // --- OBTENER ---
   async obtenerPlanes(): Promise<PlanFunerario[]> {
     const { data, error } = await this.supabase
-      .from('catalogo_planes')
+      .from('adm_catalogo_planes')
       .select('*')
       .is('fecha_eliminacion', null)
       .order('fecha_creada', { ascending: true });
@@ -30,7 +30,7 @@ export class CatalogoService {
 
   async obtenerPlanPorId(id: string): Promise<PlanFunerario | null> {
     const { data, error } = await this.supabase
-      .from('catalogo_planes')
+      .from('adm_catalogo_planes')
       .select('*')
       .eq('id', id)
       .is('fecha_eliminacion', null)
@@ -43,7 +43,7 @@ export class CatalogoService {
   // --- CREAR Y ACTUALIZAR ---
   async crearPlan(plan: Partial<PlanFunerario>): Promise<void> {
     const { error } = await this.supabase
-      .from('catalogo_planes')
+      .from('adm_catalogo_planes')
       .insert([{ ...plan, fecha_creada: new Date().toISOString() }]);
 
     if (error) throw error;
@@ -51,7 +51,7 @@ export class CatalogoService {
 
   async actualizarPlan(id: string, plan: Partial<PlanFunerario>): Promise<void> {
     const { error } = await this.supabase
-      .from('catalogo_planes')
+      .from('adm_catalogo_planes')
       .update({ ...plan, fecha_actualizada: new Date().toISOString() })
       .eq('id', id);
 
@@ -61,7 +61,7 @@ export class CatalogoService {
   // --- ELIMINAR (Borrado Lógico) ---
   async eliminarPlan(id: string): Promise<void> {
     const { error } = await this.supabase
-      .from('catalogo_planes')
+      .from('adm_catalogo_planes')
       .update({ fecha_eliminacion: new Date().toISOString() })
       .eq('id', id);
 

@@ -11,7 +11,7 @@ export class UrnaService {
 
   async obtenerUrnas(): Promise<Urna[]> {
     const { data, error } = await this.supabase
-      .from('urnas')
+      .from('inv_urnas')
       .select('*')
       .is('fecha_eliminacion', null)
       .order('nombre', { ascending: true });
@@ -22,7 +22,7 @@ export class UrnaService {
 
   async crearUrna(urna: Partial<Urna>): Promise<Urna> {
     const { data, error } = await this.supabase
-      .from('urnas')
+      .from('inv_urnas')
       .insert([urna])
       .select()
       .single();
@@ -33,7 +33,7 @@ export class UrnaService {
 
   async actualizarUrna(id: string, urna: Partial<Urna>): Promise<Urna> {
     const { data, error } = await this.supabase
-      .from('urnas')
+      .from('inv_urnas')
       .update(urna)
       .eq('id', id)
       .select()
@@ -45,7 +45,7 @@ export class UrnaService {
 
   async eliminarUrna(id: string): Promise<void> {
     const { error } = await this.supabase
-      .from('urnas')
+      .from('inv_urnas')
       .update({ fecha_eliminacion: new Date().toISOString() })
       .eq('id', id);
 

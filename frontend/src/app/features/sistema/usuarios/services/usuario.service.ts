@@ -12,7 +12,7 @@ export class UsuarioService {
   // 1. Obtener todos los usuarios activos (excluyendo eliminados)
   async obtenerUsuarios(): Promise<PerfilUsuario[]> {
     const { data, error } = await this.supabase
-      .from('usuarios')
+      .from('sist_usuarios')
       .select('*')
       .is('fecha_eliminada', null)
       .order('fecha_creada', { ascending: false });
@@ -48,7 +48,7 @@ export class UsuarioService {
   // 3. Editar usuario (Actualiza solo la tabla pública)
   async actualizarUsuario(id: string, datosActualizados: ActualizarUsuarioDTO): Promise<void> {
     const { error } = await this.supabase
-      .from('usuarios')
+      .from('sist_usuarios')
       .update({
         ...datosActualizados,
         fecha_actualizada: new Date().toISOString()
@@ -64,7 +64,7 @@ export class UsuarioService {
   // 4. Cambiar estado (Activar / Desactivar)
   async alternarEstado(id: string, estadoActual: boolean): Promise<void> {
     const { error } = await this.supabase
-      .from('usuarios')
+      .from('sist_usuarios')
       .update({ 
         activo: !estadoActual, 
         fecha_actualizada: new Date().toISOString() 
@@ -80,7 +80,7 @@ export class UsuarioService {
   // 5. Eliminar usuario (Soft Delete)
   async eliminarUsuario(id: string): Promise<void> {
     const { error } = await this.supabase
-      .from('usuarios')
+      .from('sist_usuarios')
       .update({ 
         fecha_eliminada: new Date().toISOString(),
         activo: false

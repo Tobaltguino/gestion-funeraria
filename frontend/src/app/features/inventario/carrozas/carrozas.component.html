@@ -19,7 +19,7 @@
     
     <mat-form-field appearance="outline" style="flex: 1; min-width: 180px; margin-bottom: -1.25em;">
       <mat-label>Patente</mat-label>
-      <input matInput [(ngModel)]="filtroPatente" (keyup)="aplicarFiltros()" autocomplete="off">
+      <input matInput [(ngModel)]="filtroPatente" appPatente maxlength="8" (keyup)="aplicarFiltros()" autocomplete="off">
       <mat-icon matPrefix>search</mat-icon>
     </mat-form-field>
 

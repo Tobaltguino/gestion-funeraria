@@ -22,6 +22,17 @@
       <mat-icon matPrefix>search</mat-icon>
     </mat-form-field>
 
+    <!-- NUEVO: Filtro de Categoría -->
+    <mat-form-field appearance="outline" style="width: 200px; margin-bottom: -1.25em;">
+      <mat-label>Categoría</mat-label>
+      <mat-select [(ngModel)]="filtroCategoria" (selectionChange)="aplicarFiltros()">
+        <mat-option value="">Todas las categorías</mat-option>
+        <mat-option *ngFor="let cat of listaCategorias" [value]="cat">
+          {{ cat }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
     <!-- Filtro de Disponibilidad -->
     <mat-form-field appearance="outline" style="width: 180px; margin-bottom: -1.25em;">
       <mat-label>Disponibilidad</mat-label>
@@ -56,7 +67,7 @@
         </td>
       </ng-container>
 
-      <!-- Columna: Servicio / Producto (Solo el Nombre) -->
+      <!-- Columna: Servicio / Producto -->
       <ng-container matColumnDef="servicio">
         <th mat-header-cell *matHeaderCellDef> Servicio / Producto </th>
         <td mat-cell *matCellDef="let adicional" style="font-weight: 500; font-size: 1rem; color: #333;"> 
@@ -64,11 +75,20 @@
         </td>
       </ng-container>
 
-      <!-- Columna: Descripción (Separada) -->
+      <!-- NUEVO: Columna de Categoría -->
+      <ng-container matColumnDef="categoria">
+        <th mat-header-cell *matHeaderCellDef> Categoría </th>
+        <td mat-cell *matCellDef="let adicional"> 
+          <span style="background-color: #f1f3f5; color: #495057; padding: 4px 8px; border-radius: 4px; font-size: 0.85rem; font-weight: 500;">
+            {{ adicional.categoria || 'Sin categoría' }}
+          </span>
+        </td>
+      </ng-container>
+
+      <!-- Columna: Descripción -->
       <ng-container matColumnDef="descripcion">
         <th mat-header-cell *matHeaderCellDef> Descripción </th>
         <td mat-cell *matCellDef="let adicional" style="font-size: 0.85rem; color: #666; max-width: 300px;">
-          <!-- Mostramos la descripción o un texto por defecto si está vacía -->
           {{ adicional.descripcion ? adicional.descripcion : 'Sin descripción' }}
         </td>
       </ng-container>
@@ -104,13 +124,11 @@
         </td>
       </ng-container>
 
-      <!-- Renderizado de filas -->
       <tr mat-header-row *matHeaderRowDef="columnasMostrar"></tr>
       <tr mat-row *matRowDef="let row; columns: columnasMostrar;"></tr>
       
-      <!-- Mensaje sin resultados -->
       <tr class="mat-row" *matNoDataRow>
-        <td class="mat-cell" colspan="5" style="text-align: center; padding: 3rem;">
+        <td class="mat-cell" colspan="6" style="text-align: center; padding: 3rem;">
           <mat-icon style="font-size: 48px; color: #ccc;">search_off</mat-icon>
           <p style="margin-top: 10px; color: #666;">No se encontraron servicios con los filtros aplicados.</p>
         </td>

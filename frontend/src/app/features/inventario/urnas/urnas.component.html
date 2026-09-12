@@ -2,17 +2,24 @@
   
   <!-- Encabezado -->
   <div class="page-header">
-    <div class="header-title">
-      <h2>Inventario de Urnas</h2>
-      <p class="subtitle">Gestión de stock y modelos.</p>
-    </div>
-    
-    <!-- Botón visible SOLO si es Administrador -->
+  <div class="header-title">
+    <h2>Inventario de Urnas</h2>
+    <p class="subtitle">Gestión de stock y modelos.</p>
+  </div>
+  
+  <div style="display: flex; gap: 12px;">
+    <!-- BOTÓN DE STOCK CRÍTICO -->
+    <button mat-stroked-button color="warn" (click)="abrirStockCritico()" style="border-color: #d32f2f; color: #d32f2f;">
+      <mat-icon>warning</mat-icon>
+      Stock Crítico
+    </button>
+    <!-- BOTÓN DE Crear Urna -->
     <button mat-flat-button class="btn-crear-verde" *ngIf="esAdmin" (click)="abrirDialogoUrna()">
       <mat-icon>add_box</mat-icon>
       Nueva Urna
     </button>
   </div>
+</div>
 
   <!-- SECCIÓN DE FILTROS -->
   <div class="filtros-container" *ngIf="!cargando" style="display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; align-items: center; background: #fff; padding: 16px 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">

@@ -22,23 +22,24 @@ import { NotificationService } from '../../../shared/services/notification.servi
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { UrnaDialogComponent } from './urna-dialog/urna-dialog.component';
 import { UrnaVisorDialogComponent } from './urna-visor-dialog/urna-visor-dialog.component';
+import { UrnaStockCriticoDialogComponent } from './urna-stock-critico-dialog/urna-stock-critico-dialog.component';
 
 @Component({
   selector: 'app-urnas',
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule, // <-- Registrado aquí
+    FormsModule,
     MatTableModule,
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
     MatDialogModule,
     MatTooltipModule,
-    MatFormFieldModule, // <-- Registrado aquí
-    MatInputModule, // <-- Registrado aquí
-    MatSelectModule, // <-- Registrado aquí
-    MatCheckboxModule // <-- Registrado aquí
+    MatFormFieldModule, 
+    MatInputModule, 
+    MatSelectModule, 
+    MatCheckboxModule 
   ],
   templateUrl: './urnas.component.html',
   styleUrls: ['./urnas.component.scss']
@@ -181,6 +182,17 @@ export class UrnasComponent implements OnInit {
           this.notification.error('Hubo un error al intentar eliminar la urna.');
         }
       }
+    });
+  }
+
+  // Stock Crítico
+  abrirStockCritico() {
+    // Filtramos las urnas que están en estado crítico
+    const urnasCriticas = this.dataSource.data.filter(u => u.stock_actual <= u.kpi_alerta_stock);
+
+    this.dialog.open(UrnaStockCriticoDialogComponent, {
+      width: '800px',
+      data: urnasCriticas
     });
   }
 }

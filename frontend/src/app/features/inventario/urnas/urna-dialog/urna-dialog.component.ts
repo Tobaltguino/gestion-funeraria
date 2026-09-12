@@ -24,7 +24,7 @@ import { Urna, UrnaCuerpo, UrnaTamano, UrnaTipo } from '../models/urna.interface
     MatDialogModule,
     MatFormFieldModule,
     MatInputModule,
-    MatSelectModule, // <-- Registrado aquí
+    MatSelectModule,
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule
@@ -71,7 +71,6 @@ export class UrnaDialogComponent implements OnInit {
       cuerpo: [this.data?.cuerpo || null, Validators.required],
 
       precio_costo: [this.data?.precio_costo || '', [Validators.required, Validators.min(0)]],
-      precio_venta: [this.data?.precio_venta || '', [Validators.required, Validators.min(0)]],
       stock_actual: [this.data?.stock_actual || '', [Validators.required, Validators.min(0)]],
       kpi_alerta_stock: [this.data?.kpi_alerta_stock || '', [Validators.required, Validators.min(0)]]
     });
@@ -184,7 +183,6 @@ export class UrnaDialogComponent implements OnInit {
         tamano: formValues.tamano,
         cuerpo: formValues.cuerpo,
         precio_costo: Number(formValues.precio_costo),
-        precio_venta: Number(formValues.precio_venta),
         stock_actual: Number(formValues.stock_actual),
         kpi_alerta_stock: Number(formValues.kpi_alerta_stock),
         imagenes: imagenesFinales 

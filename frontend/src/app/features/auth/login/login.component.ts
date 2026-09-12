@@ -17,7 +17,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar'; // <-- Módulo 
 import { AuthService } from '../../../core/auth/auth.service';
 import { Role } from '../../../shared/enums/role.enum';
 import { RecuperarDialogComponent } from '../recuperar-dialog/recuperar-dialog.component';
-import { RutFormatDirective } from '../../../shared/directives/rut-format';
+import { RutFormatDirective } from '../../../shared/directives/rut-format.directive';
 import { NotificationService } from '../../../shared/services/notification.service';
 
 @Component({
