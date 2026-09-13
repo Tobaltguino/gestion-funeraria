@@ -50,11 +50,10 @@ export class CatalogoDialogComponent implements OnInit {
   ) {
     this.esEdicion = !!data;
     
-    // AÑADIDO: Control de orden inicializado en 0 (o el que traiga la base de datos)
     this.planForm = this.fb.group({
       nombre: [data?.nombre || '', Validators.required],
       orden: [data?.orden || 0, [Validators.required, Validators.min(0)]], 
-      luces_id: [null]
+      luces_id: [null, Validators.required] // Luces obligatorio
     });
 
     if (this.esEdicion && data?.imagenes) {
@@ -84,9 +83,26 @@ export class CatalogoDialogComponent implements OnInit {
         this.adicionalesAgrupados[cat].push(item);
 
         if (cat !== CategoriaAdicional.LUCES && cat !== 'Luces') {
-          this.planForm.addControl(`check_${item.id}`, this.fb.control(false));
+          // REGLA 1: Si es Fijo, se marca y deshabilita para que sea obligatorio
+          const esFijo = (cat.toUpperCase() === 'FIJO');
+          this.planForm.addControl(`check_${item.id}`, this.fb.control({ value: esFijo, disabled: esFijo }));
         }
       });
+
+      // REGLA 2: Establecer "Luces" por defecto si es creación, evadiendo los Cirios
+      if (!this.esEdicion) {
+        const luces = this.adicionalesAgrupados['Luces'] || this.adicionalesAgrupados['LUCES'];
+        if (luces && luces.length > 0) {
+          // Buscamos primero que el nombre contenga "luces" o "luz".
+          // Así evitamos que la palabra "porta" seleccione "Cirios para porta urnas".
+          const luzPredeterminada = luces.find(l => 
+            l.nombre.toLowerCase().includes('luces') || 
+            l.nombre.toLowerCase().includes('luz')
+          ) || luces.find(l => !l.nombre.toLowerCase().includes('cirio')) || luces[0];
+
+          this.planForm.get('luces_id')?.setValue(luzPredeterminada.id);
+        }
+      }
 
       if (this.esEdicion && this.data?.adm_plan_adicionales) {
         this.data.adm_plan_adicionales.forEach((relacion: any) => {
@@ -190,7 +206,8 @@ export class CatalogoDialogComponent implements OnInit {
     }
 
     this.guardando = true;
-    const formValues = this.planForm.value;
+    // REGLA 3: getRawValue() extrae los valores de controles deshabilitados (los "Fijos")
+    const formValues = this.planForm.getRawValue(); 
     const nombreLimpio = formValues.nombre.replace(/[^a-zA-Z0-9]/g, '');
 
     try {
@@ -206,7 +223,6 @@ export class CatalogoDialogComponent implements OnInit {
 
       const imagenesFinales = [...this.imagenesActuales, ...urlsNuevas];
       
-      // AÑADIDO: Incluimos el campo 'orden' en los datos a guardar
       const planData: Partial<PlanFunerario> = { 
         nombre: formValues.nombre, 
         orden: formValues.orden,

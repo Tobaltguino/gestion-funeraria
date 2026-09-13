@@ -37,11 +37,15 @@
           <!-- SI ES "LUCES": Usamos Radio Buttons (Solo permite seleccionar 1 opción) -->
           <ng-container *ngIf="categoria === 'Luces' || categoria === 'LUCES'; else tipoCheckboxes">
             <mat-radio-group formControlName="luces_id" style="display: flex; flex-direction: column; gap: 8px;">
-              <mat-radio-button [value]="null" style="margin-bottom: 4px;">Ninguna / Sin Luces</mat-radio-button>
+              <!-- Removida la opción null -->
               <mat-radio-button *ngFor="let item of adicionalesAgrupados[categoria]" [value]="item.id">
                 {{ item.nombre }}
               </mat-radio-button>
             </mat-radio-group>
+            <!-- Mensaje de validación por si intentan enviarlo nulo programáticamente -->
+            <mat-error *ngIf="planForm.get('luces_id')?.hasError('required') && planForm.get('luces_id')?.touched" style="font-size: 0.75rem; margin-top: 4px;">
+              Debe seleccionar un tipo de luces obligatoriamente.
+            </mat-error>
           </ng-container>
 
           <!-- SI ES CUALQUIER OTRA COSA: Usamos Checkboxes (Múltiples opciones) -->
