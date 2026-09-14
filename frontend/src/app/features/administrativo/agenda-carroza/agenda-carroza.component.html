@@ -12,21 +12,23 @@
     </button>
   </div>
 
-  <div class="loading-container" *ngIf="cargando" style="display: flex; justify-content: center; padding: 40px;">
-    <mat-spinner diameter="40"></mat-spinner>
-  </div>
-
-  <!-- Contenedor del Calendario -->
-  <div class="calendar-container mat-elevation-z2" *ngIf="!cargando" style="background-color: var(--color-fondo); border-radius: 8px; padding: 16px; border: 1px solid var(--color-linea);">
+  <!-- Contenedor del Calendario con posición relativa -->
+  <div class="calendar-container mat-elevation-z2" style="position: relative; background-color: var(--color-fondo); border-radius: 8px; padding: 16px; border: 1px solid var(--color-linea);">
     
+    <!-- Superposición de carga transparente -->
+    <div *ngIf="cargando" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255,255,255,0.7); z-index: 10; display: flex; justify-content: center; align-items: center; border-radius: 8px;">
+      <mat-spinner diameter="50"></mat-spinner>
+    </div>
+
     <!-- Leyenda de colores -->
     <div style="display: flex; gap: 16px; margin-bottom: 16px; font-size: 0.85rem; font-weight: 500;">
       <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 12px; height: 12px; border-radius: 50%; background-color: #ef6c00;"></span> Programado</span>
       <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 12px; height: 12px; border-radius: 50%; background-color: #1565c0;"></span> En Curso</span>
       <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 12px; height: 12px; border-radius: 50%; background-color: #2e7d32;"></span> Finalizado</span>
+      <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 12px; height: 12px; border-radius: 50%; background-color: #d32f2f;"></span> Cancelado</span>
     </div>
 
-    <!-- FullCalendar -->
+    <!-- FullCalendar (Siempre visible para mantener el ciclo de vida de datesSet) -->
     <full-calendar [options]="calendarOptions"></full-calendar>
     
   </div>

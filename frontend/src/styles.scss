@@ -731,3 +731,57 @@ h1, h2, h3, h4, h5, h6 { font-family: var(--fuente-titulo); margin: 0; }
 .fc-theme-standard .fc-scrollgrid {
   border: 1px solid var(--color-linea);
 }
+
+/* ==========================================
+   12. PAGINADOR DE TABLAS (Mat-Paginator)
+   ========================================== */
+.mat-mdc-paginator {
+  background-color: transparent !important;
+  border-top: 1px solid var(--color-linea);
+  font-family: var(--fuente-texto) !important;
+}
+
+.mat-mdc-paginator-container {
+  padding: 8px 24px !important;
+}
+
+/* Textos informativos (Ej: "Items per page", "1 of 10") */
+.mat-mdc-paginator-page-size-label,
+.mat-mdc-paginator-range-label {
+  color: var(--color-texto-suave) !important;
+  font-size: 0.85rem !important;
+  letter-spacing: 0.3px;
+  font-weight: 400;
+}
+
+/* El número seleccionado de items por página */
+.mat-mdc-paginator .mat-mdc-select-value {
+  color: var(--color-texto) !important;
+  font-weight: 600 !important;
+}
+
+/* Flechita del select */
+.mat-mdc-paginator .mat-mdc-select-arrow {
+  color: var(--color-texto-suave) !important;
+}
+
+/* Botones de navegación (Flechas < >) */
+.mat-mdc-paginator .mat-mdc-icon-button {
+  color: var(--color-brand) !important;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  margin: 0 2px;
+}
+
+/* Efecto al pasar el mouse sobre las flechas activas */
+.mat-mdc-paginator .mat-mdc-icon-button:hover:not([disabled]) {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+  transform: scale(1.1);
+}
+
+/* Estado inactivo de las flechas (cuando llegas a la primera o última página) */
+.mat-mdc-paginator .mat-mdc-icon-button[disabled] {
+  color: #b0bec5 !important;
+  opacity: 0.5;
+  background-color: transparent !important;
+  transform: none;
+}

@@ -52,6 +52,49 @@ export class ServiciosService {
     return data;
   }
 
+  // Agrega este método a tu ServiciosService
+  async obtenerServiciosPaginados(filtros: any, page: number, pageSize: number): Promise<{ data: ServicioContratado[], total: number }> {
+    const from = page * pageSize;
+    const to = from + pageSize - 1;
+
+    let query = this.supabase
+      .from('adm_servicios')
+      .select(`
+        *,
+        adm_catalogo_planes (nombre),
+        adm_servicio_adicionales (
+          adicional_id, cantidad, inv_adicionales (nombre, categoria)
+        )
+      `, { count: 'exact' })
+      .is('fecha_eliminacion', null)
+      .order('fecha_servicio', { ascending: false });
+
+    // Filtro de Fecha (Mes y Año)
+    if (filtros.anio && filtros.mes) {
+      const startDate = new Date(filtros.anio, filtros.mes - 1, 1).toISOString();
+      // El día 0 del mes siguiente nos da el último día del mes actual
+      const endDate = new Date(filtros.anio, filtros.mes, 0, 23, 59, 59).toISOString(); 
+      query = query.gte('fecha_servicio', startDate).lte('fecha_servicio', endDate);
+    }
+
+    // Filtros de Texto y Numéricos
+    if (filtros.folio) query = query.eq('folio', filtros.folio);
+    if (filtros.nombre_fallecido) query = query.ilike('nombre_fallecido', `%${filtros.nombre_fallecido}%`);
+    
+    // Filtros Exactos (Selects)
+    if (filtros.entidad_pagadora) query = query.eq('entidad_pagadora', filtros.entidad_pagadora);
+    if (filtros.estado) query = query.eq('estado', filtros.estado);
+    if (filtros.plan_base_id) query = query.eq('plan_base_id', filtros.plan_base_id);
+    if (filtros.urna_id) query = query.eq('urna_id', filtros.urna_id);
+    if (filtros.carroza_id) query = query.eq('carroza_id', filtros.carroza_id);
+
+    // Aplicar Paginación
+    const { data, error, count } = await query.range(from, to);
+
+    if (error) throw error;
+    return { data: data as any[], total: count || 0 };
+  }
+
   // --- CREAR ---
   async crearServicio(servicio: Partial<ServicioContratado>, adicionales: any[]): Promise<void> {
     // 1. Guardamos los datos principales del servicio
