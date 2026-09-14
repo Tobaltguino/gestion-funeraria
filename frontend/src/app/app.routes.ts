@@ -16,7 +16,7 @@ import { UpdatePasswordComponent } from './features/auth/update-password/update-
 import { DashboardComponent } from './features/dashboard/dashboard.component';
 
 import { ServiciosComponent } from './features/administrativo/servicios/servicios.component';
-import { AgendaComponent } from './features/administrativo/agenda/agenda.component';
+import { AgendaCarrozaComponent } from './features/administrativo/agenda-carroza/agenda-carroza.component';
 import { CatalogoComponent } from './features/administrativo/catalogo/catalogo.component';
 
 import { UrnasComponent } from './features/inventario/urnas/urnas.component';
@@ -66,7 +66,7 @@ export const routes: Routes = [
       },
       { 
         path: 'agenda', 
-        component: AgendaComponent,
+        component: AgendaCarrozaComponent,
         data: { roles: [Role.ADMIN, Role.EMPLEADO] } 
       },
 

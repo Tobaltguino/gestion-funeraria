@@ -1,0 +1,33 @@
+<div class="landing-container" style="padding: 24px; max-width: 1200px; margin: 0 auto;">
+  
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; border-bottom: 1px solid var(--color-linea); padding-bottom: 16px;">
+    <div>
+      <h1 style="margin: 0; font-size: 1.8rem; font-weight: 700; color: var(--color-texto);">Agenda de Carrozas</h1>
+      <p style="margin: 4px 0 0 0; color: var(--color-texto-suave);">Gestión de horarios, velorios y funerales.</p>
+    </div>
+    
+    <button mat-flat-button class="btn-crear-verde" (click)="abrirFormulario()">
+      <mat-icon>add_box</mat-icon>
+      Agendar Vehículo
+    </button>
+  </div>
+
+  <div class="loading-container" *ngIf="cargando" style="display: flex; justify-content: center; padding: 40px;">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+
+  <!-- Contenedor del Calendario -->
+  <div class="calendar-container mat-elevation-z2" *ngIf="!cargando" style="background-color: var(--color-fondo); border-radius: 8px; padding: 16px; border: 1px solid var(--color-linea);">
+    
+    <!-- Leyenda de colores -->
+    <div style="display: flex; gap: 16px; margin-bottom: 16px; font-size: 0.85rem; font-weight: 500;">
+      <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 12px; height: 12px; border-radius: 50%; background-color: #ef6c00;"></span> Programado</span>
+      <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 12px; height: 12px; border-radius: 50%; background-color: #1565c0;"></span> En Curso</span>
+      <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 12px; height: 12px; border-radius: 50%; background-color: #2e7d32;"></span> Finalizado</span>
+    </div>
+
+    <!-- FullCalendar -->
+    <full-calendar [options]="calendarOptions"></full-calendar>
+    
+  </div>
+</div>

@@ -80,11 +80,13 @@ export class ServicioDialogComponent implements OnInit {
       
       estado: [data?.estado || 'Pendiente', Validators.required],
       fecha_pago: [{ value: data?.fecha_pago || null, disabled: data?.estado !== 'Pagado' }],
+
+      monto: [data?.monto || null, [Validators.required, Validators.min(0)]],
       
       plan_base_id: [data?.plan_base_id || '', Validators.required],
       urna_id: [data?.urna_id || null],
       diferencia_valor_urna: [data?.diferencia_valor_urna || 0, Validators.min(0)],
-      carroza_id: [data?.carroza_id || null],
+      carroza_id: [data?.carroza_id || '', Validators.required],
       
       luces_id: [null, Validators.required] // <-- Luces obligatorio
     });
@@ -303,6 +305,7 @@ export class ServicioDialogComponent implements OnInit {
         entidad_pagadora: formValues.entidad_pagadora,
         estado: formValues.estado,
         fecha_pago: formValues.estado === 'Pagado' ? formValues.fecha_pago : null,
+        monto: formValues.monto,
         plan_base_id: formValues.plan_base_id,
         urna_id: formValues.urna_id,
         diferencia_valor_urna: formValues.diferencia_valor_urna,

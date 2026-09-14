@@ -46,10 +46,18 @@
     </div>
 
     <div style="margin-top: 10px; padding: 16px; background-color: var(--color-input-bg); border-radius: 8px; border: 1px solid var(--color-linea);">
-      <h3 style="margin: 0 0 16px 0; font-weight: 600; color: var(--color-texto);">2. Estado de Cuenta</h3>
-      <div class="form-row" style="display: flex; gap: 16px;">
+      <h3 style="margin: 0 0 16px 0; font-weight: 600; color: var(--color-texto);">2. Facturación y Estado de Cuenta</h3>
+      
+      <div class="form-row" style="display: flex; gap: 16px; flex-wrap: wrap;">
         
-        <mat-form-field appearance="outline" style="flex: 1;">
+        <!-- NUEVO INPUT PARA MONTO -->
+        <mat-form-field appearance="outline" style="flex: 1; min-width: 150px;">
+          <mat-label>Costo Total del Servicio ($)</mat-label>
+          <input matInput type="number" formControlName="monto" min="0" placeholder="Ej: 1500000">
+          <mat-error>Requerido</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" style="flex: 1; min-width: 150px;">
           <mat-label>Estado de Pago</mat-label>
           <mat-select formControlName="estado">
             <mat-option value="Pendiente">Pendiente de Pago</mat-option>
@@ -57,7 +65,7 @@
           </mat-select>
         </mat-form-field>
 
-        <mat-form-field appearance="outline" style="flex: 1;">
+        <mat-form-field appearance="outline" style="flex: 1; min-width: 150px;">
           <mat-label>Fecha de Pago</mat-label>
           <input matInput [matDatepicker]="pickerPago" formControlName="fecha_pago">
           <mat-datepicker-toggle matIconSuffix [for]="pickerPago"></mat-datepicker-toggle>
@@ -113,11 +121,12 @@
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Carroza Asignada</mat-label>
         <mat-select formControlName="carroza_id">
-          <mat-option [value]="null">Sin asignar</mat-option>
+          <!-- Eliminamos la opción "Sin asignar" -->
           <mat-option *ngFor="let carroza of carrozasDisponibles" [value]="carroza.id">
             {{ carroza.marca }} {{ carroza.modelo }} ({{ carroza.patente }})
           </mat-option>
         </mat-select>
+        <mat-error>Debe asignar una carroza obligatoriamente.</mat-error>
       </mat-form-field>
     </div>
 

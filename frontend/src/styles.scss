@@ -665,3 +665,69 @@ h1, h2, h3, h4, h5, h6 { font-family: var(--fuente-titulo); margin: 0; }
   border-radius: 20px;
   letter-spacing: 1px;
 }
+
+/* ==========================================
+   11. CALENDARIO (FullCalendar - Tema Blanco y Negro)
+   ========================================== */
+.fc {
+  /* --- Fondos y Bordes (Usando tus variables globales) --- */
+  --fc-page-bg-color: var(--color-panel);
+  --fc-border-color: var(--color-linea);
+  --fc-neutral-bg-color: var(--color-input-bg);
+  --fc-neutral-text-color: var(--color-texto);
+  
+  /* --- Variables de Botones (Negros) --- */
+  --fc-button-text-color: var(--color-brand-contrast);
+  --fc-button-bg-color: #333333;       /* Gris muy oscuro inactivo */
+  --fc-button-border-color: #333333;
+  --fc-button-hover-bg-color: var(--color-brand); /* Negro puro al pasar mouse */
+  --fc-button-hover-border-color: var(--color-brand);
+  --fc-button-active-bg-color: var(--color-brand); /* Negro puro activo */
+  --fc-button-active-border-color: var(--color-brand);
+}
+
+/* --- Refinamiento de Botones --- */
+.fc .fc-button {
+  font-family: var(--fuente-texto);
+  font-weight: 500;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+  border-radius: 4px;
+  padding: 0.4em 1em;
+  transition: all 0.2s ease;
+  box-shadow: none !important; /* Quita sombras por defecto */
+}
+
+/* Quitar el borde azul que aparece por defecto al hacer clic */
+.fc .fc-button:focus {
+  box-shadow: 0 0 0 0.2rem rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Ajuste para el botón secundario "HOY" (Gris claro) */
+.fc .fc-today-button {
+  background-color: #777777 !important;
+  border-color: #777777 !important;
+}
+.fc .fc-today-button:hover {
+  background-color: #555555 !important;
+  border-color: #555555 !important;
+}
+
+/* --- Título del Calendario --- */
+.fc .fc-toolbar-title {
+  font-family: var(--fuente-titulo);
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--color-texto);
+}
+
+/* --- Fines de semana --- */
+.fc .fc-non-business {
+  background-color: #fafafa; /* Tinte sutil gris/blanco */
+}
+
+/* Altura automática de la tabla para que no se vea aplastada */
+.fc-theme-standard .fc-scrollgrid {
+  border: 1px solid var(--color-linea);
+}
