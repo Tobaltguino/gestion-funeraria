@@ -1,3 +1,8 @@
+<!-- Muestra el folio en la esquina superior derecha solo si ya fue generado por la BD (Modo Edición) -->
+<div *ngIf="esEdicion && data?.folio" style="position: absolute; top: 24px; right: 24px; background-color: var(--color-brand); color: white; padding: 4px 12px; border-radius: 16px; font-weight: 600; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+  Folio #{{ data.folio }}
+</div>
+
 <h2 mat-dialog-title class="dialog-title">{{ esEdicion ? 'Editar Servicio' : 'Registrar Nuevo Servicio' }}</h2>
 <p class="dialog-subtitle" style="padding: 0 24px;">Complete los datos del difunto, facturación y personalice el plan contratado.</p>
 

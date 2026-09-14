@@ -22,6 +22,16 @@
   <div class="table-container mat-elevation-z2" *ngIf="!cargando" style="border-radius: 8px; overflow: hidden;">
     <table mat-table [dataSource]="dataSource" class="w-100">
 
+      <!-- Columna: Folio -->
+      <ng-container matColumnDef="folio">
+        <th mat-header-cell *matHeaderCellDef> Folio </th>
+        <td mat-cell *matCellDef="let servicio">
+          <strong style="color: var(--color-brand); font-size: 1.1rem;">
+            #{{ servicio.folio }}
+          </strong>
+        </td>
+      </ng-container>
+
       <!-- Columna: Fecha del Servicio -->
       <ng-container matColumnDef="fecha">
         <th mat-header-cell *matHeaderCellDef> Fecha Servicio </th>

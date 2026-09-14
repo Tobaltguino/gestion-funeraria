@@ -19,6 +19,7 @@ export interface ServicioAdicional {
 
 export interface ServicioContratado {
   id: string;
+  folio?: number;
   fecha_servicio: string; // Fecha en que se realiza el servicio
   nombre_fallecido: string;
   

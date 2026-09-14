@@ -41,7 +41,7 @@ export class ServiciosComponent implements OnInit {
   private cdr = inject(ChangeDetectorRef);
 
   dataSource = new MatTableDataSource<ServicioContratado>();
-  columnasMostrar: string[] = ['fecha', 'fallecido', 'entidad', 'plan', 'estado', 'acciones'];
+  columnasMostrar: string[] = ['folio', 'fecha', 'fallecido', 'entidad', 'plan', 'estado', 'acciones'];
   
   cargando = true;
   esAdmin = false;
