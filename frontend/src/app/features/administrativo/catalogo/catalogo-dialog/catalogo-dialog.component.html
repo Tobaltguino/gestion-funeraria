@@ -1,41 +1,64 @@
 <h2 mat-dialog-title class="dialog-title">{{ esEdicion ? 'Editar Plan Funerario' : 'Registrar Nuevo Plan' }}</h2>
-<p class="dialog-subtitle" style="padding: 0 24px;">Configure el nombre, las características y la galería fotográfica del servicio.</p>
+<p class="dialog-subtitle" style="padding: 0 24px;">Configure el nombre, los servicios adicionales y la galería fotográfica.</p>
 
 <mat-dialog-content class="dialog-content">
   <form [formGroup]="planForm" class="dialog-form">
     
-    <!-- Fila 1: Nombre del Plan -->
-    <div class="form-row">
-      <mat-form-field appearance="outline" class="full-width">
+    <!-- Fila 1: Nombre del Plan y Orden visualizado lado a lado -->
+    <div class="form-row" style="display: flex; gap: 16px;">
+      
+      <mat-form-field appearance="outline" style="flex: 3;">
         <mat-label>Nombre del Plan</mat-label>
         <input matInput formControlName="nombre" placeholder="Ej: Servicio Premium">
         <mat-error *ngIf="planForm.get('nombre')?.hasError('required')">El nombre es requerido</mat-error>
       </mat-form-field>
+
+      <mat-form-field appearance="outline" style="flex: 1;">
+        <mat-label>Prioridad (Orden)</mat-label>
+        <input matInput type="number" formControlName="orden" min="0" placeholder="Ej: 1, 2, 3...">
+        <mat-error *ngIf="planForm.get('orden')?.hasError('required')">Requerido</mat-error>
+      </mat-form-field>
+
     </div>
 
-    <!-- SECCIÓN: CARACTERÍSTICAS DINÁMICAS (FormArray) -->
-    <div style="margin-top: 10px; padding: 16px; background-color: var(--color-input-bg); border-radius: 8px; border: 1px solid var(--color-linea);">
-      
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-        <span style="font-weight: 600; color: var(--color-texto);">El servicio incluye:</span>
-        <button mat-flat-button class="btn-crear-verde" style="height: 36px; padding: 0 16px;" type="button" (click)="agregarIncluye()">
-          <mat-icon>add</mat-icon> Añadir línea
-        </button>
-      </div>
+    <!-- SECCIÓN: SERVICIOS ADICIONALES AGRUPADOS POR CATEGORÍA -->
+    <div style="margin-top: 10px; padding: 20px; background-color: var(--color-input-bg); border-radius: 8px; border: 1px solid var(--color-linea);">
+      <h3 style="margin-top: 0; margin-bottom: 20px; font-weight: 600; color: var(--color-texto);">Servicios Incluidos</h3>
 
-      <div formArrayName="incluye">
-        <div *ngFor="let control of incluyeControls; let i = index" style="display: flex; gap: 8px; align-items: flex-start; margin-bottom: 8px;">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px;">
+        
+        <!-- Iteramos sobre las categorías que vinieron de la BD -->
+        <div *ngFor="let categoria of categoriasPresentes">
           
-          <mat-form-field appearance="outline" style="flex: 1; margin-bottom: 0;">
-            <mat-label>Característica {{ i + 1 }}</mat-label>
-            <input matInput [formControlName]="i" placeholder="Ej: Urna Mackeley lisa o tallada">
-          </mat-form-field>
+          <h4 style="margin: 0 0 12px 0; color: var(--color-brand); font-weight: 500; border-bottom: 1px solid var(--color-linea); padding-bottom: 4px;">
+            {{ categoria }}
+          </h4>
           
-          <button mat-icon-button class="btn-eliminar-rojo" type="button" (click)="removerIncluye(i)" style="margin-top: 4px;" [disabled]="incluyeControls.length === 1">
-            <mat-icon>delete</mat-icon>
-          </button>
-          
+          <!-- SI ES "LUCES": Usamos Radio Buttons (Solo permite seleccionar 1 opción) -->
+          <ng-container *ngIf="categoria === 'Luces' || categoria === 'LUCES'; else tipoCheckboxes">
+            <mat-radio-group formControlName="luces_id" style="display: flex; flex-direction: column; gap: 8px;">
+              <!-- Removida la opción null -->
+              <mat-radio-button *ngFor="let item of adicionalesAgrupados[categoria]" [value]="item.id">
+                {{ item.nombre }}
+              </mat-radio-button>
+            </mat-radio-group>
+            <!-- Mensaje de validación por si intentan enviarlo nulo programáticamente -->
+            <mat-error *ngIf="planForm.get('luces_id')?.hasError('required') && planForm.get('luces_id')?.touched" style="font-size: 0.75rem; margin-top: 4px;">
+              Debe seleccionar un tipo de luces obligatoriamente.
+            </mat-error>
+          </ng-container>
+
+          <!-- SI ES CUALQUIER OTRA COSA: Usamos Checkboxes (Múltiples opciones) -->
+          <ng-template #tipoCheckboxes>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <mat-checkbox *ngFor="let item of adicionalesAgrupados[categoria]" [formControlName]="'check_' + item.id">
+                {{ item.nombre }}
+              </mat-checkbox>
+            </div>
+          </ng-template>
+
         </div>
+
       </div>
     </div>
 

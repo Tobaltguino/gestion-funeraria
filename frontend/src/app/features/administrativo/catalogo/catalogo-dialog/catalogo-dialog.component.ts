@@ -1,38 +1,45 @@
 import { Component, Inject, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatRadioModule } from '@angular/material/radio';
 
 import { CatalogoService } from '../services/catalogo.service';
 import { NotificationService } from '../../../../shared/services/notification.service';
 import { PlanFunerario } from '../models/catalogo.interface';
+import { SupabaseService } from '../../../../core/supabase/supabase';
+import { CategoriaAdicional, Adicional } from '../../../inventario/adicionales/models/adicional.interface'; 
 
 @Component({
   selector: 'app-catalogo-dialog',
   standalone: true,
   imports: [
     CommonModule, ReactiveFormsModule, MatDialogModule, MatFormFieldModule,
-    MatInputModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule
+    MatInputModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule,
+    MatCheckboxModule, MatRadioModule
   ],
   templateUrl: './catalogo-dialog.component.html'
-  // Sin archivo SCSS local, usamos el global
 })
 export class CatalogoDialogComponent implements OnInit {
   private fb = inject(FormBuilder);
   private catalogoService = inject(CatalogoService);
+  private supabaseService = inject(SupabaseService);
   private notification = inject(NotificationService);
   private cdr = inject(ChangeDetectorRef);
 
   planForm: FormGroup;
   esEdicion = false;
   guardando = false;
+  
+  adicionalesAgrupados: Record<string, Adicional[]> = {};
+  categoriasPresentes: string[] = []; 
 
-  // Control de Imágenes
   imagenesActuales: string[] = []; 
   nuevosArchivos: { file: File, preview: string }[] = []; 
   imagenesAEliminar: string[] = []; 
@@ -45,43 +52,86 @@ export class CatalogoDialogComponent implements OnInit {
     
     this.planForm = this.fb.group({
       nombre: [data?.nombre || '', Validators.required],
-      incluye: this.fb.array([]) // Array dinámico para las características
+      orden: [data?.orden || 0, [Validators.required, Validators.min(0)]], 
+      luces_id: [null, Validators.required] // Luces obligatorio
     });
-
-    // Inicializamos las características (viñetas)
-    if (this.esEdicion && data?.incluye && data.incluye.length > 0) {
-      data.incluye.forEach(item => this.agregarIncluye(item));
-    } else {
-      this.agregarIncluye(''); // Agrega un campo vacío por defecto al crear uno nuevo
-    }
 
     if (this.esEdicion && data?.imagenes) {
       this.imagenesActuales = [...data.imagenes];
     }
   }
 
-  ngOnInit(): void {}
-
-  // --- LÓGICA DEL FORM ARRAY (Características Dinámicas) ---
-  get incluyeControls() {
-    return (this.planForm.get('incluye') as FormArray).controls;
+  async ngOnInit() {
+    await this.cargarInventarioYConstruirFormulario();
   }
 
-  agregarIncluye(valor: string = '') {
-    const incluyeFormArray = this.planForm.get('incluye') as FormArray;
-    incluyeFormArray.push(this.fb.control(valor, Validators.required));
-  }
+  async cargarInventarioYConstruirFormulario() {
+    const { data: inventario, error } = await this.supabaseService.client
+      .from('inv_adicionales')
+      .select('*')
+      .eq('disponible', true)
+      .order('nombre');
+    
+    if (!error && inventario) {
+      inventario.forEach((item: Adicional) => {
+        const cat = item.categoria;
+        
+        if (!this.adicionalesAgrupados[cat]) {
+          this.adicionalesAgrupados[cat] = [];
+          this.categoriasPresentes.push(cat);
+        }
+        this.adicionalesAgrupados[cat].push(item);
 
-  removerIncluye(index: number) {
-    const incluyeFormArray = this.planForm.get('incluye') as FormArray;
-    if (incluyeFormArray.length > 1) {
-      incluyeFormArray.removeAt(index);
-    } else {
-      this.notification.warning('El plan debe tener al menos una característica.');
+        if (cat !== CategoriaAdicional.LUCES && cat !== 'Luces') {
+          // REGLA 1: Si es Fijo, se marca y deshabilita para que sea obligatorio
+          const esFijo = (cat.toUpperCase() === 'FIJO');
+          this.planForm.addControl(`check_${item.id}`, this.fb.control({ value: esFijo, disabled: esFijo }));
+        }
+      });
+
+      // REGLA 2: Establecer "Luces" por defecto si es creación, evadiendo los Cirios
+      if (!this.esEdicion) {
+        const luces = this.adicionalesAgrupados['Luces'] || this.adicionalesAgrupados['LUCES'];
+        if (luces && luces.length > 0) {
+          // Buscamos primero que el nombre contenga "luces" o "luz".
+          // Así evitamos que la palabra "porta" seleccione "Cirios para porta urnas".
+          const luzPredeterminada = luces.find(l => 
+            l.nombre.toLowerCase().includes('luces') || 
+            l.nombre.toLowerCase().includes('luz')
+          ) || luces.find(l => !l.nombre.toLowerCase().includes('cirio')) || luces[0];
+
+          this.planForm.get('luces_id')?.setValue(luzPredeterminada.id);
+        }
+      }
+
+      if (this.esEdicion && this.data?.adm_plan_adicionales) {
+        this.data.adm_plan_adicionales.forEach((relacion: any) => {
+          const catItem = inventario.find(i => i.id === relacion.adicional_id)?.categoria;
+          
+          if (catItem === CategoriaAdicional.LUCES || catItem === 'Luces') {
+            this.planForm.get('luces_id')?.setValue(relacion.adicional_id);
+          } else {
+            this.planForm.get(`check_${relacion.adicional_id}`)?.setValue(true);
+          }
+        });
+      }
+
+      const ordenDeseado = ['Fijo', 'Luces', 'Floral', 'Comida', 'Extra'];
+      
+      this.categoriasPresentes.sort((a, b) => {
+        const indexA = ordenDeseado.indexOf(a);
+        const indexB = ordenDeseado.indexOf(b);
+        
+        if (indexA !== -1 && indexB !== -1) return indexA - indexB;
+        if (indexA !== -1) return -1;
+        if (indexB !== -1) return 1;
+        return a.localeCompare(b);
+      });
+      
+      this.cdr.detectChanges();
     }
   }
 
-  // --- LÓGICA DE IMÁGENES ---
   async onFileSelected(event: any) {
     const files: FileList = event.target.files;
     if (!files) return;
@@ -149,7 +199,6 @@ export class CatalogoDialogComponent implements OnInit {
     this.nuevosArchivos.splice(index, 1);
   }
 
-  // --- GUARDAR PLAN ---
   async guardar() {
     if (this.planForm.invalid) {
       this.planForm.markAllAsTouched();
@@ -157,31 +206,47 @@ export class CatalogoDialogComponent implements OnInit {
     }
 
     this.guardando = true;
-    const formValues = this.planForm.value;
+    // REGLA 3: getRawValue() extrae los valores de controles deshabilitados (los "Fijos")
+    const formValues = this.planForm.getRawValue(); 
     const nombreLimpio = formValues.nombre.replace(/[^a-zA-Z0-9]/g, '');
 
     try {
-      // 1. Subir imágenes nuevas
       const urlsNuevas: string[] = [];
       for (let i = 0; i < this.nuevosArchivos.length; i++) {
         const url = await this.catalogoService.subirImagen(this.nuevosArchivos[i].file, nombreLimpio, Date.now() + i);
         urlsNuevas.push(url);
       }
 
-      // 2. Eliminar del storage las que se borraron
       for (const urlAEliminar of this.imagenesAEliminar) {
         await this.catalogoService.eliminarImagenStorage(urlAEliminar);
       }
 
-      // 3. Juntar imágenes y guardar datos
       const imagenesFinales = [...this.imagenesActuales, ...urlsNuevas];
-      const planData: Partial<PlanFunerario> = { ...formValues, imagenes: imagenesFinales };
+      
+      const planData: Partial<PlanFunerario> = { 
+        nombre: formValues.nombre, 
+        orden: formValues.orden,
+        imagenes: imagenesFinales 
+      };
+      
+      const relaciones: any[] = [];
+      
+      if (formValues.luces_id) {
+        relaciones.push({ adicional_id: formValues.luces_id, cantidad: 1 });
+      }
+
+      Object.keys(formValues).forEach(key => {
+        if (key.startsWith('check_') && formValues[key] === true) {
+          const adicional_id = key.replace('check_', '');
+          relaciones.push({ adicional_id: adicional_id, cantidad: 1 });
+        }
+      });
 
       if (this.esEdicion && this.data) {
-        await this.catalogoService.actualizarPlan(this.data.id, planData);
+        await this.catalogoService.actualizarPlan(this.data.id, planData, relaciones);
         this.notification.success('Plan actualizado correctamente.');
       } else {
-        await this.catalogoService.crearPlan(planData);
+        await this.catalogoService.crearPlan(planData, relaciones);
         this.notification.success('Plan registrado correctamente.');
       }
 

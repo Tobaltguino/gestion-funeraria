@@ -61,7 +61,29 @@ export class CatalogoComponent implements OnInit {
     this.cargando = true;
     this.cdr.detectChanges();
     try {
-      this.planes = await this.catalogoService.obtenerPlanes();
+      const dataPlanes = await this.catalogoService.obtenerPlanes();
+      
+      // ORDENAMIENTO PERSONALIZADO
+      const ordenDeseado = ['Fijo', 'Luces', 'Floral', 'Comida', 'Extra'];
+      
+      dataPlanes.forEach(plan => {
+        if (plan.adm_plan_adicionales) {
+          plan.adm_plan_adicionales.sort((a, b) => {
+            const catA = a.inv_adicionales?.categoria || '';
+            const catB = b.inv_adicionales?.categoria || '';
+            
+            const indexA = ordenDeseado.indexOf(catA);
+            const indexB = ordenDeseado.indexOf(catB);
+            
+            if (indexA !== -1 && indexB !== -1) return indexA - indexB;
+            if (indexA !== -1) return -1;
+            if (indexB !== -1) return 1;
+            return 0; // Mantiene el orden original si no coincide
+          });
+        }
+      });
+
+      this.planes = dataPlanes;
     } catch (error) {
       console.error('Error al cargar catálogo:', error);
       this.notification.error('No se pudo cargar el catálogo de servicios.');
@@ -74,21 +96,19 @@ export class CatalogoComponent implements OnInit {
   abrirVisor(plan: PlanFunerario) {
     this.dialog.open(CatalogoVisorDialogComponent, {
       width: '800px',
-      data: plan
+      data: plan // El plan ya va con los adicionales ordenados
     });
   }
 
   abrirGestionAdmin() {
     if (!this.esAdmin) return;
     
-    // Abre el modal de la tabla de gestión
     const dialogRef = this.dialog.open(CatalogoGestionDialogComponent, {
       width: '900px',
       disableClose: true
     });
 
     dialogRef.afterClosed().subscribe(() => {
-      // Recargamos el landing en caso de que el admin haya editado, eliminado o creado algo
       this.cargarPlanes();
     });
   }

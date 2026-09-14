@@ -43,10 +43,18 @@
         <div class="plan-features">
           <p class="features-header">El servicio incluye:</p>
           <ul class="features-list">
-            <li *ngFor="let item of (plan.incluye || [])">
+            
+            <li *ngFor="let item of (plan.adm_plan_adicionales || [])">
               <mat-icon class="check-icon">check_circle</mat-icon>
-              <span>{{ item }}</span>
+              <span>
+                <!-- Mostramos cantidad si es mayor a 1 -->
+                <strong *ngIf="item.cantidad > 1">{{ item.cantidad }}x </strong>
+                
+                <!-- AGREGAMOS EL ?. ANTES DE nombre PARA EVITAR ERRORES DE COMPILACIÓN -->
+                {{ item.inv_adicionales?.nombre }}
+              </span>
             </li>
+            
           </ul>
         </div>
       </div>

@@ -15,14 +15,11 @@ export class CatalogoVisorDialogComponent {
   public dialogRef = inject(MatDialogRef<CatalogoVisorDialogComponent>);
   public plan = inject(MAT_DIALOG_DATA) as PlanFunerario;
 
-  // Si es -1, el visor de pantalla completa está cerrado
   imagenPantallaCompletaIndex: number = -1;
 
   cerrarDialogo() {
     this.dialogRef.close();
   }
-
-  // --- Lógica del Lightbox (Visor de fotos ampliado) ---
 
   abrirImagenGrande(index: number) {
     this.imagenPantallaCompletaIndex = index;
@@ -33,12 +30,12 @@ export class CatalogoVisorDialogComponent {
   }
 
   imagenSiguiente(event: Event) {
-    event.stopPropagation(); // Evita que al hacer clic se cierre el visor
+    event.stopPropagation(); 
     if (this.plan.imagenes && this.plan.imagenes.length > 0) {
       if (this.imagenPantallaCompletaIndex < this.plan.imagenes.length - 1) {
         this.imagenPantallaCompletaIndex++;
       } else {
-        this.imagenPantallaCompletaIndex = 0; // Vuelve a la primera
+        this.imagenPantallaCompletaIndex = 0; 
       }
     }
   }
@@ -49,7 +46,7 @@ export class CatalogoVisorDialogComponent {
       if (this.imagenPantallaCompletaIndex > 0) {
         this.imagenPantallaCompletaIndex--;
       } else {
-        this.imagenPantallaCompletaIndex = this.plan.imagenes.length - 1; // Va a la última
+        this.imagenPantallaCompletaIndex = this.plan.imagenes.length - 1; 
       }
     }
   }

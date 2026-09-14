@@ -1,0 +1,74 @@
+<h2 mat-dialog-title class="dialog-title">{{ esEdicion ? 'Editar Agenda' : 'Agendar Vehículo' }}</h2>
+<p class="dialog-subtitle" style="padding: 0 24px;">Asigne una carroza a un servicio específico definiendo la fecha y rangos horarios.</p>
+
+<mat-dialog-content class="dialog-content">
+  <form [formGroup]="agendaForm" class="dialog-form" style="display: flex; flex-direction: column; gap: 16px; padding-top: 8px;">
+    
+    <mat-form-field appearance="outline" class="w-100">
+      <mat-label>Servicio Funerario (Difunto)</mat-label>
+      <mat-select formControlName="servicio_id">
+        <mat-option *ngFor="let s of serviciosDisponibles" [value]="s.id">
+          {{ s.nombre_fallecido }} <span *ngIf="s.folio" style="color: var(--color-brand); font-size: 0.85rem;">(Folio #{{ s.folio }})</span>
+        </mat-option>
+      </mat-select>
+      <mat-error>Requerido</mat-error>
+    </mat-form-field>
+
+    <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+      <mat-form-field appearance="outline" style="flex: 2; min-width: 200px;">
+        <mat-label>Vehículo / Carroza</mat-label>
+        <mat-select formControlName="carroza_id">
+          <mat-option *ngFor="let c of carrozasDisponibles" [value]="c.id">
+            {{ c.marca }} {{ c.modelo }} ({{ c.patente }})
+          </mat-option>
+        </mat-select>
+        <mat-error>Requerido</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" style="flex: 1; min-width: 150px;">
+        <mat-label>Tipo de Evento</mat-label>
+        <mat-select formControlName="tipo_evento">
+          <mat-option *ngFor="let t of tiposEvento" [value]="t">{{ t }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <div style="display: flex; gap: 16px; flex-wrap: wrap; background-color: var(--color-input-bg); padding: 16px; border-radius: 8px; border: 1px solid var(--color-linea);">
+      
+      <mat-form-field appearance="outline" style="flex: 2; min-width: 150px; margin-bottom: -1.25em;">
+        <mat-label>Fecha del Evento</mat-label>
+        <input matInput [matDatepicker]="picker" formControlName="fecha_evento">
+        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" style="flex: 1; min-width: 120px; margin-bottom: -1.25em;">
+        <mat-label>Hora Inicio</mat-label>
+        <input matInput type="time" formControlName="hora_inicio">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" style="flex: 1; min-width: 120px; margin-bottom: -1.25em;">
+        <mat-label>Hora Término</mat-label>
+        <input matInput type="time" formControlName="hora_termino">
+      </mat-form-field>
+
+    </div>
+
+    <mat-form-field appearance="outline" style="margin-top: 8px;">
+      <mat-label>Estado de la Asignación</mat-label>
+      <mat-select formControlName="estado">
+        <mat-option *ngFor="let est of estadosAgenda" [value]="est">{{ est }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" style="padding-top: 20px;">
+  <button mat-button class="btn-cancelar" (click)="cerrar()" [disabled]="guardando">Cancelar</button>
+  <button mat-flat-button class="btn-submit" (click)="guardar()" [disabled]="agendaForm.invalid || guardando">
+    <mat-icon *ngIf="!guardando">save</mat-icon>
+    <mat-spinner *ngIf="guardando" diameter="20" style="margin-right: 8px;"></mat-spinner>
+    {{ guardando ? 'Guardando...' : 'Guardar Agenda' }}
+  </button>
+</mat-dialog-actions>

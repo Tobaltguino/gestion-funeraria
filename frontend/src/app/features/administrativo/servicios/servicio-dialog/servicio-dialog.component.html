@@ -1,0 +1,199 @@
+<div *ngIf="esEdicion && data?.folio" style="position: absolute; top: 24px; right: 24px; background-color: var(--color-brand); color: white; padding: 4px 12px; border-radius: 16px; font-weight: 600; box-shadow: 0 2px 4px rgba(0,0,0,0.1); z-index: 10;">
+  Folio #{{ data.folio }}
+</div>
+
+<h2 mat-dialog-title class="dialog-title">{{ esEdicion ? 'Editar Servicio' : 'Registrar Nuevo Servicio' }}</h2>
+<p class="dialog-subtitle" style="padding: 0 24px; margin-bottom: 0;">Complete los datos del difunto, facturación y personalice el plan contratado.</p>
+
+<mat-dialog-content class="dialog-content" style="padding-top: 0 !important; overflow-x: hidden;">
+  
+  <form [formGroup]="servicioForm" class="dialog-form">
+    <mat-stepper [linear]="!esEdicion" #stepper style="background: transparent;">
+      
+      <!-- PASO 1: DATOS GENERALES -->
+      <mat-step formGroupName="datosGenerales" [stepControl]="servicioForm.get('datosGenerales')!">
+        <ng-template matStepLabel>Datos y Facturación</ng-template>
+        
+        <div style="padding-top: 16px;">
+          <div class="form-row" style="display: flex; gap: 16px; flex-wrap: wrap;">
+            <mat-form-field appearance="outline" style="flex: 2; min-width: 250px;">
+              <mat-label>Nombre del Fallecido</mat-label>
+              <input matInput formControlName="nombre_fallecido" placeholder="Ej: Juan Pérez">
+              <mat-error>Requerido</mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" style="flex: 1; min-width: 150px;">
+              <mat-label>Fecha del Servicio</mat-label>
+              <input matInput [matDatepicker]="pickerServicio" formControlName="fecha_servicio">
+              <mat-datepicker-toggle matIconSuffix [for]="pickerServicio"></mat-datepicker-toggle>
+              <mat-datepicker #pickerServicio></mat-datepicker>
+              <mat-error>Requerido</mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row" style="display: flex; gap: 16px; flex-wrap: wrap;">
+            <mat-form-field appearance="outline" style="flex: 1; min-width: 150px;">
+              <mat-label>Tipo de Entidad</mat-label>
+              <mat-select formControlName="tipo_entidad">
+                <mat-option *ngFor="let tipo of tiposEntidad" [value]="tipo">{{ tipo }}</mat-option>
+              </mat-select>
+              <mat-error>Requerido</mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" style="flex: 2; min-width: 200px;">
+              <mat-label>Entidad Específica</mat-label>
+              <mat-select formControlName="entidad_pagadora">
+                <mat-option *ngFor="let entidad of opcionesEntidadPagadora" [value]="entidad">{{ entidad }}</mat-option>
+              </mat-select>
+              <mat-error>Requerido</mat-error>
+            </mat-form-field>
+          </div>
+
+          <div style="margin-top: 10px; padding: 16px; background-color: var(--color-input-bg); border-radius: 8px; border: 1px solid var(--color-linea);">
+            <h4 style="margin: 0 0 16px 0; font-weight: 600; color: var(--color-texto);">Estado de Cuenta</h4>
+            <div class="form-row" style="display: flex; gap: 16px; flex-wrap: wrap;">
+              
+              <mat-form-field appearance="outline" style="flex: 1; min-width: 150px;">
+                <mat-label>Costo Total del Servicio ($)</mat-label>
+                <input matInput type="number" formControlName="monto" min="0" placeholder="Ej: 1500000">
+                <mat-error>Requerido</mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" style="flex: 1; min-width: 150px;">
+                <mat-label>Estado de Pago</mat-label>
+                <mat-select formControlName="estado">
+                  <mat-option value="Pendiente">Pendiente de Pago</mat-option>
+                  <mat-option value="Pagado">Pagado Totalmente</mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" style="flex: 1; min-width: 150px;">
+                <mat-label>Fecha de Pago</mat-label>
+                <input matInput [matDatepicker]="pickerPago" formControlName="fecha_pago">
+                <mat-datepicker-toggle matIconSuffix [for]="pickerPago"></mat-datepicker-toggle>
+                <mat-datepicker #pickerPago></mat-datepicker>
+              </mat-form-field>
+
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; margin-top: 16px;">
+          <button mat-button class="btn-cancelar" (click)="cerrar()">Cancelar</button>
+          <button mat-flat-button matStepperNext class="btn-submit">Siguiente <mat-icon>arrow_forward</mat-icon></button>
+        </div>
+      </mat-step>
+
+      <!-- PASO 2: CONFIGURACIÓN BASE -->
+      <mat-step formGroupName="configuracionBase" [stepControl]="servicioForm.get('configuracionBase')!">
+        <ng-template matStepLabel>Configuración Base</ng-template>
+        
+        <div style="padding-top: 16px;">
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Plan Base (Catálogo)</mat-label>
+              <mat-select formControlName="plan_base_id">
+                <mat-option *ngFor="let plan of planesBase" [value]="plan.id">
+                  {{ plan.nombre }}
+                </mat-option>
+              </mat-select>
+              <mat-hint *ngIf="!esEdicion">Al seleccionar un plan, se cargarán sus servicios por defecto.</mat-hint>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row" style="display: flex; gap: 16px; flex-wrap: wrap; margin-top: 16px; align-items: flex-start;">
+            <div style="flex: 2; min-width: 250px; background-color: var(--color-input-bg); border: 1px solid var(--color-linea); border-radius: 4px; padding: 12px; display: flex; align-items: center; justify-content: space-between;">
+              <div style="display: flex; flex-direction: column;">
+                <span style="font-size: 0.8rem; color: var(--color-texto-suave); margin-bottom: 4px;">Urna a Utilizar</span>
+                <strong style="color: var(--color-texto); font-size: 1rem;">
+                  {{ urnaSeleccionada ? urnaSeleccionada.nombre : 'Sin urna seleccionada' }}
+                </strong>
+                <span *ngIf="urnaSeleccionada?.tipo_urna" style="font-size: 0.8rem; color: var(--color-brand);">
+                  Tipo: {{ urnaSeleccionada.tipo_urna }}
+                </span>
+              </div>
+              
+              <div style="display: flex; gap: 8px;">
+                <button type="button" mat-icon-button color="warn" matTooltip="Remover Urna" (click)="removerUrna()" *ngIf="urnaSeleccionada">
+                  <mat-icon>delete</mat-icon>
+                </button>
+                <button type="button" mat-flat-button class="btn-crear-verde" (click)="abrirSelectorUrna()">
+                  <mat-icon>search</mat-icon> Buscar
+                </button>
+              </div>
+            </div>
+
+            <mat-form-field appearance="outline" style="flex: 1; min-width: 150px;">
+              <mat-label>Diferencia Valor Urna ($)</mat-label>
+              <input matInput type="number" formControlName="diferencia_valor_urna" min="0">
+            </mat-form-field>
+          </div>
+
+          <div class="form-row" style="margin-top: 16px;">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Carroza Asignada</mat-label>
+              <mat-select formControlName="carroza_id">
+                <mat-option *ngFor="let carroza of carrozasDisponibles" [value]="carroza.id">
+                  {{ carroza.marca }} {{ carroza.modelo }} ({{ carroza.patente }})
+                </mat-option>
+              </mat-select>
+              <mat-error>Debe asignar una carroza obligatoriamente.</mat-error>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; margin-top: 16px;">
+          <button mat-button matStepperPrevious class="btn-cancelar"><mat-icon>arrow_back</mat-icon> Volver</button>
+          <button mat-flat-button matStepperNext class="btn-submit">Siguiente <mat-icon>arrow_forward</mat-icon></button>
+        </div>
+      </mat-step>
+
+      <!-- PASO 3: SERVICIOS ADICIONALES -->
+      <mat-step formGroupName="serviciosAdicionales" [stepControl]="servicioForm.get('serviciosAdicionales')!">
+        <ng-template matStepLabel>Servicios Adicionales</ng-template>
+        
+        <div style="padding: 16px 0;">
+          <h4 style="margin: 0 0 16px 0; color: var(--color-texto-suave);">Personalice los requerimientos específicos:</h4>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px;">
+            <div *ngFor="let categoria of categoriasPresentes">
+              <h5 style="margin: 0 0 12px 0; color: var(--color-brand); font-weight: 500; border-bottom: 1px solid var(--color-linea); padding-bottom: 4px;">
+                {{ categoria }}
+              </h5>
+              
+              <ng-container *ngIf="categoria === 'Luces' || categoria === 'LUCES'; else tipoCheckboxes">
+                <mat-radio-group formControlName="luces_id" style="display: flex; flex-direction: column; gap: 8px;">
+                  <mat-radio-button *ngFor="let item of adicionalesAgrupados[categoria]" [value]="item.id">
+                    {{ item.nombre }}
+                  </mat-radio-button>
+                </mat-radio-group>
+                <mat-error *ngIf="servicioForm.get('serviciosAdicionales.luces_id')?.hasError('required') && servicioForm.get('serviciosAdicionales.luces_id')?.touched" style="font-size: 0.75rem; margin-top: 4px;">
+                  Debe seleccionar un tipo de luces obligatoriamente.
+                </mat-error>
+              </ng-container>
+
+              <ng-template #tipoCheckboxes>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                  <mat-checkbox *ngFor="let item of adicionalesAgrupados[categoria]" [formControlName]="'check_' + item.id">
+                    {{ item.nombre }}
+                  </mat-checkbox>
+                </div>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; margin-top: 24px;">
+          <button mat-button matStepperPrevious class="btn-cancelar"><mat-icon>arrow_back</mat-icon> Volver</button>
+          
+          <button mat-flat-button class="btn-submit" (click)="guardar()" [disabled]="servicioForm.invalid || guardando">
+            <mat-icon *ngIf="!guardando">save</mat-icon>
+            <mat-spinner *ngIf="guardando" diameter="20" style="margin-right: 8px;"></mat-spinner>
+            {{ guardando ? 'Guardando...' : 'Finalizar y Guardar' }}
+          </button>
+        </div>
+      </mat-step>
+
+    </mat-stepper>
+  </form>
+</mat-dialog-content>
