@@ -13,6 +13,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatStepperModule } from '@angular/material/stepper';
 
 import { ServiciosService } from '../services/servicios.service';
 import { CatalogoService } from '../../catalogo/services/catalogo.service';
@@ -30,7 +31,8 @@ import { UrnaSelectorDialogComponent } from '../urna-selector-dialog/urna-select
     CommonModule, ReactiveFormsModule, MatDialogModule, MatFormFieldModule,
     MatInputModule, MatButtonModule, MatIconModule, MatSelectModule,
     MatDatepickerModule, MatNativeDateModule, MatCheckboxModule, 
-    MatRadioModule, MatProgressSpinnerModule, MatTooltipModule
+    MatRadioModule, MatProgressSpinnerModule, MatTooltipModule,
+    MatStepperModule // <-- NUEVO: Importación del Stepper
   ],
   templateUrl: './servicio-dialog.component.html'
 })
@@ -71,28 +73,32 @@ export class ServicioDialogComponent implements OnInit {
   ) {
     this.esEdicion = !!data;
 
+    // Se dividió el formulario en grupos para el Stepper
     this.servicioForm = this.fb.group({
-      fecha_servicio: [data?.fecha_servicio || new Date(), Validators.required],
-      nombre_fallecido: [data?.nombre_fallecido || '', Validators.required],
-      
-      tipo_entidad: [data?.tipo_entidad || '', Validators.required],
-      entidad_pagadora: [{ value: data?.entidad_pagadora || '', disabled: !data?.tipo_entidad }, Validators.required],
-      
-      estado: [data?.estado || 'Pendiente', Validators.required],
-      fecha_pago: [{ value: data?.fecha_pago || null, disabled: data?.estado !== 'Pagado' }],
-
-      monto: [data?.monto || null, [Validators.required, Validators.min(0)]],
-      
-      plan_base_id: [data?.plan_base_id || '', Validators.required],
-      urna_id: [data?.urna_id || null],
-      diferencia_valor_urna: [data?.diferencia_valor_urna || 0, Validators.min(0)],
-      carroza_id: [data?.carroza_id || '', Validators.required],
-      
-      luces_id: [null, Validators.required] // <-- Luces obligatorio
+      datosGenerales: this.fb.group({
+        fecha_servicio: [data?.fecha_servicio || new Date(), Validators.required],
+        nombre_fallecido: [data?.nombre_fallecido || '', Validators.required],
+        tipo_entidad: [data?.tipo_entidad || '', Validators.required],
+        entidad_pagadora: [{ value: data?.entidad_pagadora || '', disabled: !data?.tipo_entidad }, Validators.required],
+        estado: [data?.estado || 'Pendiente', Validators.required],
+        fecha_pago: [{ value: data?.fecha_pago || null, disabled: data?.estado !== 'Pagado' }],
+        monto: [data?.monto || null, [Validators.required, Validators.min(0)]]
+      }),
+      configuracionBase: this.fb.group({
+        plan_base_id: [data?.plan_base_id || '', Validators.required],
+        urna_id: [data?.urna_id || null],
+        diferencia_valor_urna: [data?.diferencia_valor_urna || 0, Validators.min(0)],
+        carroza_id: [data?.carroza_id || null, Validators.required]
+      }),
+      serviciosAdicionales: this.fb.group({
+        luces_id: [null, Validators.required]
+      })
     });
 
-    this.servicioForm.get('tipo_entidad')?.valueChanges.subscribe((tipo: TipoEntidad) => {
-      const entidadControl = this.servicioForm.get('entidad_pagadora');
+    const grupoGenerales = this.servicioForm.get('datosGenerales') as FormGroup;
+    
+    grupoGenerales.get('tipo_entidad')?.valueChanges.subscribe((tipo: TipoEntidad) => {
+      const entidadControl = grupoGenerales.get('entidad_pagadora');
       if (tipo) {
         this.opcionesEntidadPagadora = this.entidadesDiccionario[tipo] || [];
         entidadControl?.enable({ emitEvent: false });
@@ -111,8 +117,8 @@ export class ServicioDialogComponent implements OnInit {
       this.opcionesEntidadPagadora = this.entidadesDiccionario[data.tipo_entidad as TipoEntidad] || [];
     }
 
-    this.servicioForm.get('estado')?.valueChanges.subscribe(estado => {
-      const fechaPagoControl = this.servicioForm.get('fecha_pago');
+    grupoGenerales.get('estado')?.valueChanges.subscribe(estado => {
+      const fechaPagoControl = grupoGenerales.get('fecha_pago');
       if (estado === 'Pagado') {
         fechaPagoControl?.enable({ emitEvent: false });
         if (!fechaPagoControl?.value) {
@@ -125,7 +131,7 @@ export class ServicioDialogComponent implements OnInit {
       this.cdr.detectChanges();
     });
 
-    this.servicioForm.get('plan_base_id')?.valueChanges.subscribe(planId => {
+    this.servicioForm.get('configuracionBase.plan_base_id')?.valueChanges.subscribe(planId => {
       if (planId) this.precargarAdicionalesDelPlan(planId);
     });
   }
@@ -167,6 +173,8 @@ export class ServicioDialogComponent implements OnInit {
     }
 
     if (adicionales) {
+      const grupoAdicionales = this.servicioForm.get('serviciosAdicionales') as FormGroup;
+
       adicionales.forEach((item: Adicional) => {
         const cat = item.categoria;
         if (!this.adicionalesAgrupados[cat]) {
@@ -176,10 +184,9 @@ export class ServicioDialogComponent implements OnInit {
         this.adicionalesAgrupados[cat].push(item);
 
         if (cat !== CategoriaAdicional.LUCES && cat !== 'Luces') {
-          // REGLA: Si es Fijo, se marca y deshabilita
           const esFijo = (cat.toUpperCase() === 'FIJO');
-          if (!this.servicioForm.contains(`check_${item.id}`)) {
-            this.servicioForm.addControl(`check_${item.id}`, this.fb.control({ value: esFijo, disabled: esFijo }));
+          if (!grupoAdicionales.contains(`check_${item.id}`)) {
+            grupoAdicionales.addControl(`check_${item.id}`, this.fb.control({ value: esFijo, disabled: esFijo }));
           }
         }
       });
@@ -195,18 +202,15 @@ export class ServicioDialogComponent implements OnInit {
       });
 
       if (this.esEdicion && this.data?.adm_servicio_adicionales) {
-        // MODO EDICIÓN: Carga lo que ya estaba guardado en la base de datos
         this.data.adm_servicio_adicionales.forEach((rel: any) => {
           const catItem = adicionales.find((i: Adicional) => i.id === rel.adicional_id)?.categoria;
           if (catItem === CategoriaAdicional.LUCES || catItem === 'Luces') {
-            this.servicioForm.get('luces_id')?.setValue(rel.adicional_id, { emitEvent: false });
+            grupoAdicionales.get('luces_id')?.setValue(rel.adicional_id, { emitEvent: false });
           } else {
-            this.servicioForm.get(`check_${rel.adicional_id}`)?.setValue(true, { emitEvent: false });
+            grupoAdicionales.get(`check_${rel.adicional_id}`)?.setValue(true, { emitEvent: false });
           }
         });
       } else if (!this.esEdicion) {
-        // AQUI ESTÁ LA CORRECCIÓN: MODO NUEVO
-        // Marcamos la luz por defecto apenas se abre la ventana
         const luces = this.adicionalesAgrupados['Luces'] || this.adicionalesAgrupados['LUCES'];
         if (luces && luces.length > 0) {
           const luzPredeterminada = luces.find(l => 
@@ -214,7 +218,7 @@ export class ServicioDialogComponent implements OnInit {
             l.nombre.toLowerCase().includes('luz')
           ) || luces.find(l => !l.nombre.toLowerCase().includes('cirio')) || luces[0];
           
-          this.servicioForm.get('luces_id')?.setValue(luzPredeterminada.id, { emitEvent: false });
+          grupoAdicionales.get('luces_id')?.setValue(luzPredeterminada.id, { emitEvent: false });
         }
       }
       this.cdr.detectChanges();
@@ -224,13 +228,14 @@ export class ServicioDialogComponent implements OnInit {
   precargarAdicionalesDelPlan(planId: string) {
     if (this.esEdicion) return; 
 
-    Object.keys(this.servicioForm.controls).forEach(key => {
-      // Limpiar solo los checkboxes habilitados (evitamos limpiar los Fijos)
-      if (key.startsWith('check_') && this.servicioForm.get(key)?.enabled) {
-        this.servicioForm.get(key)?.setValue(false, { emitEvent: false });
+    const grupoAdicionales = this.servicioForm.get('serviciosAdicionales') as FormGroup;
+
+    Object.keys(grupoAdicionales.controls).forEach(key => {
+      if (key.startsWith('check_') && grupoAdicionales.get(key)?.enabled) {
+        grupoAdicionales.get(key)?.setValue(false, { emitEvent: false });
       }
     });
-    this.servicioForm.get('luces_id')?.setValue(null, { emitEvent: false });
+    grupoAdicionales.get('luces_id')?.setValue(null, { emitEvent: false });
 
     const planSeleccionado = this.planesBase.find(p => p.id === planId);
     let planTraiaLuces = false;
@@ -240,15 +245,14 @@ export class ServicioDialogComponent implements OnInit {
         const catItem = rel.inv_adicionales?.categoria;
         
         if (catItem === 'Luces' || catItem === 'LUCES') {
-          this.servicioForm.get('luces_id')?.setValue(rel.adicional_id, { emitEvent: false });
+          grupoAdicionales.get('luces_id')?.setValue(rel.adicional_id, { emitEvent: false });
           planTraiaLuces = true;
         } else {
-          this.servicioForm.get(`check_${rel.adicional_id}`)?.setValue(true, { emitEvent: false });
+          grupoAdicionales.get(`check_${rel.adicional_id}`)?.setValue(true, { emitEvent: false });
         }
       });
     }
 
-    // REGLA: Forzar luces por defecto si el plan no traía (prioriza "luces", evade "cirio")
     if (!planTraiaLuces) {
       const luces = this.adicionalesAgrupados['Luces'] || this.adicionalesAgrupados['LUCES'];
       if (luces && luces.length > 0) {
@@ -257,7 +261,7 @@ export class ServicioDialogComponent implements OnInit {
           l.nombre.toLowerCase().includes('luz')
         ) || luces.find(l => !l.nombre.toLowerCase().includes('cirio')) || luces[0];
         
-        this.servicioForm.get('luces_id')?.setValue(luzPredeterminada.id, { emitEvent: false });
+        grupoAdicionales.get('luces_id')?.setValue(luzPredeterminada.id, { emitEvent: false });
       }
     }
     
@@ -272,7 +276,7 @@ export class ServicioDialogComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(urna => {
       if (urna) {
-        this.servicioForm.patchValue({ urna_id: urna.id });
+        this.servicioForm.get('configuracionBase')?.patchValue({ urna_id: urna.id });
         this.urnaSeleccionada = urna;
         this.cdr.detectChanges();
       }
@@ -280,7 +284,7 @@ export class ServicioDialogComponent implements OnInit {
   }
 
   removerUrna() {
-    this.servicioForm.patchValue({ urna_id: null, diferencia_valor_urna: 0 });
+    this.servicioForm.get('configuracionBase')?.patchValue({ urna_id: null, diferencia_valor_urna: 0 });
     this.urnaSeleccionada = null;
     this.cdr.detectChanges();
   }
@@ -296,30 +300,33 @@ export class ServicioDialogComponent implements OnInit {
     this.cdr.detectChanges();
 
     const formValues = this.servicioForm.getRawValue();
+    const dg = formValues.datosGenerales;
+    const cb = formValues.configuracionBase;
+    const sa = formValues.serviciosAdicionales;
 
     try {
       const servicioData: Partial<ServicioContratado> = {
-        fecha_servicio: formValues.fecha_servicio,
-        nombre_fallecido: formValues.nombre_fallecido,
-        tipo_entidad: formValues.tipo_entidad as TipoEntidad,
-        entidad_pagadora: formValues.entidad_pagadora,
-        estado: formValues.estado,
-        fecha_pago: formValues.estado === 'Pagado' ? formValues.fecha_pago : null,
-        monto: formValues.monto,
-        plan_base_id: formValues.plan_base_id,
-        urna_id: formValues.urna_id,
-        diferencia_valor_urna: formValues.diferencia_valor_urna,
-        carroza_id: formValues.carroza_id
+        fecha_servicio: dg.fecha_servicio,
+        nombre_fallecido: dg.nombre_fallecido,
+        tipo_entidad: dg.tipo_entidad as TipoEntidad,
+        entidad_pagadora: dg.entidad_pagadora,
+        estado: dg.estado,
+        fecha_pago: dg.estado === 'Pagado' ? dg.fecha_pago : null,
+        monto: dg.monto,
+        plan_base_id: cb.plan_base_id,
+        urna_id: cb.urna_id || null,
+        diferencia_valor_urna: cb.diferencia_valor_urna || 0,
+        carroza_id: cb.carroza_id
       };
 
       const relaciones: any[] = [];
       
-      if (formValues.luces_id) {
-        relaciones.push({ adicional_id: formValues.luces_id, cantidad: 1 });
+      if (sa.luces_id) {
+        relaciones.push({ adicional_id: sa.luces_id, cantidad: 1 });
       }
 
-      Object.keys(formValues).forEach(key => {
-        if (key.startsWith('check_') && formValues[key] === true) {
+      Object.keys(sa).forEach(key => {
+        if (key.startsWith('check_') && sa[key] === true) {
           const adicional_id = key.replace('check_', '');
           relaciones.push({ adicional_id: adicional_id, cantidad: 1 });
         }
