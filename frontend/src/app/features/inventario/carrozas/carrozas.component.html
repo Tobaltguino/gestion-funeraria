@@ -19,13 +19,13 @@
     
     <mat-form-field appearance="outline" style="flex: 1; min-width: 180px; margin-bottom: -1.25em;">
       <mat-label>Patente</mat-label>
-      <input matInput [(ngModel)]="filtroPatente" appPatente maxlength="8" (keyup)="aplicarFiltros()" autocomplete="off">
+      <input matInput [(ngModel)]="filtroPatente" appPatente maxlength="8" autocomplete="off" placeholder="Ej: AB-CD-12">
       <mat-icon matPrefix>search</mat-icon>
     </mat-form-field>
 
     <mat-form-field appearance="outline" style="width: 160px; margin-bottom: -1.25em;">
       <mat-label>Marca</mat-label>
-      <mat-select [(ngModel)]="filtroMarca" (selectionChange)="aplicarFiltros()">
+      <mat-select [(ngModel)]="filtroMarca">
         <mat-option value="">Todas</mat-option>
         <mat-option *ngFor="let marca of marcas" [value]="marca">{{ marca }}</mat-option>
       </mat-select>
@@ -33,7 +33,7 @@
 
     <mat-form-field appearance="outline" style="width: 150px; margin-bottom: -1.25em;">
       <mat-label>Color</mat-label>
-      <mat-select [(ngModel)]="filtroColor" (selectionChange)="aplicarFiltros()">
+      <mat-select [(ngModel)]="filtroColor">
         <mat-option value="">Todos</mat-option>
         <mat-option *ngFor="let color of colores" [value]="color">{{ color }}</mat-option>
       </mat-select>
@@ -41,19 +41,25 @@
 
     <mat-form-field appearance="outline" style="width: 160px; margin-bottom: -1.25em;">
       <mat-label>Estado</mat-label>
-      <mat-select [(ngModel)]="filtroEstado" (selectionChange)="aplicarFiltros()">
+      <mat-select [(ngModel)]="filtroEstado">
         <mat-option value="">Todos</mat-option>
         <mat-option *ngFor="let estado of estados" [value]="estado">{{ estado }}</mat-option>
       </mat-select>
     </mat-form-field>
 
-    <button mat-icon-button color="primary" matTooltip="Limpiar Filtros" (click)="limpiarFiltros()" style="margin-top: 8px;">
-      <mat-icon>filter_alt_off</mat-icon>
-    </button>
+    <!-- Botones de Acción -->
+    <div style="display: flex; gap: 8px; margin-top: 8px; margin-left: auto;">
+      <button mat-flat-button class="btn-submit" (click)="aplicarFiltros()">
+        <mat-icon>search</mat-icon> Buscar
+      </button>
+      <button mat-icon-button color="primary" matTooltip="Limpiar Filtros" (click)="limpiarFiltros()">
+        <mat-icon>filter_alt_off</mat-icon>
+      </button>
+    </div>
   </div>
 
   <!-- Spinner de Carga -->
-  <div class="loading-container" *ngIf="cargando">
+  <div class="loading-container" *ngIf="cargando" style="display: flex; justify-content: center; padding: 40px;">
     <mat-spinner diameter="50"></mat-spinner>
   </div>
 
@@ -143,5 +149,15 @@
         </td>
       </tr>
     </table>
+
+    <mat-paginator 
+      [length]="totalRegistros"
+      [pageSize]="pageSize"
+      [pageSizeOptions]="[10, 20, 50]"
+      [pageIndex]="paginaActual"
+      (page)="cambiarPagina($event)"
+      showFirstLastButtons>
+    </mat-paginator>
+    
   </div>
 </div>

@@ -6,17 +6,17 @@
 <mat-dialog-content class="dialog-content" style="padding-top: 16px;">
   
   <!-- BARRA DE FILTROS -->
-  <div style="display: flex; gap: 16px; flex-wrap: wrap; background-color: var(--color-input-bg); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+  <div style="display: flex; gap: 16px; flex-wrap: wrap; background-color: var(--color-input-bg); padding: 16px; border-radius: 8px; margin-bottom: 16px; align-items: center;">
     
-    <mat-form-field appearance="outline" style="flex: 2; min-width: 200px; margin-bottom: -1.25em;">
+    <mat-form-field appearance="outline" style="flex: 2; min-width: 180px; margin-bottom: -1.25em;">
       <mat-label>Buscar por nombre</mat-label>
-      <input matInput [(ngModel)]="busqueda" (keyup)="aplicarFiltros()" placeholder="Ej: Urna Caoba...">
+      <input matInput [(ngModel)]="busqueda" placeholder="Ej: Urna Caoba..." autocomplete="off">
       <mat-icon matPrefix>search</mat-icon>
     </mat-form-field>
 
     <mat-form-field appearance="outline" style="flex: 1; min-width: 120px; margin-bottom: -1.25em;">
       <mat-label>Tipo</mat-label>
-      <mat-select [(ngModel)]="tipoFiltro" (selectionChange)="aplicarFiltros()">
+      <mat-select [(ngModel)]="tipoFiltro">
         <mat-option value="">Todos</mat-option>
         <mat-option *ngFor="let tipo of tipos" [value]="tipo">{{ tipo }}</mat-option>
       </mat-select>
@@ -24,7 +24,7 @@
 
     <mat-form-field appearance="outline" style="flex: 1; min-width: 120px; margin-bottom: -1.25em;">
       <mat-label>Tamaño</mat-label>
-      <mat-select [(ngModel)]="tamanoFiltro" (selectionChange)="aplicarFiltros()">
+      <mat-select [(ngModel)]="tamanoFiltro">
         <mat-option value="">Todos</mat-option>
         <mat-option *ngFor="let tam of tamanos" [value]="tam">{{ tam }}</mat-option>
       </mat-select>
@@ -32,15 +32,21 @@
 
     <mat-form-field appearance="outline" style="flex: 1; min-width: 120px; margin-bottom: -1.25em;">
       <mat-label>Cuerpo</mat-label>
-      <mat-select [(ngModel)]="cuerpoFiltro" (selectionChange)="aplicarFiltros()">
+      <mat-select [(ngModel)]="cuerpoFiltro">
         <mat-option value="">Todos</mat-option>
         <mat-option *ngFor="let cuerpo of cuerpos" [value]="cuerpo">{{ cuerpo }}</mat-option>
       </mat-select>
     </mat-form-field>
 
-    <button mat-icon-button color="warn" matTooltip="Limpiar Filtros" (click)="limpiarFiltros()" style="margin-top: 8px;">
-      <mat-icon>filter_alt_off</mat-icon>
-    </button>
+    <!-- Botones de Acción -->
+    <div style="display: flex; gap: 8px; margin-top: 8px; margin-left: auto;">
+      <button mat-flat-button class="btn-submit" (click)="aplicarFiltros()">
+        <mat-icon>search</mat-icon> Buscar
+      </button>
+      <button mat-icon-button color="primary" matTooltip="Limpiar Filtros" (click)="limpiarFiltros()">
+        <mat-icon>filter_alt_off</mat-icon>
+      </button>
+    </div>
   </div>
 
   <!-- LOADING -->
@@ -49,7 +55,7 @@
   </div>
 
   <!-- TABLA DE RESULTADOS -->
-  <div class="table-container" *ngIf="!cargando" style="max-height: 400px; overflow-y: auto; border: 1px solid var(--color-linea); border-radius: 8px;">
+  <div class="table-container" *ngIf="!cargando" style="border: 1px solid var(--color-linea); border-radius: 8px; overflow: hidden;">
     <table mat-table [dataSource]="dataSource" class="w-100">
       
       <ng-container matColumnDef="nombre">
@@ -90,15 +96,25 @@
         </td>
       </ng-container>
 
-      <tr mat-header-row *matHeaderRowDef="columnasMostrar; sticky: true"></tr>
+      <tr mat-header-row *matHeaderRowDef="columnasMostrar"></tr>
       <tr mat-row *matRowDef="let row; columns: columnasMostrar;"></tr>
       
       <tr class="mat-row" *matNoDataRow>
         <td class="mat-cell" colspan="6" style="text-align: center; padding: 20px;">
-          No se encontraron urnas con esos filtros.
+          No se encontraron urnas con los filtros aplicados.
         </td>
       </tr>
     </table>
-  </div>
 
+    <!-- PAGINADOR SERVIDOR -->
+    <mat-paginator 
+      [length]="totalRegistros"
+      [pageSize]="pageSize"
+      [pageSizeOptions]="[5, 10, 20]"
+      [pageIndex]="paginaActual"
+      (page)="cambiarPagina($event)"
+      showFirstLastButtons>
+    </mat-paginator>
+
+  </div>
 </mat-dialog-content>

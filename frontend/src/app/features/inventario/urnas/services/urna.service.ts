@@ -20,6 +20,30 @@ export class UrnaService {
     return data || [];
   }
 
+  // Agrega este método dentro de tu UrnaService
+  async obtenerUrnasPaginadas(filtros: any, page: number, pageSize: number): Promise<{ data: Urna[], total: number }> {
+    const from = page * pageSize;
+    const to = from + pageSize - 1;
+
+    let query = this.supabase
+      .from('inv_urnas')
+      .select('*', { count: 'exact' }) // count: 'exact' nos devuelve el total real para el paginador
+      .is('fecha_eliminacion', null)
+      .order('nombre', { ascending: true });
+
+    // Aplicar filtros dinámicos si existen
+    if (filtros.nombre) query = query.ilike('nombre', `%${filtros.nombre}%`);
+    if (filtros.tipo) query = query.eq('tipo_urna', filtros.tipo);
+    if (filtros.tamano) query = query.eq('tamano', filtros.tamano);
+    if (filtros.cuerpo) query = query.eq('cuerpo', filtros.cuerpo);
+
+    // Ejecutar paginación por rango
+    const { data, error, count } = await query.range(from, to);
+
+    if (error) throw error;
+    return { data: data as Urna[], total: count || 0 };
+  }
+
   async crearUrna(urna: Partial<Urna>): Promise<Urna> {
     const { data, error } = await this.supabase
       .from('inv_urnas')

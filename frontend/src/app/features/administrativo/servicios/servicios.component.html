@@ -68,12 +68,19 @@
         </mat-select>
       </mat-form-field>
 
-      <mat-form-field appearance="outline" style="width: 160px; margin-bottom: -1.25em;">
+      <!-- NUEVO SELECTOR DE URNA (Mediante Modal) -->
+      <mat-form-field appearance="outline" style="width: 200px; margin-bottom: -1.25em;" (click)="abrirSelectorUrnaFiltro()">
         <mat-label>Urna</mat-label>
-        <mat-select formControlName="urna_id">
-          <mat-option value="">Todas</mat-option>
-          <mat-option *ngFor="let u of urnasDisponibles" [value]="u.id">{{ u.nombre }}</mat-option>
-        </mat-select>
+        <!-- Ocultamos el ID en el form, mostramos el nombre al usuario -->
+        <input matInput [value]="urnaSeleccionadaNombre" placeholder="Todas las urnas" readonly style="cursor: pointer; pointer-events: none;">
+        
+        <!-- Icono de Búsqueda (Si no hay urna seleccionada) -->
+        <mat-icon matSuffix *ngIf="!urnaSeleccionadaNombre" style="cursor: pointer;">search</mat-icon>
+        
+        <!-- Icono de Cerrar (Si hay urna seleccionada) -->
+        <button mat-icon-button matSuffix *ngIf="urnaSeleccionadaNombre" (click)="removerFiltroUrna($event)" aria-label="Limpiar Urna">
+          <mat-icon>close</mat-icon>
+        </button>
       </mat-form-field>
 
       <mat-form-field appearance="outline" style="width: 140px; margin-bottom: -1.25em;">

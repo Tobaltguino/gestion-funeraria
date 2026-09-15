@@ -24,6 +24,37 @@ export class AdicionalService {
     return data || [];
   }
 
+  // --- MÉTODOS DE PAGINACIÓN Y FILTRADO ---
+  
+  async obtenerAdicionalesPaginadas(filtros: any, page: number, pageSize: number): Promise<{ data: Adicional[], total: number }> {
+    const from = page * pageSize;
+    const to = from + pageSize - 1;
+
+    let query = this.supabase
+      .from('inv_adicionales')
+      .select('*', { count: 'exact' })
+      .is('fecha_eliminacion', null)
+      .order('nombre', { ascending: true });
+
+    // Aplicar filtros dinámicos
+    if (filtros.nombre) {
+      query = query.ilike('nombre', `%${filtros.nombre}%`);
+    }
+    if (filtros.categoria) {
+      query = query.eq('categoria', filtros.categoria);
+    }
+    if (filtros.disponible !== '') {
+      // Convertimos el string 'true'/'false' a booleano real
+      query = query.eq('disponible', filtros.disponible === 'true');
+    }
+
+    // Paginación
+    const { data, error, count } = await query.range(from, to);
+
+    if (error) throw error;
+    return { data: data as Adicional[], total: count || 0 };
+  }
+
   async crearAdicional(adicional: Partial<Adicional>): Promise<Adicional> {
     const { data, error } = await this.supabase
       .from('inv_adicionales')

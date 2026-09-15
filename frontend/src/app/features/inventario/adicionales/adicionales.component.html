@@ -18,14 +18,14 @@
     <!-- Filtro de Búsqueda -->
     <mat-form-field appearance="outline" style="flex: 1; min-width: 180px; margin-bottom: -1.25em;">
       <mat-label>Buscar por nombre/servicio...</mat-label>
-      <input matInput [(ngModel)]="filtroNombre" (keyup)="aplicarFiltros()" autocomplete="off">
+      <input matInput [(ngModel)]="filtroNombre" autocomplete="off">
       <mat-icon matPrefix>search</mat-icon>
     </mat-form-field>
 
-    <!-- NUEVO: Filtro de Categoría -->
+    <!-- Filtro de Categoría -->
     <mat-form-field appearance="outline" style="width: 200px; margin-bottom: -1.25em;">
       <mat-label>Categoría</mat-label>
-      <mat-select [(ngModel)]="filtroCategoria" (selectionChange)="aplicarFiltros()">
+      <mat-select [(ngModel)]="filtroCategoria">
         <mat-option value="">Todas las categorías</mat-option>
         <mat-option *ngFor="let cat of listaCategorias" [value]="cat">
           {{ cat }}
@@ -36,19 +36,25 @@
     <!-- Filtro de Disponibilidad -->
     <mat-form-field appearance="outline" style="width: 180px; margin-bottom: -1.25em;">
       <mat-label>Disponibilidad</mat-label>
-      <mat-select [(ngModel)]="filtroDisponible" (selectionChange)="aplicarFiltros()">
+      <mat-select [(ngModel)]="filtroDisponible">
         <mat-option value="">Todos</mat-option>
         <mat-option value="true">Disponibles</mat-option>
         <mat-option value="false">No Disponibles</mat-option>
       </mat-select>
     </mat-form-field>
 
-    <button mat-icon-button color="primary" matTooltip="Limpiar Filtros" (click)="limpiarFiltros()" style="margin-top: 8px;">
-      <mat-icon>filter_alt_off</mat-icon>
-    </button>
+    <!-- Botones de Acción -->
+    <div style="display: flex; gap: 8px; margin-top: 8px; margin-left: auto;">
+      <button mat-flat-button class="btn-submit" (click)="aplicarFiltros()">
+        <mat-icon>search</mat-icon> Buscar
+      </button>
+      <button mat-icon-button color="primary" matTooltip="Limpiar Filtros" (click)="limpiarFiltros()">
+        <mat-icon>filter_alt_off</mat-icon>
+      </button>
+    </div>
   </div>
 
-  <div class="loading-container" *ngIf="cargando">
+  <div class="loading-container" *ngIf="cargando" style="display: flex; justify-content: center; padding: 40px;">
     <mat-spinner diameter="50"></mat-spinner>
   </div>
 
@@ -134,5 +140,15 @@
         </td>
       </tr>
     </table>
+
+    <mat-paginator 
+      [length]="totalRegistros"
+      [pageSize]="pageSize"
+      [pageSizeOptions]="[10, 20, 50]"
+      [pageIndex]="paginaActual"
+      (page)="cambiarPagina($event)"
+      showFirstLastButtons>
+    </mat-paginator>
+    
   </div>
 </div>

@@ -24,6 +24,7 @@ import { NotificationService } from '../../../shared/services/notification.servi
 import { ServicioContratado } from './models/servicio.interface';
 import { ServicioDialogComponent } from './servicio-dialog/servicio-dialog.component';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { UrnaSelectorDialogComponent } from '../../../shared/components/urna-selector-dialog/urna-selector-dialog.component';
 
 @Component({
   selector: 'app-servicios',
@@ -78,8 +79,8 @@ export class ServiciosComponent implements OnInit {
   anios = [new Date().getFullYear(), new Date().getFullYear() - 1, new Date().getFullYear() - 2];
   
   planesDisponibles: any[] = [];
-  urnasDisponibles: any[] = [];
   carrozasDisponibles: any[] = [];
+  urnaSeleccionadaNombre: string = ''; // <-- NUEVO: Para mostrar el nombre en el input
 
   constructor() {
     const fechaActual = new Date();
@@ -106,36 +107,21 @@ export class ServiciosComponent implements OnInit {
     const session = await this.authService.obtenerSesionActual();
     if (session) {
       const perfil = await this.authService.obtenerPerfilUsuario(session.user.id);
-      this.esAdmin = perfil?.rol === Role.ADMIN;
+      this.esAdmin = perfil?.rol === Role.ADMIN
     }
   }
 
   async cargarCatalogosFiltros() {
     const supabase = this.supabaseService.client;
     
-    // Cargar listas para poblar los selects de los filtros
-    const [reqPlanes, reqUrnas, reqCarrozas] = await Promise.all([
+    // Solo cargamos planes y carrozas. Las urnas se buscarán por demanda en el modal.
+    const [reqPlanes, reqCarrozas] = await Promise.all([
       supabase.from('adm_catalogo_planes').select('id, nombre').is('fecha_eliminacion', null),
-      supabase.from('inv_urnas').select('id, nombre').is('fecha_eliminacion', null),
       supabase.from('inv_carrozas').select('id, patente').is('fecha_eliminacion', null)
     ]);
 
     this.planesDisponibles = reqPlanes.data || [];
-    this.urnasDisponibles = reqUrnas.data || [];
     this.carrozasDisponibles = reqCarrozas.data || [];
-  }
-
-  suscribirseFiltros() {
-    this.filtrosForm.valueChanges
-      .pipe(
-        debounceTime(500), 
-        distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
-      )
-      .subscribe(() => {
-        this.paginaActual = 0;
-        if (this.paginator) this.paginator.firstPage();
-        this.cargarServicios();
-      });
   }
 
   async cargarServicios() {
@@ -176,7 +162,31 @@ export class ServiciosComponent implements OnInit {
       urna_id: '', 
       carroza_id: ''
     });
+    this.urnaSeleccionadaNombre = ''; // <-- Limpiamos el nombre
     this.aplicarFiltros();
+  }
+
+  // --- LÓGICA DEL SELECTOR DE URNAS ---
+  abrirSelectorUrnaFiltro() {
+    const dialogRef = this.dialog.open(UrnaSelectorDialogComponent, {
+      width: '900px',
+      disableClose: true
+    });
+
+    dialogRef.afterClosed().subscribe(urna => {
+      if (urna) {
+        this.filtrosForm.patchValue({ urna_id: urna.id });
+        this.urnaSeleccionadaNombre = urna.nombre;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  removerFiltroUrna(event: Event) {
+    event.stopPropagation(); // Evita que se abra el modal al hacer clic en la "X"
+    this.filtrosForm.patchValue({ urna_id: '' });
+    this.urnaSeleccionadaNombre = '';
+    this.cdr.detectChanges();
   }
 
   abrirFormulario(servicio?: ServicioContratado) {
@@ -228,6 +238,4 @@ export class ServiciosComponent implements OnInit {
     if (this.paginator) this.paginator.firstPage();
     this.cargarServicios();
   }
-
-  
 }

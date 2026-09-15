@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ViewChild, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -12,6 +12,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator'; // <-- NUEVO IMPORT
 
 // Servicios y Modelos
 import { AdicionalService } from './services/adicional.service';
@@ -29,7 +30,8 @@ import { Adicional, CategoriaAdicional } from './models/adicional.interface';
   imports: [
     CommonModule, FormsModule, MatTableModule, MatButtonModule, MatIconModule,
     MatProgressSpinnerModule, MatDialogModule, MatTooltipModule,
-    MatFormFieldModule, MatInputModule, MatSelectModule
+    MatFormFieldModule, MatInputModule, MatSelectModule,
+    MatPaginatorModule // <-- AÑADIDO
   ],
   templateUrl: './adicionales.component.html',
   styleUrls: ['./adicionales.component.scss']
@@ -41,23 +43,26 @@ export class AdicionalesComponent implements OnInit {
   private dialog = inject(MatDialog);
   private cdr = inject(ChangeDetectorRef);
 
+  @ViewChild(MatPaginator) paginator!: MatPaginator; // <-- AÑADIDO
+
   dataSource = new MatTableDataSource<Adicional>();
   cargando = true;
   esAdmin = false;
 
-  // NUEVO: Agregamos 'categoria' al arreglo de columnas
   columnasMostrar: string[] = ['imagen', 'servicio', 'categoria', 'descripcion', 'estado', 'acciones'];
-
-  // NUEVO: Lista de categorías disponibles para el filtro
   listaCategorias: string[] = Object.values(CategoriaAdicional);
+
+  // --- VARIABLES DE PAGINACIÓN ---
+  totalRegistros = 0;
+  pageSize = 20;
+  paginaActual = 0;
 
   // Variables para filtros
   filtroNombre: string = '';
   filtroDisponible: string = ''; 
-  filtroCategoria: string = ''; // NUEVO: Variable para el selector de categoría
+  filtroCategoria: string = '';
 
   async ngOnInit() {
-    this.configurarFiltroPersonalizado();
     await this.verificarRol();
     await this.cargarAdicionales();
   }
@@ -66,7 +71,7 @@ export class AdicionalesComponent implements OnInit {
     const session = await this.authService.obtenerSesionActual();
     if (session) {
       const perfil = await this.authService.obtenerPerfilUsuario(session.user.id);
-      this.esAdmin = perfil?.rol === Role.ADMIN;
+      this.esAdmin = perfil?.rol === Role.ADMIN
     }
   }
 
@@ -74,8 +79,16 @@ export class AdicionalesComponent implements OnInit {
     this.cargando = true;
     this.cdr.detectChanges();
     try {
-      const datos = await this.adicionalService.obtenerAdicionales();
-      this.dataSource.data = datos;
+      const filtros = {
+        nombre: this.filtroNombre,
+        disponible: this.filtroDisponible,
+        categoria: this.filtroCategoria
+      };
+
+      const resultado = await this.adicionalService.obtenerAdicionalesPaginadas(filtros, this.paginaActual, this.pageSize);
+      
+      this.dataSource.data = resultado.data;
+      this.totalRegistros = resultado.total;
     } catch (error) {
       console.error('Error al cargar adicionales:', error);
       this.notification.error('No se pudieron cargar los servicios adicionales.');
@@ -85,40 +98,24 @@ export class AdicionalesComponent implements OnInit {
     }
   }
 
-  // --- LÓGICA DE FILTRADO ACTUALIZADA ---
-  configurarFiltroPersonalizado() {
-    this.dataSource.filterPredicate = (data: Adicional, filter: string) => {
-      const searchTerms = JSON.parse(filter);
+  // --- LÓGICA DE FILTRADO Y PAGINACIÓN ---
 
-      const matchNombre = data.nombre.toLowerCase().includes(searchTerms.nombre.toLowerCase());
-      
-      let matchDisponible = true;
-      if (searchTerms.disponible === 'true') {
-        matchDisponible = data.disponible === true;
-      } else if (searchTerms.disponible === 'false') {
-        matchDisponible = data.disponible === false;
-      }
-
-      // NUEVO: Validación de categoría
-      const matchCategoria = searchTerms.categoria === '' || data.categoria === searchTerms.categoria;
-
-      return matchNombre && matchDisponible && matchCategoria;
-    };
+  cambiarPagina(event: PageEvent) {
+    this.paginaActual = event.pageIndex;
+    this.pageSize = event.pageSize;
+    this.cargarAdicionales();
   }
 
   aplicarFiltros() {
-    const searchFilter = {
-      nombre: this.filtroNombre,
-      disponible: this.filtroDisponible,
-      categoria: this.filtroCategoria // NUEVO
-    };
-    this.dataSource.filter = JSON.stringify(searchFilter);
+    this.paginaActual = 0; // Volvemos a la página 1
+    if (this.paginator) this.paginator.firstPage();
+    this.cargarAdicionales();
   }
 
   limpiarFiltros() {
     this.filtroNombre = '';
     this.filtroDisponible = '';
-    this.filtroCategoria = ''; // NUEVO
+    this.filtroCategoria = '';
     this.aplicarFiltros();
   }
 
