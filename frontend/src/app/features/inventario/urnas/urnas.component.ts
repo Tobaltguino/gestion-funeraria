@@ -22,8 +22,9 @@ import { Urna, UrnaTipo, UrnaTamano, UrnaCuerpo } from './models/urna.interface'
 import { NotificationService } from '../../../shared/services/notification.service';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { UrnaDialogComponent } from './urna-dialog/urna-dialog.component';
-import { UrnaVisorDialogComponent } from './urna-visor-dialog/urna-visor-dialog.component';
 import { UrnaStockCriticoDialogComponent } from './urna-stock-critico-dialog/urna-stock-critico-dialog.component';
+
+import { VisorGaleriaDialogComponent, VisorGaleriaData } from '../../../shared/components/visor-galeria-dialog/visor-galeria-dialog.component';
 
 @Component({
   selector: 'app-urnas',
@@ -140,9 +141,17 @@ export class UrnasComponent implements OnInit {
   // --- VISOR PARA EMPLEADOS Y ADMIN ---
 
   abrirVisor(urna: Urna) {
-    this.dialog.open(UrnaVisorDialogComponent, {
+    const dataVisor: VisorGaleriaData = {
+      titulo: urna.nombre,
+      imagenes: urna.imagenes || [],
+      detalles: [
+        { icono: 'inventory', etiqueta: 'Stock Actual', valor: `${urna.stock_actual} unidades` }
+      ]
+    };
+
+    this.dialog.open(VisorGaleriaDialogComponent, {
       width: '750px',
-      data: urna
+      data: dataVisor
     });
   }
 

@@ -23,8 +23,9 @@ import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialo
 import { PatenteDirective } from '../../../shared/directives/patente.directive';
 
 import { CarrozaDialogComponent } from './carroza-dialog/carroza-dialog.component';
-import { CarrozaVisorDialogComponent } from './carroza-visor-dialog/carroza-visor-dialog.component';
 import { Carroza, CarrozaColor, CarrozaEstado, CarrozaMarca } from './models/carroza.interface';
+
+import { VisorGaleriaDialogComponent, VisorGaleriaData } from '../../../shared/components/visor-galeria-dialog/visor-galeria-dialog.component';
 
 @Component({
   selector: 'app-carrozas',
@@ -139,9 +140,18 @@ export class CarrozasComponent implements OnInit {
 
   // --- ACCIONES DE LOS DIÁLOGOS ---
   abrirVisor(carroza: Carroza) {
-    this.dialog.open(CarrozaVisorDialogComponent, {
+    const dataVisor: VisorGaleriaData = {
+      titulo: `${carroza.marca} ${carroza.modelo}`,
+      imagenes: carroza.imagenes || [],
+      detalles: [
+        { icono: 'directions_car', etiqueta: 'Patente', valor: carroza.patente, uppercase: true },
+        { icono: 'palette', etiqueta: 'Color', valor: carroza.color }
+      ]
+    };
+
+    this.dialog.open(VisorGaleriaDialogComponent, {
       width: '750px',
-      data: carroza
+      data: dataVisor
     });
   }
 

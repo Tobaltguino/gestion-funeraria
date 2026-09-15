@@ -21,8 +21,9 @@ import { Role } from '../../../shared/enums/role.enum';
 import { NotificationService } from '../../../shared/services/notification.service';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { AdicionalDialogComponent } from './adicional-dialog/adicional-dialog.component';
-import { AdicionalVisorDialogComponent } from './adicional-visor-dialog/adicional-visor-dialog.component';
 import { Adicional, CategoriaAdicional } from './models/adicional.interface';
+
+import { VisorGaleriaDialogComponent, VisorGaleriaData } from '../../../shared/components/visor-galeria-dialog/visor-galeria-dialog.component';
 
 @Component({
   selector: 'app-adicionales',
@@ -121,9 +122,33 @@ export class AdicionalesComponent implements OnInit {
 
   // --- ACCIONES ---
   abrirVisor(adicional: Adicional) {
-    this.dialog.open(AdicionalVisorDialogComponent, {
+    // Armamos los detalles base
+    const detallesVisor = [
+      { icono: 'sell', etiqueta: 'Precio Costo', valor: `$${adicional.precio_costo}` },
+      { icono: 'point_of_sale', etiqueta: 'Precio Venta', valor: `$${adicional.precio_venta}` },
+      { icono: 'info', etiqueta: 'Estado', valor: adicional.disponible ? 'Disponible' : 'No Disponible' }
+    ];
+
+    // Agregamos la descripción dinámicamente solo si existe
+    if (adicional.descripcion) {
+      detallesVisor.push({ 
+        icono: 'description', 
+        etiqueta: 'Descripción', 
+        valor: adicional.descripcion 
+      });
+    }
+
+    // Construimos la data final para el modal
+    const dataVisor: VisorGaleriaData = {
+      titulo: adicional.nombre,
+      imagenes: adicional.imagenes || [],
+      detalles: detallesVisor
+    };
+
+    // Abrimos el componente universal en lugar del específico
+    this.dialog.open(VisorGaleriaDialogComponent, {
       width: '750px',
-      data: adicional
+      data: dataVisor
     });
   }
 

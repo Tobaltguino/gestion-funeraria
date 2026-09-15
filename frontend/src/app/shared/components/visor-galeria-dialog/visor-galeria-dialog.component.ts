@@ -3,18 +3,31 @@ import { CommonModule } from '@angular/common';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { Carroza } from '../models/carroza.interface';
+
+// Interfaz que estandariza la data que recibe el modal
+export interface VisorDetalle {
+  icono: string;
+  etiqueta: string;
+  valor: string | number;
+  uppercase?: boolean; // Para casos como la patente
+}
+
+export interface VisorGaleriaData {
+  titulo: string;
+  imagenes: string[];
+  detalles: VisorDetalle[];
+}
 
 @Component({
-  selector: 'app-carroza-visor-dialog',
+  selector: 'app-visor-galeria-dialog',
   standalone: true,
   imports: [CommonModule, MatDialogModule, MatButtonModule, MatIconModule],
-  templateUrl: './carroza-visor-dialog.component.html',
-  styleUrl: './carroza-visor-dialog.component.scss'
+  templateUrl: './visor-galeria-dialog.component.html',
+  styleUrls: ['./visor-galeria-dialog.component.scss'] // Reutiliza el SCSS que ya tenías
 })
-export class CarrozaVisorDialogComponent {
-  public dialogRef = inject(MatDialogRef<CarrozaVisorDialogComponent>);
-  public carroza = inject(MAT_DIALOG_DATA) as Carroza;
+export class VisorGaleriaDialogComponent {
+  public dialogRef = inject(MatDialogRef<VisorGaleriaDialogComponent>);
+  public data = inject(MAT_DIALOG_DATA) as VisorGaleriaData;
 
   imagenPantallaCompletaIndex: number = -1;
 
@@ -24,8 +37,8 @@ export class CarrozaVisorDialogComponent {
 
   imagenSiguiente(event: Event) {
     event.stopPropagation();
-    if (this.carroza.imagenes && this.carroza.imagenes.length > 0) {
-      if (this.imagenPantallaCompletaIndex < this.carroza.imagenes.length - 1) {
+    if (this.data.imagenes && this.data.imagenes.length > 0) {
+      if (this.imagenPantallaCompletaIndex < this.data.imagenes.length - 1) {
         this.imagenPantallaCompletaIndex++;
       } else {
         this.imagenPantallaCompletaIndex = 0;
@@ -35,11 +48,11 @@ export class CarrozaVisorDialogComponent {
 
   imagenAnterior(event: Event) {
     event.stopPropagation();
-    if (this.carroza.imagenes && this.carroza.imagenes.length > 0) {
+    if (this.data.imagenes && this.data.imagenes.length > 0) {
       if (this.imagenPantallaCompletaIndex > 0) {
         this.imagenPantallaCompletaIndex--;
       } else {
-        this.imagenPantallaCompletaIndex = this.carroza.imagenes.length - 1;
+        this.imagenPantallaCompletaIndex = this.data.imagenes.length - 1;
       }
     }
   }
