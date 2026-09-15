@@ -1,0 +1,138 @@
+<div class="page-container">
+  
+  <div class="page-header">
+    <div class="header-title">
+      <h2>Gestor de Documentos</h2>
+      <p class="subtitle">Repositorio central de archivos, contratos y resoluciones.</p>
+    </div>
+    
+    <button mat-flat-button class="btn-crear-verde" *ngIf="esAdmin" (click)="abrirDialogoDocumento()">
+      <mat-icon>upload_file</mat-icon>
+      Subir Documento
+    </button>
+  </div>
+
+  <!-- SECCIÓN DE FILTROS -->
+  <div class="filtros-container" *ngIf="!cargando" style="display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; align-items: center; background: #fff; padding: 16px 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+    <form [formGroup]="filtrosForm" style="display: flex; gap: 16px; flex-wrap: wrap; align-items: center; width: 100%;">
+      
+      <!-- Búsqueda Textual -->
+      <mat-form-field appearance="outline" style="flex: 1; min-width: 250px; margin-bottom: -1.25em;">
+        <mat-label>Buscar por nombre o descripción...</mat-label>
+        <input matInput formControlName="nombre" autocomplete="off" placeholder="Ej: Certificado 2026...">
+        <mat-icon matPrefix>search</mat-icon>
+      </mat-form-field>
+
+      <!-- Filtro: Tipo -->
+      <mat-form-field appearance="outline" style="width: 200px; margin-bottom: -1.25em;">
+        <mat-label>Categoría</mat-label>
+        <mat-select formControlName="tipo">
+          <mat-option value="">Todas</mat-option>
+          <mat-option *ngFor="let tipo of tiposDocumento" [value]="tipo">{{ tipo }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <!-- Botones de Acción -->
+      <div style="display: flex; gap: 8px; margin-top: 8px; margin-left: auto;">
+        <button mat-flat-button class="btn-submit" type="button" (click)="aplicarFiltros()">
+          <mat-icon>search</mat-icon> Buscar
+        </button>
+        <button mat-icon-button color="primary" matTooltip="Limpiar Filtros" type="button" (click)="limpiarFiltros()">
+          <mat-icon>filter_alt_off</mat-icon>
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <div class="loading-container" *ngIf="cargando" style="display: flex; justify-content: center; padding: 40px;">
+    <mat-spinner diameter="50"></mat-spinner>
+  </div>
+
+  <div class="table-container" *ngIf="!cargando">
+    <table mat-table [dataSource]="dataSource" class="w-100">
+
+      <!-- Columna: Nombre y Descripción -->
+      <ng-container matColumnDef="nombre">
+        <th mat-header-cell *matHeaderCellDef> Documento </th>
+        <td mat-cell *matCellDef="let doc"> 
+          <div style="display: flex; flex-direction: column; line-height: 1.4; padding: 8px 0;">
+            <strong style="color: var(--color-texto); font-size: 1rem;">
+              {{ doc.nombre }}
+            </strong>
+            <span *ngIf="doc.descripcion" style="font-size: 0.85rem; color: var(--color-texto-suave); max-width: 400px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+              {{ doc.descripcion }}
+            </span>
+          </div>
+        </td>
+      </ng-container>
+
+      <!-- Columna: Tipo / Categoría -->
+      <ng-container matColumnDef="tipo">
+        <th mat-header-cell *matHeaderCellDef> Tipo </th>
+        <td mat-cell *matCellDef="let doc">
+          <span style="background-color: var(--color-input-bg); padding: 4px 10px; border-radius: 4px; border: 1px solid var(--color-linea); font-size: 0.85rem; font-weight: 500;">
+            {{ doc.tipo }}
+          </span>
+        </td>
+      </ng-container>
+
+      <!-- Columna: Fecha de Subida -->
+      <ng-container matColumnDef="fecha_creada">
+        <th mat-header-cell *matHeaderCellDef> Fecha Registro </th>
+        <td mat-cell *matCellDef="let doc"> 
+          <span style="color: #555; display: flex; align-items: center; gap: 4px;">
+            <mat-icon style="font-size: 16px; width: 16px; height: 16px;">calendar_today</mat-icon>
+            {{ doc.fecha_creada | date:'dd/MM/yyyy HH:mm' }}
+          </span>
+        </td>
+      </ng-container>
+
+      <!-- Columna: Acciones -->
+      <ng-container matColumnDef="acciones">
+        <th mat-header-cell *matHeaderCellDef class="text-center"> Acciones </th>
+        <td mat-cell *matCellDef="let doc" class="acciones-cell text-center">
+          
+          <!-- Botón para ver/descargar (Usamos un tag <a> para abrir la URL nativamente) -->
+          <a mat-icon-button color="primary" matTooltip="Ver / Descargar" [href]="doc.url" target="_blank">
+            <mat-icon>visibility</mat-icon>
+          </a>
+          
+          <ng-container *ngIf="esAdmin">
+            <!-- Botón para Editar (Metadata) -->
+            <button mat-icon-button class="btn-editar-amarillo" matTooltip="Editar Datos" (click)="abrirDialogoDocumento(doc)">
+              <mat-icon>edit</mat-icon>
+            </button>
+            
+            <!-- Botón para Eliminar -->
+            <button mat-icon-button class="btn-eliminar-rojo" matTooltip="Eliminar Archivo" (click)="eliminarDocumento(doc)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </ng-container>
+          
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="columnasMostrar"></tr>
+      <tr mat-row *matRowDef="let row; columns: columnasMostrar;"></tr>
+      
+      <!-- Estado Vacío -->
+      <tr class="mat-row" *matNoDataRow>
+        <td class="mat-cell" colspan="4" style="text-align: center; padding: 3rem;">
+          <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: #ccc;">folder_open</mat-icon>
+          <p style="margin-top: 10px; color: #666;">No hay documentos que coincidan con la búsqueda.</p>
+        </td>
+      </tr>
+    </table>
+
+    <!-- PAGINADOR SERVIDOR -->
+    <mat-paginator 
+      [length]="totalRegistros"
+      [pageSize]="pageSize"
+      [pageSizeOptions]="[10, 20, 50]"
+      [pageIndex]="paginaActual"
+      (page)="cambiarPagina($event)"
+      showFirstLastButtons>
+    </mat-paginator>
+
+  </div>
+</div>

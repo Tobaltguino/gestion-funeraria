@@ -50,13 +50,24 @@ export class AgendaCarrozasDialogComponent implements OnInit {
   ) {
     this.esEdicion = !!data;
 
+    // NUEVO: Función auxiliar para convertir 'HH:mm' en un objeto Date para el Timepicker
+    const crearFechaConHora = (horaString: string) => {
+      const partes = horaString.split(':');
+      const fecha = new Date();
+      fecha.setHours(parseInt(partes[0], 10), parseInt(partes[1], 10), 0);
+      return fecha;
+    };
+
     this.agendaForm = this.fb.group({
       servicio_id: [data?.servicio_id || '', Validators.required],
       carroza_id: [data?.carroza_id || '', Validators.required],
       tipo_evento: [data?.tipo_evento || TipoEvento.FUNERAL, Validators.required],
       fecha_evento: [data?.fecha_evento ? new Date(data.fecha_evento) : new Date(), Validators.required],
-      hora_inicio: [data?.hora_inicio || '09:00', Validators.required],
-      hora_termino: [data?.hora_termino || '11:00', Validators.required],
+      
+      // APLICAMOS LA FUNCIÓN PARA QUE EL TIMEPICKER RECIBA UN DATE
+      hora_inicio: [crearFechaConHora(data?.hora_inicio || '09:00'), Validators.required],
+      hora_termino: [crearFechaConHora(data?.hora_termino || '11:00'), Validators.required],
+      
       estado: [data?.estado || EstadoAgenda.PROGRAMADO, Validators.required]
     });
   }

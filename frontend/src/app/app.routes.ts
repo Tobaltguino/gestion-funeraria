@@ -18,6 +18,7 @@ import { DashboardComponent } from './features/dashboard/dashboard.component';
 import { ServiciosComponent } from './features/administrativo/servicios/servicios.component';
 import { AgendaCarrozaComponent } from './features/administrativo/agenda-carroza/agenda-carroza.component';
 import { CatalogoComponent } from './features/administrativo/catalogo/catalogo.component';
+import { DocumentosComponent } from './features/administrativo/documentos/documentos.component';
 
 import { UrnasComponent } from './features/inventario/urnas/urnas.component';
 import { CarrozasComponent } from './features/inventario/carrozas/carrozas.component';
@@ -68,6 +69,12 @@ export const routes: Routes = [
         path: 'agenda', 
         component: AgendaCarrozaComponent,
         data: { roles: [Role.ADMIN, Role.EMPLEADO] } 
+      },
+
+      {
+        path: 'documentos',
+        component: DocumentosComponent,
+        data: { roles: [Role.ADMIN, Role.EMPLEADO] }
       },
 
       // --- INVENTARIO (Ambos) ---

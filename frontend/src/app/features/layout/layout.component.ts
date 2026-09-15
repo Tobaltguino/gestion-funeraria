@@ -58,7 +58,10 @@ export class LayoutComponent implements OnInit {
       opciones: [
         { titulo: 'Catálogo', ruta: '/catalogo', icono: 'menu_book', rolesPermitidos: [Role.ADMIN, Role.EMPLEADO] },
         { titulo: 'Servicios', ruta: '/servicios', icono: 'assignment', rolesPermitidos: [Role.ADMIN, Role.EMPLEADO] },
-        { titulo: 'Agenda Carrozas', ruta: '/agenda', icono: 'calendar_month', rolesPermitidos: [Role.ADMIN, Role.EMPLEADO] }
+        { titulo: 'Agenda Carrozas', ruta: '/agenda', icono: 'calendar_month', rolesPermitidos: [Role.ADMIN, Role.EMPLEADO] },
+        { titulo: 'Documentos', ruta: '/documentos', icono: 'folder_open', rolesPermitidos: [Role.ADMIN, Role.EMPLEADO] },
+        { titulo: 'Movimientos Caja', ruta: '/finanzas/caja', icono: 'account_balance_wallet', rolesPermitidos: [Role.ADMIN] } 
+
       ]
     },
     {
@@ -68,12 +71,6 @@ export class LayoutComponent implements OnInit {
         { titulo: 'Coche Mortuorio', ruta: '/inventario/carrozas', icono: 'directions_car', rolesPermitidos: [Role.ADMIN, Role.EMPLEADO] },
         { titulo: 'Adicionales', ruta: '/inventario/adicionales', icono: 'category', rolesPermitidos: [Role.ADMIN, Role.EMPLEADO] },
         { titulo: 'Pedidos', ruta: '/inventario/pedidos', icono: 'shopping_cart', rolesPermitidos: [Role.ADMIN, Role.EMPLEADO] }
-      ]
-    },
-    {
-      seccion: 'FINANZAS',
-      opciones: [
-        { titulo: 'Movimientos Caja', ruta: '/finanzas/caja', icono: 'account_balance_wallet', rolesPermitidos: [Role.ADMIN] } 
       ]
     },
     {
