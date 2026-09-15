@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ViewChild, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -12,6 +12,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator'; // <-- NUEVO IMPORT
 
 // Servicios y Modelos
 import { CarrozaService } from './services/carroza.service';
@@ -21,12 +22,10 @@ import { NotificationService } from '../../../shared/services/notification.servi
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { PatenteDirective } from '../../../shared/directives/patente.directive';
 
-// Importa tus componentes de diálogo (Ajusta las rutas si es necesario)
 import { CarrozaDialogComponent } from './carroza-dialog/carroza-dialog.component';
-import { CarrozaVisorDialogComponent } from './carroza-visor-dialog/carroza-visor-dialog.component';
-
-// Importa la Interfaz y los Enums
 import { Carroza, CarrozaColor, CarrozaEstado, CarrozaMarca } from './models/carroza.interface';
+
+import { VisorGaleriaDialogComponent, VisorGaleriaData } from '../../../shared/components/visor-galeria-dialog/visor-galeria-dialog.component';
 
 @Component({
   selector: 'app-carrozas',
@@ -43,6 +42,7 @@ import { Carroza, CarrozaColor, CarrozaEstado, CarrozaMarca } from './models/car
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
+    MatPaginatorModule, // <-- AÑADIDO
     PatenteDirective
   ],
   templateUrl: './carrozas.component.html',
@@ -55,12 +55,18 @@ export class CarrozasComponent implements OnInit {
   private dialog = inject(MatDialog);
   private cdr = inject(ChangeDetectorRef);
 
+  @ViewChild(MatPaginator) paginator!: MatPaginator; // <-- AÑADIDO
+
   dataSource = new MatTableDataSource<Carroza>();
   cargando = true;
   esAdmin = false;
 
-  // Columnas de la tabla
   columnasMostrar: string[] = ['imagen', 'vehiculo', 'patente', 'estado', 'acciones'];
+
+  // --- VARIABLES DE PAGINACIÓN ---
+  totalRegistros = 0;
+  pageSize = 20;
+  paginaActual = 0;
 
   // Variables para Filtros
   marcas = Object.values(CarrozaMarca);
@@ -73,7 +79,6 @@ export class CarrozasComponent implements OnInit {
   filtroEstado: string = '';
 
   async ngOnInit() {
-    this.configurarFiltroPersonalizado();
     await this.verificarRol();
     await this.cargarCarrozas();
   }
@@ -82,7 +87,7 @@ export class CarrozasComponent implements OnInit {
     const session = await this.authService.obtenerSesionActual();
     if (session) {
       const perfil = await this.authService.obtenerPerfilUsuario(session.user.id);
-      this.esAdmin = perfil?.rol === Role.ADMIN;
+      this.esAdmin = perfil?.rol === Role.ADMIN
     }
   }
 
@@ -91,8 +96,17 @@ export class CarrozasComponent implements OnInit {
     this.cdr.detectChanges();
     
     try {
-      const carrozasData = await this.carrozaService.obtenerCarrozas();
-      this.dataSource.data = carrozasData;
+      const filtros = {
+        patente: this.filtroPatente,
+        marca: this.filtroMarca,
+        color: this.filtroColor,
+        estado: this.filtroEstado
+      };
+
+      const resultado = await this.carrozaService.obtenerCarrozasPaginadas(filtros, this.paginaActual, this.pageSize);
+      
+      this.dataSource.data = resultado.data;
+      this.totalRegistros = resultado.total;
     } catch (error) {
       console.error('Error al cargar carrozas:', error);
       this.notification.error('No se pudo cargar el inventario de carrozas.');
@@ -102,28 +116,18 @@ export class CarrozasComponent implements OnInit {
     }
   }
 
-  // --- LÓGICA DE FILTRADO MÚLTIPLE ---
-  configurarFiltroPersonalizado() {
-    this.dataSource.filterPredicate = (data: Carroza, filter: string) => {
-      const searchTerms = JSON.parse(filter);
+  // --- LÓGICA DE FILTRADO Y PAGINACIÓN ---
 
-      const matchPatente = data.patente.toLowerCase().includes(searchTerms.patente.toLowerCase());
-      const matchMarca = searchTerms.marca ? data.marca === searchTerms.marca : true;
-      const matchColor = searchTerms.color ? data.color === searchTerms.color : true;
-      const matchEstado = searchTerms.estado ? data.estado === searchTerms.estado : true;
-
-      return matchPatente && matchMarca && matchColor && matchEstado;
-    };
+  cambiarPagina(event: PageEvent) {
+    this.paginaActual = event.pageIndex;
+    this.pageSize = event.pageSize;
+    this.cargarCarrozas();
   }
 
   aplicarFiltros() {
-    const searchFilter = {
-      patente: this.filtroPatente,
-      marca: this.filtroMarca,
-      color: this.filtroColor,
-      estado: this.filtroEstado
-    };
-    this.dataSource.filter = JSON.stringify(searchFilter);
+    this.paginaActual = 0; // Volver a la página 1 al buscar
+    if (this.paginator) this.paginator.firstPage();
+    this.cargarCarrozas();
   }
 
   limpiarFiltros() {
@@ -136,9 +140,18 @@ export class CarrozasComponent implements OnInit {
 
   // --- ACCIONES DE LOS DIÁLOGOS ---
   abrirVisor(carroza: Carroza) {
-    this.dialog.open(CarrozaVisorDialogComponent, {
+    const dataVisor: VisorGaleriaData = {
+      titulo: `${carroza.marca} ${carroza.modelo}`,
+      imagenes: carroza.imagenes || [],
+      detalles: [
+        { icono: 'directions_car', etiqueta: 'Patente', valor: carroza.patente, uppercase: true },
+        { icono: 'palette', etiqueta: 'Color', valor: carroza.color }
+      ]
+    };
+
+    this.dialog.open(VisorGaleriaDialogComponent, {
       width: '750px',
-      data: carroza
+      data: dataVisor
     });
   }
 

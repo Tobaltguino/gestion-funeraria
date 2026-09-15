@@ -10,6 +10,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTimepickerModule } from '@angular/material/timepicker';
 
 import { AgendaCarrozasService } from '../services/agenda-carrozas.service';
 import { SupabaseService } from '../../../../core/supabase/supabase';
@@ -22,7 +23,7 @@ import { AgendaCarroza, TipoEvento, EstadoAgenda } from '../models/agenda-carroz
   imports: [
     CommonModule, ReactiveFormsModule, MatDialogModule, MatFormFieldModule,
     MatInputModule, MatButtonModule, MatIconModule, MatSelectModule,
-    MatDatepickerModule, MatNativeDateModule, MatProgressSpinnerModule
+    MatDatepickerModule, MatNativeDateModule, MatProgressSpinnerModule, MatTimepickerModule
   ],
   templateUrl: './agenda-carrozas-dialog.component.html'
 })
@@ -97,8 +98,22 @@ export class AgendaCarrozasDialogComponent implements OnInit {
 
     const formValues = this.agendaForm.getRawValue();
     
-    // Formatear la fecha al formato estricto YYYY-MM-DD para la BD
-    const fechaISO = formValues.fecha_evento.toISOString().split('T')[0];
+    // 1. Formatear la fecha al formato YYYY-MM-DD
+    const fechaISO = formValues.fecha_evento instanceof Date 
+      ? formValues.fecha_evento.toISOString().split('T')[0]
+      : formValues.fecha_evento;
+
+    // 2. Función auxiliar segura para transformar las horas del timepicker a texto 'HH:mm:ss'
+    const formatearHora = (valorHora: any): string => {
+      if (!valorHora) return '09:00:00';
+      if (valorHora instanceof Date) {
+        const horas = String(valorHora.getHours()).padStart(2, '0');
+        const minutos = String(valorHora.getMinutes()).padStart(2, '0');
+        return `${horas}:${minutos}:00`;
+      }
+      // Si ya viene como string (ej: '09:00' o '09:00:00')
+      return valorHora.length === 5 ? `${valorHora}:00` : valorHora;
+    };
 
     try {
       const agendaData: Partial<AgendaCarroza> = {
@@ -106,8 +121,8 @@ export class AgendaCarrozasDialogComponent implements OnInit {
         carroza_id: formValues.carroza_id,
         tipo_evento: formValues.tipo_evento,
         fecha_evento: fechaISO,
-        hora_inicio: formValues.hora_inicio,
-        hora_termino: formValues.hora_termino,
+        hora_inicio: formatearHora(formValues.hora_inicio),
+        hora_termino: formatearHora(formValues.hora_termino),
         estado: formValues.estado
       };
 
@@ -121,7 +136,7 @@ export class AgendaCarrozasDialogComponent implements OnInit {
       this.dialogRef.close(true);
     } catch (error: any) {
       console.error('Error al guardar:', error);
-      this.notification.error('Ocurrió un error al guardar la agenda.');
+      this.notification.error('Ocurrió un error al guardar la agenda: ' + (error.message || ''));
     } finally {
       this.guardando = false;
       this.cdr.detectChanges();

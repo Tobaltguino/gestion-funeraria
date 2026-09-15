@@ -1,25 +1,117 @@
-<div class="landing-container" style="padding: 24px; max-width: 1200px; margin: 0 auto;">
+<div class="page-container">
   
-  <!-- CABECERA -->
-  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; border-bottom: 1px solid var(--color-linea); padding-bottom: 16px;">
-    <div>
-      <h1 style="margin: 0; font-size: 1.8rem; font-weight: 700; color: var(--color-texto);">Servicios Contratados</h1>
-      <p style="margin: 4px 0 0 0; color: var(--color-texto-suave);">Gestión de operaciones, estados de cuenta y planes personalizados.</p>
+  <!-- Encabezado -->
+  <div class="page-header">
+    <div class="header-title">
+      <h2>Servicios Contratados</h2>
+      <p class="subtitle">Gestión de operaciones, estados de cuenta y planes personalizados.</p>
     </div>
     
-    <button mat-flat-button class="btn-crear-verde" (click)="abrirFormulario()">
-      <mat-icon>add_box</mat-icon>
-      Nuevo Servicio
-    </button>
+    <div style="display: flex; gap: 12px;">
+      <button mat-flat-button class="btn-crear-verde" (click)="abrirFormulario()">
+        <mat-icon>add_box</mat-icon>
+        Nuevo Servicio
+      </button>
+    </div>
   </div>
 
-  <!-- LOADING -->
-  <div class="loading-container" *ngIf="cargando" style="display: flex; justify-content: center; padding: 40px;">
-    <mat-spinner diameter="40"></mat-spinner>
+  <!-- SECCIÓN DE FILTROS -->
+  <div class="filtros-container" *ngIf="!cargando" style="display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; align-items: center; background: #fff; padding: 16px 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+    <form [formGroup]="filtrosForm" style="display: flex; gap: 16px; flex-wrap: wrap; align-items: center; width: 100%;">
+      
+      <!-- Periodo (Mes/Año) -->
+      <mat-form-field appearance="outline" style="width: 120px; margin-bottom: -1.25em;">
+        <mat-label>Mes</mat-label>
+        <mat-select formControlName="mes">
+          <mat-option [value]="null">Todos</mat-option>
+          <mat-option *ngFor="let m of meses" [value]="m.valor">{{ m.nombre }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" style="width: 100px; margin-bottom: -1.25em;">
+        <mat-label>Año</mat-label>
+        <mat-select formControlName="anio">
+          <mat-option [value]="null">Todos</mat-option>
+          <mat-option *ngFor="let a of anios" [value]="a">{{ a }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <div style="width: 1px; height: 40px; background-color: var(--color-linea); margin: 0 8px;"></div>
+
+      <!-- Búsqueda Textual -->
+      <mat-form-field appearance="outline" style="width: 120px; margin-bottom: -1.25em;">
+        <mat-label>Folio #</mat-label>
+        <input matInput type="number" formControlName="folio" placeholder="Ej: 1500" autocomplete="off">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" style="flex: 1; min-width: 180px; margin-bottom: -1.25em;">
+        <mat-label>Difunto o Cliente</mat-label>
+        <input matInput formControlName="nombre_fallecido" placeholder="Buscar..." autocomplete="off">
+        <mat-icon matPrefix>search</mat-icon>
+      </mat-form-field>
+
+      <!-- Selects de Categorías -->
+      <mat-form-field appearance="outline" style="width: 140px; margin-bottom: -1.25em;">
+        <mat-label>Estado Pago</mat-label>
+        <mat-select formControlName="estado">
+          <mat-option value="">Todos</mat-option>
+          <mat-option value="Pendiente">Pendiente</mat-option>
+          <mat-option value="Pagado">Pagado</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" style="width: 160px; margin-bottom: -1.25em;">
+        <mat-label>Plan Base</mat-label>
+        <mat-select formControlName="plan_base_id">
+          <mat-option value="">Todos</mat-option>
+          <mat-option *ngFor="let p of planesDisponibles" [value]="p.id">{{ p.nombre }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <!-- NUEVO SELECTOR DE URNA (Mediante Modal) -->
+      <mat-form-field appearance="outline" style="width: 200px; margin-bottom: -1.25em;" (click)="abrirSelectorUrnaFiltro()">
+        <mat-label>Urna</mat-label>
+        <!-- Ocultamos el ID en el form, mostramos el nombre al usuario -->
+        <input matInput [value]="urnaSeleccionadaNombre" placeholder="Todas las urnas" readonly style="cursor: pointer; pointer-events: none;">
+        
+        <!-- Icono de Búsqueda (Si no hay urna seleccionada) -->
+        <mat-icon matSuffix *ngIf="!urnaSeleccionadaNombre" style="cursor: pointer;">search</mat-icon>
+        
+        <!-- Icono de Cerrar (Si hay urna seleccionada) -->
+        <button mat-icon-button matSuffix *ngIf="urnaSeleccionadaNombre" (click)="removerFiltroUrna($event)" aria-label="Limpiar Urna">
+          <mat-icon>close</mat-icon>
+        </button>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" style="width: 140px; margin-bottom: -1.25em;">
+        <mat-label>Carroza</mat-label>
+        <mat-select formControlName="carroza_id">
+          <mat-option value="">Todas</mat-option>
+          <mat-option *ngFor="let c of carrozasDisponibles" [value]="c.id">{{ c.patente }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <!-- Botones de Acción (Buscar y Limpiar) -->
+      <div style="display: flex; gap: 8px; margin-left: auto; margin-top: 8px;">
+        <button mat-flat-button class="btn-submit" type="button" (click)="aplicarFiltros()">
+          <mat-icon>search</mat-icon> Buscar
+        </button>
+        
+        <button mat-icon-button color="primary" matTooltip="Limpiar Filtros" type="button" (click)="limpiarFiltros()">
+          <mat-icon>filter_alt_off</mat-icon>
+        </button>
+      </div>
+
+    </form>
   </div>
 
-  <!-- TABLA DE SERVICIOS -->
-  <div class="table-container mat-elevation-z2" *ngIf="!cargando" style="border-radius: 8px; overflow: hidden;">
+  <!-- Spinner de Carga -->
+  <div class="loading-container" *ngIf="cargando">
+    <mat-spinner diameter="50"></mat-spinner>
+  </div>
+
+  <!-- Contenedor de la Tabla -->
+  <div class="table-container" *ngIf="!cargando">
     <table mat-table [dataSource]="dataSource" class="w-100">
 
       <!-- Columna: Folio -->
@@ -51,7 +143,7 @@
         </td>
       </ng-container>
 
-      <!-- Columna: Entidad Pagadora (ACTUALIZADA) -->
+      <!-- Columna: Entidad Pagadora -->
       <ng-container matColumnDef="entidad">
         <th mat-header-cell *matHeaderCellDef> Entidad / Cliente </th>
         <td mat-cell *matCellDef="let servicio">
@@ -80,17 +172,14 @@
       <ng-container matColumnDef="estado">
         <th mat-header-cell *matHeaderCellDef> Estado </th>
         <td mat-cell *matCellDef="let servicio">
-          
           <div *ngIf="servicio.estado === 'Pagado'" style="display: inline-flex; align-items: center; gap: 4px; background-color: #e8f5e9; color: #2e7d32; padding: 4px 12px; border-radius: 16px; font-weight: 500; font-size: 0.85rem;">
             <mat-icon style="font-size: 16px; width: 16px; height: 16px;">check_circle</mat-icon>
             Pagado
           </div>
-
           <div *ngIf="servicio.estado === 'Pendiente'" style="display: inline-flex; align-items: center; gap: 4px; background-color: #fff3e0; color: #ef6c00; padding: 4px 12px; border-radius: 16px; font-weight: 500; font-size: 0.85rem;">
             <mat-icon style="font-size: 16px; width: 16px; height: 16px;">schedule</mat-icon>
             Pendiente
           </div>
-
         </td>
       </ng-container>
 
@@ -98,16 +187,12 @@
       <ng-container matColumnDef="acciones">
         <th mat-header-cell *matHeaderCellDef class="text-center"> Acciones </th>
         <td mat-cell *matCellDef="let servicio" class="acciones-cell text-center">
-          
           <button mat-icon-button class="btn-editar-amarillo" matTooltip="Ver / Editar" (click)="abrirFormulario(servicio)">
             <mat-icon>edit</mat-icon>
           </button>
-          
-          <!-- Botón de eliminar restringido estructuralmente por el RLS, pero oculto visualmente para empleados -->
           <button *ngIf="esAdmin" mat-icon-button class="btn-eliminar-rojo" matTooltip="Eliminar Servicio" (click)="eliminarServicio(servicio)">
             <mat-icon>delete</mat-icon>
           </button>
-
         </td>
       </ng-container>
 
@@ -116,11 +201,22 @@
       
       <!-- Estado Vacío -->
       <tr class="mat-row" *matNoDataRow>
-        <td class="mat-cell" colspan="6" style="text-align: center; padding: 3rem;">
-          <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: var(--color-linea);">assignment</mat-icon>
-          <p style="margin-top: 16px; color: var(--color-texto-suave); font-size: 1.1rem;">No hay servicios contratados registrados.</p>
+        <td class="mat-cell" colspan="7" style="text-align: center; padding: 3rem;">
+          <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: #ccc;">search_off</mat-icon>
+          <p style="margin-top: 10px; color: #666;">No se encontraron resultados con los filtros aplicados.</p>
         </td>
       </tr>
     </table>
+
+    <!-- PAGINADOR SERVIDOR -->
+    <mat-paginator 
+      [length]="totalRegistros"
+      [pageSize]="pageSize"
+      [pageSizeOptions]="[10, 20, 50]"
+      [pageIndex]="paginaActual"
+      (page)="cambiarPagina($event)"
+      showFirstLastButtons>
+    </mat-paginator>
+
   </div>
 </div>

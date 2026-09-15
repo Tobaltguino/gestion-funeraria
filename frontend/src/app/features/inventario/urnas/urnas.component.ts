@@ -1,28 +1,30 @@
-import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ViewChild, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms'; // <-- Importante para usar [(ngModel)]
+import { FormsModule } from '@angular/forms';
 
 // Angular Material
-import { MatTableModule, MatTableDataSource } from '@angular/material/table'; // <-- Agregado MatTableDataSource
+import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog'; 
 import { MatTooltipModule } from '@angular/material/tooltip'; 
-import { MatFormFieldModule } from '@angular/material/form-field'; // <-- Agregado
-import { MatInputModule } from '@angular/material/input'; // <-- Agregado
-import { MatSelectModule } from '@angular/material/select'; // <-- Agregado
-import { MatCheckboxModule } from '@angular/material/checkbox'; // <-- Agregado
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator'; // <-- NUEVO IMPORT
 
 import { UrnaService } from './services/urna.service';
 import { AuthService } from '../../../core/auth/auth.service';
 import { Role } from '../../../shared/enums/role.enum';
-import { Urna, UrnaTipo, UrnaTamano, UrnaCuerpo } from './models/urna.interface'; // <-- Importamos los Enums
+import { Urna, UrnaTipo, UrnaTamano, UrnaCuerpo } from './models/urna.interface';
 import { NotificationService } from '../../../shared/services/notification.service';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { UrnaDialogComponent } from './urna-dialog/urna-dialog.component';
-import { UrnaVisorDialogComponent } from './urna-visor-dialog/urna-visor-dialog.component';
 import { UrnaStockCriticoDialogComponent } from './urna-stock-critico-dialog/urna-stock-critico-dialog.component';
+
+import { VisorGaleriaDialogComponent, VisorGaleriaData } from '../../../shared/components/visor-galeria-dialog/visor-galeria-dialog.component';
 
 @Component({
   selector: 'app-urnas',
@@ -39,7 +41,8 @@ import { UrnaStockCriticoDialogComponent } from './urna-stock-critico-dialog/urn
     MatFormFieldModule, 
     MatInputModule, 
     MatSelectModule, 
-    MatCheckboxModule 
+    MatCheckboxModule,
+    MatPaginatorModule // <-- AÑADIDO
   ],
   templateUrl: './urnas.component.html',
   styleUrls: ['./urnas.component.scss']
@@ -51,13 +54,18 @@ export class UrnasComponent implements OnInit {
   private dialog = inject(MatDialog);
   private cdr = inject(ChangeDetectorRef);
 
-  // Usamos MatTableDataSource para habilitar el filtrado múltiple nativo de Angular
+  @ViewChild(MatPaginator) paginator!: MatPaginator; // <-- AÑADIDO
+
   dataSource = new MatTableDataSource<Urna>();
   cargando = true;
   esAdmin = false;
 
-  // Agregamos la columna 'detalles'
   columnasMostrar: string[] = ['imagen', 'nombre', 'detalles', 'stock', 'acciones'];
+
+  // --- VARIABLES DE PAGINACIÓN ---
+  totalRegistros = 0;
+  pageSize = 20;
+  paginaActual = 0;
 
   // --- VARIABLES PARA LOS FILTROS ---
   tipos = Object.values(UrnaTipo);
@@ -70,7 +78,6 @@ export class UrnasComponent implements OnInit {
   filtroCuerpo: string = '';
 
   async ngOnInit() {
-    this.configurarFiltroPersonalizado();
     await this.verificarRol();
     await this.cargarUrnas();
   }
@@ -79,7 +86,7 @@ export class UrnasComponent implements OnInit {
     const session = await this.authService.obtenerSesionActual();
     if (session) {
       const perfil = await this.authService.obtenerPerfilUsuario(session.user.id);
-      this.esAdmin = perfil?.rol === Role.ADMIN;
+      this.esAdmin = perfil?.rol === Role.ADMIN
     }
   }
 
@@ -88,8 +95,18 @@ export class UrnasComponent implements OnInit {
     this.cdr.detectChanges();
     
     try {
-      const urnasData = await this.urnaService.obtenerUrnas();
-      this.dataSource.data = urnasData; // Asignamos la data al DataSource
+      const filtros = {
+        nombre: this.filtroNombre,
+        tipo: this.filtroTipo,
+        tamano: this.filtroTamano,
+        cuerpo: this.filtroCuerpo
+      };
+
+      // Llamamos al nuevo método paginado
+      const resultado = await this.urnaService.obtenerUrnasPaginadas(filtros, this.paginaActual, this.pageSize);
+      
+      this.dataSource.data = resultado.data;
+      this.totalRegistros = resultado.total;
     } catch (error) {
       console.error('Error al cargar urnas:', error);
       this.notification.error('No se pudo cargar el inventario de urnas.');
@@ -99,30 +116,18 @@ export class UrnasComponent implements OnInit {
     }
   }
 
-  // --- LÓGICA DE FILTRADO MÚLTIPLE ---
-  
-  configurarFiltroPersonalizado() {
-    this.dataSource.filterPredicate = (data: Urna, filter: string) => {
-      const searchTerms = JSON.parse(filter);
+  // --- LÓGICA DE FILTRADO MÚLTIPLE Y PAGINACIÓN ---
 
-      const matchNombre = data.nombre.toLowerCase().includes(searchTerms.nombre.toLowerCase());
-      const matchTipo = searchTerms.tipo ? data.tipo_urna === searchTerms.tipo : true;
-      const matchTamano = searchTerms.tamano ? data.tamano === searchTerms.tamano : true; 
-      const matchCuerpo = searchTerms.cuerpo ? data.cuerpo === searchTerms.cuerpo : true;
-
-      // Eliminamos la validación del stock
-      return matchNombre && matchTipo && matchTamano && matchCuerpo;
-    };
+  cambiarPagina(event: PageEvent) {
+    this.paginaActual = event.pageIndex;
+    this.pageSize = event.pageSize;
+    this.cargarUrnas();
   }
 
   aplicarFiltros() {
-    const searchFilter = {
-      nombre: this.filtroNombre,
-      tipo: this.filtroTipo,
-      tamano: this.filtroTamano,
-      cuerpo: this.filtroCuerpo
-    };
-    this.dataSource.filter = JSON.stringify(searchFilter);
+    this.paginaActual = 0; // Volvemos a la página 1 al buscar
+    if (this.paginator) this.paginator.firstPage();
+    this.cargarUrnas();
   }
 
   limpiarFiltros() {
@@ -136,9 +141,17 @@ export class UrnasComponent implements OnInit {
   // --- VISOR PARA EMPLEADOS Y ADMIN ---
 
   abrirVisor(urna: Urna) {
-    this.dialog.open(UrnaVisorDialogComponent, {
+    const dataVisor: VisorGaleriaData = {
+      titulo: urna.nombre,
+      imagenes: urna.imagenes || [],
+      detalles: [
+        { icono: 'inventory', etiqueta: 'Stock Actual', valor: `${urna.stock_actual} unidades` }
+      ]
+    };
+
+    this.dialog.open(VisorGaleriaDialogComponent, {
       width: '750px',
-      data: urna
+      data: dataVisor
     });
   }
 

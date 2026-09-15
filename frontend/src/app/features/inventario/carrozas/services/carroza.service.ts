@@ -26,6 +26,31 @@ export class CarrozaService {
     return data || [];
   }
 
+  // --- MÉTODOS DE PAGINACIÓN Y FILTRADO ---
+  
+  async obtenerCarrozasPaginadas(filtros: any, page: number, pageSize: number): Promise<{ data: Carroza[], total: number }> {
+    const from = page * pageSize;
+    const to = from + pageSize - 1;
+
+    let query = this.supabase
+      .from('inv_carrozas')
+      .select('*', { count: 'exact' })
+      .is('fecha_eliminacion', null)
+      .order('marca', { ascending: true });
+
+    // Aplicar filtros dinámicos
+    if (filtros.patente) query = query.ilike('patente', `%${filtros.patente}%`);
+    if (filtros.marca) query = query.eq('marca', filtros.marca);
+    if (filtros.color) query = query.eq('color', filtros.color);
+    if (filtros.estado) query = query.eq('estado', filtros.estado);
+
+    // Paginación
+    const { data, error, count } = await query.range(from, to);
+
+    if (error) throw error;
+    return { data: data as Carroza[], total: count || 0 };
+  }
+
   async crearCarroza(carroza: Partial<Carroza>): Promise<Carroza> {
     const { data, error } = await this.supabase
       .from('inv_carrozas')

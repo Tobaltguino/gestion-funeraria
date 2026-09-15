@@ -13,7 +13,7 @@ export class AgendaCarrozasService {
   }
 
   // --- OBTENER ---
-  async obtenerAgendas(): Promise<AgendaCarroza[]> {
+  async obtenerAgendas(inicio: string, fin: string): Promise<AgendaCarroza[]> {
     const { data, error } = await this.supabase
       .from('adm_agenda_carrozas')
       .select(`
@@ -22,6 +22,8 @@ export class AgendaCarrozasService {
         inv_carrozas (marca, modelo, patente)
       `)
       .is('fecha_eliminacion', null)
+      .gte('fecha_evento', inicio)
+      .lte('fecha_evento', fin) // Filtramos por el rango visible en el calendario
       .order('fecha_evento', { ascending: false })
       .order('hora_inicio', { ascending: true });
 

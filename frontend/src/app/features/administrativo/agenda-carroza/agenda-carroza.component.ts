@@ -18,7 +18,6 @@ import esLocale from '@fullcalendar/core/locales/es';
 import { AgendaCarrozasService } from './services/agenda-carrozas.service';
 import { AgendaCarroza } from './models/agenda-carroza.interface';
 import { AgendaCarrozasDialogComponent } from './agenda-carrozas-dialog/agenda-carrozas-dialog.component';
-import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { AuthService } from '../../../core/auth/auth.service';
 import { NotificationService } from '../../../shared/services/notification.service';
 import { Role } from '../../../shared/enums/role.enum';
@@ -40,15 +39,17 @@ export class AgendaCarrozaComponent implements OnInit {
   private dialog = inject(MatDialog);
   private cdr = inject(ChangeDetectorRef);
 
-  cargando = true;
+  cargando = false;
   esAdmin = false;
   
   listaAgendas: AgendaCarroza[] = [];
 
-  // Configuración de FullCalendar
+  // Almacenamos el rango actual para recargar tras guardar un modal
+  rangoActualVisible = { inicio: '', fin: '' };
+
   calendarOptions: CalendarOptions = {
     plugins: [dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin],
-    initialView: 'timeGridWeek', // Vista semanal por defecto
+    initialView: 'timeGridWeek', 
     locale: esLocale,
     headerToolbar: {
       left: 'prev,next today',
@@ -61,18 +62,19 @@ export class AgendaCarrozaComponent implements OnInit {
       week: 'SEMANA',
       list: 'AGENDA'
     },
-    events: [], // Se llenará desde Supabase
+    events: [],
     eventClick: this.handleEventClick.bind(this),
+    datesSet: this.handleDatesSet.bind(this), // <-- SE DISPARA AL CAMBIAR DE MES/SEMANA
     height: 'auto',
     allDaySlot: false,
-    slotMinTime: '06:00:00', // Rango horario visible
+    slotMinTime: '06:00:00', 
     slotMaxTime: '22:00:00',
     noEventsText: 'No hay eventos para mostrar'
   };
 
   async ngOnInit() {
     await this.verificarRol();
-    await this.cargarAgendas();
+    // Ya no llamamos a cargarAgendas aquí. FullCalendar dispara datesSet automáticamente al renderizar.
   }
 
   async verificarRol() {
@@ -83,11 +85,20 @@ export class AgendaCarrozaComponent implements OnInit {
     }
   }
 
-  async cargarAgendas() {
+  // Captura el cambio de fechas en el calendario
+  async handleDatesSet(dateInfo: any) {
+    const inicio = dateInfo.startStr.split('T')[0];
+    const fin = dateInfo.endStr.split('T')[0];
+    
+    this.rangoActualVisible = { inicio, fin };
+    await this.cargarAgendasPorRango(inicio, fin);
+  }
+
+  async cargarAgendasPorRango(inicio: string, fin: string) {
     this.cargando = true;
     this.cdr.detectChanges();
     try {
-      this.listaAgendas = await this.agendaService.obtenerAgendas();
+      this.listaAgendas = await this.agendaService.obtenerAgendas(inicio, fin);
       this.mapearEventosAlCalendario();
     } catch (error) {
       console.error('Error al cargar la agenda:', error);
@@ -100,11 +111,10 @@ export class AgendaCarrozaComponent implements OnInit {
 
   mapearEventosAlCalendario() {
     const eventosMapeados: EventInput[] = this.listaAgendas.map(agenda => {
-      // Color según el estado
-      let colorEstado = '#1565c0'; // En Curso (Azul)
-      if (agenda.estado === 'Finalizado') colorEstado = '#2e7d32'; // Verde
-      else if (agenda.estado === 'Programado') colorEstado = '#ef6c00'; // Naranja
-      else if (agenda.estado === 'Cancelado') colorEstado = '#d32f2f'; // Rojo
+      let colorEstado = '#1565c0'; 
+      if (agenda.estado === 'Finalizado') colorEstado = '#2e7d32'; 
+      else if (agenda.estado === 'Programado') colorEstado = '#ef6c00'; 
+      else if (agenda.estado === 'Cancelado') colorEstado = '#d32f2f'; 
 
       return {
         id: agenda.id,
@@ -113,18 +123,16 @@ export class AgendaCarrozaComponent implements OnInit {
         end: `${agenda.fecha_evento}T${agenda.hora_termino}`,
         backgroundColor: colorEstado,
         borderColor: colorEstado,
-        extendedProps: { agendaData: agenda } // Guardamos la data original para abrir el modal
+        extendedProps: { agendaData: agenda }
       };
     });
 
-    // Actualizar los eventos en el calendario
     this.calendarOptions = {
       ...this.calendarOptions,
       events: eventosMapeados
     };
   }
 
-  // Al hacer clic en un bloque del calendario, abrimos el modal de edición
   handleEventClick(clickInfo: any) {
     const agendaSeleccionada = clickInfo.event.extendedProps.agendaData;
     this.abrirFormulario(agendaSeleccionada);
@@ -138,7 +146,10 @@ export class AgendaCarrozaComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe(seGuardo => {
-      if (seGuardo) this.cargarAgendas();
+      if (seGuardo && this.rangoActualVisible.inicio) {
+        // Recargamos el mismo rango en lugar de todo
+        this.cargarAgendasPorRango(this.rangoActualVisible.inicio, this.rangoActualVisible.fin);
+      }
     });
   }
 }

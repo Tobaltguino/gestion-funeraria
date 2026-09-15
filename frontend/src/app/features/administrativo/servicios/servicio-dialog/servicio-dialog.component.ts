@@ -22,7 +22,7 @@ import { NotificationService } from '../../../../shared/services/notification.se
 import { ServicioContratado, TipoEntidad } from '../models/servicio.interface';
 import { PlanFunerario } from '../../catalogo/models/catalogo.interface';
 import { Adicional, CategoriaAdicional } from '../../../inventario/adicionales/models/adicional.interface';
-import { UrnaSelectorDialogComponent } from '../urna-selector-dialog/urna-selector-dialog.component';
+import { UrnaSelectorDialogComponent } from '../../../../shared/components/urna-selector-dialog/urna-selector-dialog.component';
 
 @Component({
   selector: 'app-servicio-dialog',

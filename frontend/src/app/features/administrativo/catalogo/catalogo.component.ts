@@ -17,7 +17,8 @@ import { PlanFunerario } from './models/catalogo.interface';
 
 // Componentes Modales
 import { CatalogoGestionDialogComponent } from './catalogo-gestion-dialog/catalogo-gestion-dialog.component';
-import { CatalogoVisorDialogComponent } from './catalogo-visor-dialog/catalogo-visor-dialog.component';
+
+import { VisorGaleriaDialogComponent, VisorGaleriaData } from '../../../shared/components/visor-galeria-dialog/visor-galeria-dialog.component';
 
 @Component({
   selector: 'app-catalogo',
@@ -94,9 +95,30 @@ export class CatalogoComponent implements OnInit {
   }
 
   abrirVisor(plan: PlanFunerario) {
-    this.dialog.open(CatalogoVisorDialogComponent, {
-      width: '800px',
-      data: plan // El plan ya va con los adicionales ordenados
+    // Transformamos el arreglo de adicionales (la tabla intermedia) 
+    // en el formato de detalles que entiende el visor universal.
+    const detallesVisor = (plan.adm_plan_adicionales || []).map(item => {
+      // Si la cantidad es mayor a 1, le ponemos "2x ", si no, lo dejamos vacío
+      const prefijoCantidad = item.cantidad > 1 ? `${item.cantidad}x ` : '';
+      
+      return {
+        icono: 'check_circle', // Ícono verde o gris estándar de material
+        etiqueta: 'Incluye',
+        valor: `${prefijoCantidad}${item.inv_adicionales?.nombre || 'Ítem no especificado'}`
+      };
+    });
+
+    // Construimos la data final
+    const dataVisor: VisorGaleriaData = {
+      titulo: plan.nombre,
+      imagenes: plan.imagenes || [],
+      detalles: detallesVisor
+    };
+
+    // Abrimos el modal
+    this.dialog.open(VisorGaleriaDialogComponent, {
+      width: '750px',
+      data: dataVisor
     });
   }
 
