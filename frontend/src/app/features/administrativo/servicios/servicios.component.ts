@@ -1,7 +1,6 @@
 import { Component, OnInit, ViewChild, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 // Angular Material
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
@@ -24,7 +23,9 @@ import { NotificationService } from '../../../shared/services/notification.servi
 import { ServicioContratado } from './models/servicio.interface';
 import { ServicioDialogComponent } from './servicio-dialog/servicio-dialog.component';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
-import { UrnaSelectorDialogComponent } from '../../../shared/components/urna-selector-dialog/urna-selector-dialog.component';
+
+// 🔥 NUEVO: Importamos el componente de impresión
+import { ServicioImpresionDialogComponent } from './servicio-impresion-dialog/servicio-impresion-dialog.component';
 
 @Component({
   selector: 'app-servicios',
@@ -48,7 +49,6 @@ import { UrnaSelectorDialogComponent } from '../../../shared/components/urna-sel
 })
 export class ServiciosComponent implements OnInit {
   private serviciosService = inject(ServiciosService);
-  private supabaseService = inject(SupabaseService);
   private authService = inject(AuthService);
   private notification = inject(NotificationService);
   private dialog = inject(MatDialog);
@@ -68,7 +68,7 @@ export class ServiciosComponent implements OnInit {
   pageSize = 20;
   paginaActual = 0;
 
-  // Formulario y Listas de Filtros
+  // Formulario de Filtros Simplificado
   filtrosForm: FormGroup;
   meses = [
     { valor: 1, nombre: 'Enero' }, { valor: 2, nombre: 'Febrero' }, { valor: 3, nombre: 'Marzo' },
@@ -78,28 +78,20 @@ export class ServiciosComponent implements OnInit {
   ];
   anios = [new Date().getFullYear(), new Date().getFullYear() - 1, new Date().getFullYear() - 2];
   
-  planesDisponibles: any[] = [];
-  carrozasDisponibles: any[] = [];
-  urnaSeleccionadaNombre: string = ''; // <-- NUEVO: Para mostrar el nombre en el input
-
   constructor() {
     const fechaActual = new Date();
     this.filtrosForm = this.fb.group({
       mes: [fechaActual.getMonth() + 1],
       anio: [fechaActual.getFullYear()],
       folio: [''],
+      fallecido_rut: [''],
       nombre_fallecido: [''],
-      entidad_pagadora: [''],
-      estado: [''],
-      plan_base_id: [''],
-      urna_id: [''],
-      carroza_id: ['']
+      estado: ['']
     });
   }
 
   async ngOnInit() {
     await this.verificarRol();
-    await this.cargarCatalogosFiltros();
     await this.cargarServicios();
   }
 
@@ -109,19 +101,6 @@ export class ServiciosComponent implements OnInit {
       const perfil = await this.authService.obtenerPerfilUsuario(session.user.id);
       this.esAdmin = perfil?.rol === Role.ADMIN
     }
-  }
-
-  async cargarCatalogosFiltros() {
-    const supabase = this.supabaseService.client;
-    
-    // Solo cargamos planes y carrozas. Las urnas se buscarán por demanda en el modal.
-    const [reqPlanes, reqCarrozas] = await Promise.all([
-      supabase.from('adm_catalogo_planes').select('id, nombre').is('fecha_eliminacion', null),
-      supabase.from('inv_carrozas').select('id, patente').is('fecha_eliminacion', null)
-    ]);
-
-    this.planesDisponibles = reqPlanes.data || [];
-    this.carrozasDisponibles = reqCarrozas.data || [];
   }
 
   async cargarServicios() {
@@ -155,40 +134,14 @@ export class ServiciosComponent implements OnInit {
       mes: fechaActual.getMonth() + 1,
       anio: fechaActual.getFullYear(),
       folio: '', 
+      fallecido_rut: '',
       nombre_fallecido: '', 
-      entidad_pagadora: '', 
-      estado: '', 
-      plan_base_id: '', 
-      urna_id: '', 
-      carroza_id: ''
+      estado: ''
     });
-    this.urnaSeleccionadaNombre = ''; // <-- Limpiamos el nombre
     this.aplicarFiltros();
   }
 
-  // --- LÓGICA DEL SELECTOR DE URNAS ---
-  abrirSelectorUrnaFiltro() {
-    const dialogRef = this.dialog.open(UrnaSelectorDialogComponent, {
-      width: '900px',
-      disableClose: true
-    });
-
-    dialogRef.afterClosed().subscribe(urna => {
-      if (urna) {
-        this.filtrosForm.patchValue({ urna_id: urna.id });
-        this.urnaSeleccionadaNombre = urna.nombre;
-        this.cdr.detectChanges();
-      }
-    });
-  }
-
-  removerFiltroUrna(event: Event) {
-    event.stopPropagation(); // Evita que se abra el modal al hacer clic en la "X"
-    this.filtrosForm.patchValue({ urna_id: '' });
-    this.urnaSeleccionadaNombre = '';
-    this.cdr.detectChanges();
-  }
-
+  // 🔥 ACTUALIZADO: Dispara la impresión si el contrato es nuevo
   abrirFormulario(servicio?: ServicioContratado) {
     const dialogRef = this.dialog.open(ServicioDialogComponent, {
       width: '900px',
@@ -196,10 +149,30 @@ export class ServiciosComponent implements OnInit {
       data: servicio || null
     });
 
-    dialogRef.afterClosed().subscribe(seGuardo => {
-      if (seGuardo) {
+    dialogRef.afterClosed().subscribe(servicioCreado => {
+      // Si el modal devuelve un objeto, significa que se guardó exitosamente
+      if (servicioCreado) {
         this.cargarServicios();
+        
+        // Si no había 'servicio' original, es una creación nueva. Abrimos la vista de impresión.
+        if (!servicio) {
+          this.imprimirContrato(servicioCreado);
+        }
       }
+    });
+  }
+
+  // 🔥 ACTUALIZADO: Abre el modal de impresión que acabamos de crear
+  imprimirContrato(servicio: ServicioContratado) {
+    if (!servicio.folio) {
+      this.notification.warning('Este servicio no tiene un folio válido asignado.');
+      return;
+    }
+    
+    // Abre el modal de confirmación de impresión
+    this.dialog.open(ServicioImpresionDialogComponent, {
+      width: '450px',
+      data: servicio
     });
   }
 

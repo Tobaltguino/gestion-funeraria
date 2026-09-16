@@ -420,6 +420,16 @@ h1, h2, h3, h4, h5, h6 { font-family: var(--fuente-titulo); margin: 0; }
   }
 }
 
+/* Toast de Información (Azul formal) */
+.toast-info {
+  .mdc-snackbar__surface {
+    border-left: 6px solid #3b82f6 !important; /* Franja azul */
+  }
+  .mat-mdc-button.mat-mdc-snack-bar-action {
+    color: #1e3a8a !important; /* "X" de color azul oscuro */
+  }
+}
+
 /* ==========================================
    9. GALERÍA DE IMÁGENES (Subida y Previsualización)
    ========================================== */

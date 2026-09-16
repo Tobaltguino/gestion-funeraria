@@ -4,7 +4,7 @@
   <div class="page-header">
     <div class="header-title">
       <h2>Servicios Contratados</h2>
-      <p class="subtitle">Gestión de operaciones, estados de cuenta y planes personalizados.</p>
+      <p class="subtitle">Gestión de operaciones, impresión de contratos y estados de cuenta.</p>
     </div>
     
     <div style="display: flex; gap: 12px;">
@@ -15,7 +15,7 @@
     </div>
   </div>
 
-  <!-- SECCIÓN DE FILTROS -->
+  <!-- SECCIÓN DE FILTROS SIMPLIFICADA -->
   <div class="filtros-container" *ngIf="!cargando" style="display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; align-items: center; background: #fff; padding: 16px 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
     <form [formGroup]="filtrosForm" style="display: flex; gap: 16px; flex-wrap: wrap; align-items: center; width: 100%;">
       
@@ -44,50 +44,25 @@
         <input matInput type="number" formControlName="folio" placeholder="Ej: 1500" autocomplete="off">
       </mat-form-field>
 
+      <!-- Nuevo Filtro: RUT Fallecido -->
+      <mat-form-field appearance="outline" style="width: 150px; margin-bottom: -1.25em;">
+        <mat-label>RUT Difunto</mat-label>
+        <input matInput formControlName="fallecido_rut" placeholder="Ej: 12.345.678-9" autocomplete="off">
+      </mat-form-field>
+
       <mat-form-field appearance="outline" style="flex: 1; min-width: 180px; margin-bottom: -1.25em;">
-        <mat-label>Difunto o Cliente</mat-label>
-        <input matInput formControlName="nombre_fallecido" placeholder="Buscar..." autocomplete="off">
+        <mat-label>Nombre Difunto</mat-label>
+        <input matInput formControlName="nombre_fallecido" placeholder="Buscar por nombre..." autocomplete="off">
         <mat-icon matPrefix>search</mat-icon>
       </mat-form-field>
 
-      <!-- Selects de Categorías -->
+      <!-- Select Exacto: Estado -->
       <mat-form-field appearance="outline" style="width: 140px; margin-bottom: -1.25em;">
         <mat-label>Estado Pago</mat-label>
         <mat-select formControlName="estado">
           <mat-option value="">Todos</mat-option>
           <mat-option value="Pendiente">Pendiente</mat-option>
           <mat-option value="Pagado">Pagado</mat-option>
-        </mat-select>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline" style="width: 160px; margin-bottom: -1.25em;">
-        <mat-label>Plan Base</mat-label>
-        <mat-select formControlName="plan_base_id">
-          <mat-option value="">Todos</mat-option>
-          <mat-option *ngFor="let p of planesDisponibles" [value]="p.id">{{ p.nombre }}</mat-option>
-        </mat-select>
-      </mat-form-field>
-
-      <!-- NUEVO SELECTOR DE URNA (Mediante Modal) -->
-      <mat-form-field appearance="outline" style="width: 200px; margin-bottom: -1.25em;" (click)="abrirSelectorUrnaFiltro()">
-        <mat-label>Urna</mat-label>
-        <!-- Ocultamos el ID en el form, mostramos el nombre al usuario -->
-        <input matInput [value]="urnaSeleccionadaNombre" placeholder="Todas las urnas" readonly style="cursor: pointer; pointer-events: none;">
-        
-        <!-- Icono de Búsqueda (Si no hay urna seleccionada) -->
-        <mat-icon matSuffix *ngIf="!urnaSeleccionadaNombre" style="cursor: pointer;">search</mat-icon>
-        
-        <!-- Icono de Cerrar (Si hay urna seleccionada) -->
-        <button mat-icon-button matSuffix *ngIf="urnaSeleccionadaNombre" (click)="removerFiltroUrna($event)" aria-label="Limpiar Urna">
-          <mat-icon>close</mat-icon>
-        </button>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline" style="width: 140px; margin-bottom: -1.25em;">
-        <mat-label>Carroza</mat-label>
-        <mat-select formControlName="carroza_id">
-          <mat-option value="">Todas</mat-option>
-          <mat-option *ngFor="let c of carrozasDisponibles" [value]="c.id">{{ c.patente }}</mat-option>
         </mat-select>
       </mat-form-field>
 
@@ -139,7 +114,12 @@
       <ng-container matColumnDef="fallecido">
         <th mat-header-cell *matHeaderCellDef> Difunto </th>
         <td mat-cell *matCellDef="let servicio">
-          <strong style="color: var(--color-texto); font-size: 1rem;">{{ servicio.nombre_fallecido }}</strong>
+          <div style="display: flex; flex-direction: column; line-height: 1.3;">
+            <strong style="color: var(--color-texto); font-size: 1rem;">{{ servicio.nombre_fallecido }}</strong>
+            <span *ngIf="servicio.fallecido_rut" style="font-size: 0.8rem; color: var(--color-texto-suave);">
+              RUT: {{ servicio.fallecido_rut }}
+            </span>
+          </div>
         </td>
       </ng-container>
 
@@ -187,9 +167,16 @@
       <ng-container matColumnDef="acciones">
         <th mat-header-cell *matHeaderCellDef class="text-center"> Acciones </th>
         <td mat-cell *matCellDef="let servicio" class="acciones-cell text-center">
+          
+          <!-- BOTÓN NUEVO: IMPRIMIR CONTRATO -->
+          <button mat-icon-button color="primary" matTooltip="Imprimir Contrato" (click)="imprimirContrato(servicio)">
+            <mat-icon>print</mat-icon>
+          </button>
+          
           <button mat-icon-button class="btn-editar-amarillo" matTooltip="Ver / Editar" (click)="abrirFormulario(servicio)">
             <mat-icon>edit</mat-icon>
           </button>
+          
           <button *ngIf="esAdmin" mat-icon-button class="btn-eliminar-rojo" matTooltip="Eliminar Servicio" (click)="eliminarServicio(servicio)">
             <mat-icon>delete</mat-icon>
           </button>

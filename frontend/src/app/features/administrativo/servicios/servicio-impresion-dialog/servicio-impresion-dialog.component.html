@@ -1,0 +1,32 @@
+<div class="visor-header" style="border-bottom: 1px solid var(--color-linea); padding-bottom: 15px;">
+  <h2 mat-dialog-title class="dialog-title" style="display: flex; align-items: center; gap: 8px;">
+    <mat-icon style="color: var(--color-brand);">print</mat-icon> Imprimir Contrato
+  </h2>
+  <button mat-icon-button (click)="cerrar()">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+
+<mat-dialog-content class="dialog-content" style="text-align: center; padding: 30px 20px;">
+  
+  <div style="background-color: var(--color-input-bg); border: 1px solid var(--color-linea); border-radius: 8px; padding: 20px; display: inline-block; min-width: 300px;">
+    <mat-icon style="font-size: 50px; width: 50px; height: 50px; color: #2e7d32; margin-bottom: 10px;">check_circle</mat-icon>
+    <h3 style="margin: 0; font-family: var(--fuente-titulo); font-size: 1.4rem;">Folio #{{ servicio.folio }}</h3>
+    <p style="margin: 10px 0 0 0; color: var(--color-texto-suave);">
+      Difunto: <strong>{{ servicio.nombre_fallecido }}</strong>
+    </p>
+  </div>
+
+  <p style="margin-top: 25px; color: var(--color-texto-suave); font-size: 0.95rem;">
+    El sistema generará el diseño en formato físico con el cálculo de IVA incluido y los espacios para las firmas.
+  </p>
+
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="dialog-actions">
+  <button mat-button class="btn-cancelar" (click)="cerrar()">Cancelar</button>
+  
+  <button mat-flat-button class="btn-submit" (click)="imprimirYDescargar()" style="background-color: #2e7d32 !important;">
+    <mat-icon>print</mat-icon> Generar y Enviar a Impresora
+  </button>
+</mat-dialog-actions>
