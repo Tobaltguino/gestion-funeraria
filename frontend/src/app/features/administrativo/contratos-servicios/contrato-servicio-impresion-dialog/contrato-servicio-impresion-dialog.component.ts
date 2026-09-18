@@ -3,17 +3,17 @@ import { CommonModule } from '@angular/common';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { ServicioContratado } from '../models/servicio.interface';
+import { ContratoServicio } from '../models/contrato-servicio.interface';
 
 @Component({
-  selector: 'app-servicio-impresion-dialog',
+  selector: 'app-contrato-servicio-impresion-dialog',
   standalone: true,
   imports: [CommonModule, MatDialogModule, MatButtonModule, MatIconModule],
-  templateUrl: './servicio-impresion-dialog.component.html'
+  templateUrl: './contrato-servicio-impresion-dialog.component.html'
 })
 export class ServicioImpresionDialogComponent {
   public dialogRef = inject(MatDialogRef<ServicioImpresionDialogComponent>);
-  public servicio = inject(MAT_DIALOG_DATA) as ServicioContratado;
+  public servicio = inject(MAT_DIALOG_DATA) as ContratoServicio;
 
   cerrar() {
     this.dialogRef.close();

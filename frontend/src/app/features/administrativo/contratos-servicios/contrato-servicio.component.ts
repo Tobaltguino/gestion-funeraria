@@ -15,20 +15,20 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 
 // Servicios y Componentes
-import { ServiciosService } from './services/servicios.service';
+import { ServiciosService } from './services/contrato-servicio.service';
 import { SupabaseService } from '../../../core/supabase/supabase';
 import { AuthService } from '../../../core/auth/auth.service';
 import { Role } from '../../../shared/enums/role.enum';
 import { NotificationService } from '../../../shared/services/notification.service';
-import { ServicioContratado } from './models/servicio.interface';
-import { ServicioDialogComponent } from './servicio-dialog/servicio-dialog.component';
+import { ContratoServicio } from './models/contrato-servicio.interface';
+import { ContratoServicioDialogComponent } from './contrato-servicio-dialog/contrato-servicio-dialog.component';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 
-// 🔥 NUEVO: Importamos el componente de impresión
-import { ServicioImpresionDialogComponent } from './servicio-impresion-dialog/servicio-impresion-dialog.component';
+// Importamos el componente de impresión
+import { ServicioImpresionDialogComponent } from './contrato-servicio-impresion-dialog/contrato-servicio-impresion-dialog.component';
 
 @Component({
-  selector: 'app-servicios',
+  selector: 'app-contrato-servicio',
   standalone: true,
   imports: [
     CommonModule, 
@@ -44,10 +44,10 @@ import { ServicioImpresionDialogComponent } from './servicio-impresion-dialog/se
     MatInputModule,
     MatSelectModule
   ],
-  templateUrl: './servicios.component.html',
-  styleUrls: ['./servicios.component.scss']
+  templateUrl: './contrato-servicio.component.html',
+  styleUrls: ['./contrato-servicio.component.scss']
 })
-export class ServiciosComponent implements OnInit {
+export class ContratoServicioComponent implements OnInit {
   private serviciosService = inject(ServiciosService);
   private authService = inject(AuthService);
   private notification = inject(NotificationService);
@@ -57,7 +57,7 @@ export class ServiciosComponent implements OnInit {
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
-  dataSource = new MatTableDataSource<ServicioContratado>();
+  dataSource = new MatTableDataSource<ContratoServicio>();
   columnasMostrar: string[] = ['folio', 'fecha', 'fallecido', 'entidad', 'plan', 'estado', 'acciones'];
   
   cargando = true;
@@ -141,9 +141,9 @@ export class ServiciosComponent implements OnInit {
     this.aplicarFiltros();
   }
 
-  // 🔥 ACTUALIZADO: Dispara la impresión si el contrato es nuevo
-  abrirFormulario(servicio?: ServicioContratado) {
-    const dialogRef = this.dialog.open(ServicioDialogComponent, {
+  // 🔥 ACTUALIZADO: Ahora sí abre ContratoServicioDialogComponent
+  abrirFormulario(servicio?: ContratoServicio) {
+    const dialogRef = this.dialog.open(ContratoServicioDialogComponent, {
       width: '900px',
       disableClose: true,
       data: servicio || null
@@ -162,8 +162,7 @@ export class ServiciosComponent implements OnInit {
     });
   }
 
-  // 🔥 ACTUALIZADO: Abre el modal de impresión que acabamos de crear
-  imprimirContrato(servicio: ServicioContratado) {
+  imprimirContrato(servicio: ContratoServicio) {
     if (!servicio.folio) {
       this.notification.warning('Este servicio no tiene un folio válido asignado.');
       return;
@@ -176,7 +175,7 @@ export class ServiciosComponent implements OnInit {
     });
   }
 
-  async eliminarServicio(servicio: ServicioContratado) {
+  async eliminarServicio(servicio: ContratoServicio) {
     if (!this.esAdmin) {
       this.notification.warning('No tienes permisos para eliminar servicios.');
       return;

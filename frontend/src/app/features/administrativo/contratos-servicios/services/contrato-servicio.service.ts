@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { SupabaseService } from '../../../../core/supabase/supabase';
-import { ServicioContratado } from '../models/servicio.interface';
+import { ContratoServicio } from '../models/contrato-servicio.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -13,9 +13,9 @@ export class ServiciosService {
   }
 
   // --- OBTENER ---
-  async obtenerServicios(): Promise<ServicioContratado[]> {
+  async obtenerServicios(): Promise<ContratoServicio[]> {
     const { data, error } = await this.supabase
-      .from('adm_servicios')
+      .from('adm_contratos_servicios')
       .select(`
         *,
         adm_catalogo_planes (nombre),
@@ -34,9 +34,9 @@ export class ServiciosService {
     return data || [];
   }
 
-  async obtenerServicioPorId(id: string): Promise<ServicioContratado | null> {
+  async obtenerServicioPorId(id: string): Promise<ContratoServicio | null> {
     const { data, error } = await this.supabase
-      .from('adm_servicios')
+      .from('adm_contratos_servicios')
       .select(`
         *,
         adm_catalogo_planes (nombre),
@@ -56,12 +56,12 @@ export class ServiciosService {
     return data;
   }
 
-  async obtenerServiciosPaginados(filtros: any, page: number, pageSize: number): Promise<{ data: ServicioContratado[], total: number }> {
+  async obtenerServiciosPaginados(filtros: any, page: number, pageSize: number): Promise<{ data: ContratoServicio[], total: number }> {
     const from = page * pageSize;
     const to = from + pageSize - 1;
 
     let query = this.supabase
-      .from('adm_servicios')
+      .from('adm_contratos_servicios')
       .select(`
         *,
         adm_catalogo_planes (nombre),
@@ -99,9 +99,9 @@ export class ServiciosService {
 
   // --- CREAR ---
   // AHORA RETORNA Promise<ServicioContratado> en lugar de void
-  async crearServicio(servicio: Partial<ServicioContratado>, adicionales: any[]): Promise<ServicioContratado> {
+  async crearServicio(servicio: Partial<ContratoServicio>, adicionales: any[]): Promise<ContratoServicio> {
     const { data: servicioCreado, error: servicioError } = await this.supabase
-      .from('adm_servicios')
+      .from('adm_contratos_servicios')
       .insert([{ ...servicio, fecha_creada: new Date().toISOString() }])
       .select() // <-- CLAVE: Le decimos a Supabase que nos devuelva todo el objeto generado (incluyendo el folio)
       .single();
@@ -123,14 +123,14 @@ export class ServiciosService {
     }
 
     // Devolvemos el servicio con su nuevo folio
-    return servicioCreado as ServicioContratado;
+    return servicioCreado as ContratoServicio;
   }
 
   // --- ACTUALIZAR ---
   // AHORA RETORNA Promise<ServicioContratado> en lugar de void
-  async actualizarServicio(id: string, servicio: Partial<ServicioContratado>, adicionales: any[]): Promise<ServicioContratado> {
+  async actualizarServicio(id: string, servicio: Partial<ContratoServicio>, adicionales: any[]): Promise<ContratoServicio> {
     const { data: servicioActualizado, error: servicioError } = await this.supabase
-      .from('adm_servicios')
+      .from('adm_contratos_servicios')
       .update({ ...servicio, fecha_actualizada: new Date().toISOString() })
       .eq('id', id)
       .select() // <-- CLAVE: Devolvemos el registro actualizado
@@ -155,13 +155,13 @@ export class ServiciosService {
     }
 
     // Devolvemos los datos por si se mandan a imprimir post-edición
-    return servicioActualizado as ServicioContratado;
+    return servicioActualizado as ContratoServicio;
   }
 
   // --- ELIMINAR ---
   async eliminarServicio(id: string): Promise<void> {
     const { error } = await this.supabase
-      .from('adm_servicios')
+      .from('adm_contratos_servicios')
       .update({ fecha_eliminacion: new Date().toISOString() })
       .eq('id', id);
 

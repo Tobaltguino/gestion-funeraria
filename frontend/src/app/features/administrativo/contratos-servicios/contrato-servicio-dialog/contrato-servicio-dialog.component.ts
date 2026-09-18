@@ -16,11 +16,11 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatStepperModule } from '@angular/material/stepper';
 
-import { ServiciosService } from '../services/servicios.service';
+import { ServiciosService } from '../services/contrato-servicio.service';
 import { CatalogoService } from '../../catalogo/services/catalogo.service';
 import { SupabaseService } from '../../../../core/supabase/supabase';
 import { NotificationService } from '../../../../shared/services/notification.service';
-import { ServicioContratado, TipoEntidad } from '../models/servicio.interface';
+import { ContratoServicio, TipoEntidad } from '../models/contrato-servicio.interface';
 import { PlanFunerario } from '../../catalogo/models/catalogo.interface';
 import { Adicional, CategoriaAdicional } from '../../../inventario/adicionales/models/adicional.interface';
 import { UrnaSelectorDialogComponent } from '../../../../shared/components/urna-selector-dialog/urna-selector-dialog.component';
@@ -29,7 +29,7 @@ import { UrnaSelectorDialogComponent } from '../../../../shared/components/urna-
 import { RutFormatDirective } from '../../../../shared/directives/rut-format.directive'; 
 
 @Component({
-  selector: 'app-servicio-dialog',
+  selector: 'app-contrato-servicio-dialog',
   standalone: true,
   imports: [
     CommonModule, ReactiveFormsModule, MatDialogModule, MatFormFieldModule,
@@ -39,9 +39,9 @@ import { RutFormatDirective } from '../../../../shared/directives/rut-format.dir
     RutFormatDirective // <-- NUEVO: Agregamos la directiva aquí
   ],
   providers: [provideNativeDateAdapter()],
-  templateUrl: './servicio-dialog.component.html'
+  templateUrl: './contrato-servicio-dialog.component.html'
 })
-export class ServicioDialogComponent implements OnInit {
+export class ContratoServicioDialogComponent implements OnInit {
   private fb = inject(FormBuilder);
   private serviciosService = inject(ServiciosService);
   private catalogoService = inject(CatalogoService);
@@ -74,7 +74,7 @@ export class ServicioDialogComponent implements OnInit {
   opcionesEntidadPagadora: string[] = [];
 
   constructor(
-    public dialogRef: MatDialogRef<ServicioDialogComponent>,
+    public dialogRef: MatDialogRef<ContratoServicioDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any | null
   ) {
     this.esEdicion = !!data;
@@ -332,7 +332,7 @@ export class ServicioDialogComponent implements OnInit {
     };
 
     try {
-      const servicioData: Partial<ServicioContratado> = {
+      const servicioData: Partial<ContratoServicio> = {
         solicitante_nombre: raw.solicitante.solicitante_nombre,
         solicitante_rut: raw.solicitante.solicitante_rut,
         solicitante_direccion: raw.solicitante.solicitante_direccion,

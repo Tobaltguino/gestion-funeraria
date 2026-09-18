@@ -57,7 +57,7 @@ export class LayoutComponent implements OnInit {
       seccion: 'ADMINISTRATIVO',
       opciones: [
         { titulo: 'Catálogo', ruta: '/catalogo', icono: 'menu_book', rolesPermitidos: [Role.ADMIN, Role.EMPLEADO] },
-        { titulo: 'Contrato', ruta: '/servicios', icono: 'assignment', rolesPermitidos: [Role.ADMIN, Role.EMPLEADO] },
+        { titulo: 'Contratos Servicios', ruta: '/servicios', icono: 'assignment', rolesPermitidos: [Role.ADMIN, Role.EMPLEADO] },
         { titulo: 'Agenda Carrozas', ruta: '/agenda', icono: 'calendar_month', rolesPermitidos: [Role.ADMIN, Role.EMPLEADO] },
         { titulo: 'Documentos', ruta: '/documentos', icono: 'folder_open', rolesPermitidos: [Role.ADMIN, Role.EMPLEADO] },
         { titulo: 'Movimientos Caja', ruta: '/finanzas/caja', icono: 'account_balance_wallet', rolesPermitidos: [Role.ADMIN] } 

@@ -16,7 +16,7 @@ export interface ServicioAdicional {
   inv_adicionales?: Adicional;
 }
 
-export interface ServicioContratado {
+export interface ContratoServicio {
   id: string;
   folio?: number;
   
