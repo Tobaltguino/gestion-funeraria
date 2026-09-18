@@ -58,11 +58,11 @@ export interface ServicioContratado {
   // --- SECCIÓN 4: DETALLE DE PAGO ---
   tipo_entidad: TipoEntidad | string;
   entidad_pagadora: string;
+  factura_numero?: string;
   
   monto?: number; 
   monto_entidad?: number; 
   diferencia?: number; 
-  diferencia_valor_urna?: number; 
   
   estado: 'Pendiente' | 'Pagado';
   fecha_pago?: string | null;

@@ -111,13 +111,13 @@ export class ServicioDialogComponent implements OnInit {
         hora_funeral: [crearFechaConHora(data?.hora_funeral)],
         plan_base_id: [data?.plan_base_id || '', Validators.required],
         urna_id: [data?.urna_id || null],
-        diferencia_valor_urna: [data?.diferencia_valor_urna || 0, Validators.min(0)],
         carroza_id: [data?.carroza_id || null, Validators.required],
         adicionales: this.fb.group({
           luces_id: [null, Validators.required]
         })
       }),
       pagos: this.fb.group({
+        factura_numero: [data?.factura_numero || ''],
         tipo_entidad: [data?.tipo_entidad || '', Validators.required],
         entidad_pagadora: [{ value: data?.entidad_pagadora || '', disabled: !data?.tipo_entidad }, Validators.required],
         monto: [data?.monto || null, [Validators.required, Validators.min(0)]], // <-- Validación de Monto
@@ -304,7 +304,7 @@ export class ServicioDialogComponent implements OnInit {
   }
 
   removerUrna() {
-    this.servicioForm.get('logistica')?.patchValue({ urna_id: null, diferencia_valor_urna: 0 });
+    this.servicioForm.get('logistica')?.patchValue({ urna_id: null });
     this.urnaSeleccionada = null;
     this.cdr.detectChanges();
   }
@@ -353,9 +353,9 @@ export class ServicioDialogComponent implements OnInit {
         hora_funeral: formatearHora(raw.logistica.hora_funeral) || '',
         plan_base_id: raw.logistica.plan_base_id,
         urna_id: raw.logistica.urna_id || null,
-        diferencia_valor_urna: raw.logistica.diferencia_valor_urna || 0,
         carroza_id: raw.logistica.carroza_id,
 
+        factura_numero: raw.pagos.factura_numero,
         tipo_entidad: raw.pagos.tipo_entidad as TipoEntidad,
         entidad_pagadora: raw.pagos.entidad_pagadora,
         monto: raw.pagos.monto,

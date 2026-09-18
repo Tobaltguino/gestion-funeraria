@@ -89,13 +89,19 @@
   <div class="table-container" *ngIf="!cargando">
     <table mat-table [dataSource]="dataSource" class="w-100">
 
-      <!-- Columna: Folio -->
+      <!-- 🔥 ACTUALIZADO: Columna Folio + Factura -->
       <ng-container matColumnDef="folio">
-        <th mat-header-cell *matHeaderCellDef> Folio </th>
+        <th mat-header-cell *matHeaderCellDef> Documentos </th>
         <td mat-cell *matCellDef="let servicio">
-          <strong style="color: var(--color-brand); font-size: 1.1rem;">
-            #{{ servicio.folio }}
-          </strong>
+          <div style="display: flex; flex-direction: column; line-height: 1.3;">
+            <strong style="color: var(--color-brand); font-size: 1.1rem;">
+              #{{ servicio.folio }}
+            </strong>
+            <!-- Muestra la factura solo si existe -->
+            <span *ngIf="servicio.factura_numero" style="font-size: 0.8rem; color: var(--color-texto-suave);">
+              Factura: {{ servicio.factura_numero }}
+            </span>
+          </div>
         </td>
       </ng-container>
 
@@ -168,7 +174,6 @@
         <th mat-header-cell *matHeaderCellDef class="text-center"> Acciones </th>
         <td mat-cell *matCellDef="let servicio" class="acciones-cell text-center">
           
-          <!-- BOTÓN NUEVO: IMPRIMIR CONTRATO -->
           <button mat-icon-button color="primary" matTooltip="Imprimir Contrato" (click)="imprimirContrato(servicio)">
             <mat-icon>print</mat-icon>
           </button>

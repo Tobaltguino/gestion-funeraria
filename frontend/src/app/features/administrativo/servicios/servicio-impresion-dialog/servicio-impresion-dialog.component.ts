@@ -64,19 +64,20 @@ export class ServicioImpresionDialogComponent {
 
               /* --- CABECERA --- */
               .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; }
-              .header-izq { display: flex; gap: 15px; align-items: center; width: 60%; }
+              /* 🔥 Ajustamos anchos para darle más espacio a la fecha */
+              .header-izq { display: flex; gap: 15px; align-items: center; width: 50%; }
               .logo { width: 90px; height: 90px; object-fit: contain; }
               .datos-empresa { font-size: 11px; line-height: 1.3; }
               .datos-empresa h1 { font-size: 14px; margin: 0 0 5px 0; font-weight: 700; }
               
-              .header-der { width: 35%; text-align: right; display: flex; flex-direction: column; align-items: flex-end;}
+              .header-der { width: 48%; text-align: right; display: flex; flex-direction: column; align-items: flex-end;}
               .caja-contrato { 
                 border: 2px solid #000; 
                 padding: 8px; 
                 text-align: center; 
                 border-radius: 6px;
                 width: 100%;
-                margin-bottom: 10px;
+                margin-bottom: 8px;
               }
               .caja-contrato h2 { margin: 0; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; }
               
@@ -163,12 +164,19 @@ export class ServicioImpresionDialogComponent {
               <div class="header-der">
                 <div class="caja-contrato">
                   <h2>Contrato de Servicio<br>Funerario</h2>
-                  <div style="margin-top: 5px; font-weight: bold; font-size: 12px;">Folio N° ${this.servicio.folio || '______'}</div>
+                  <div style="margin-top: 5px; font-weight: bold; font-size: 13px;">Folio N° ${this.servicio.folio || '______'}</div>
                 </div>
-                <div class="fila" style="width: 100%;">
+                
+                <!-- 🔥 Aumentamos el width a 220px y forzamos white-space nowrap -->
+                <div class="fila" style="width: 100%; justify-content: flex-end; margin-top: 4px;">
+                  <span class="label">Factura N°:</span>
+                  <span class="linea" style="text-align: center; width: 220px; flex-grow: 0;">${this.servicio.factura_numero || ''}</span>
+                </div>
+                <div class="fila" style="width: 100%; justify-content: flex-end;">
                   <span class="label">Fecha:</span>
-                  <span class="linea" style="text-align: center;">${this.formatearFechaLarga(this.servicio.fecha_creada || this.servicio.fecha_servicio)}</span>
+                  <span class="linea" style="text-align: center; width: 220px; flex-grow: 0; white-space: nowrap;">${this.formatearFechaLarga(this.servicio.fecha_creada || this.servicio.fecha_servicio)}</span>
                 </div>
+                
               </div>
             </div>
 
