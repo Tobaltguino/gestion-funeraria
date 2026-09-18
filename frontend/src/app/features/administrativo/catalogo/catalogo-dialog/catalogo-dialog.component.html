@@ -4,19 +4,25 @@
 <mat-dialog-content class="dialog-content">
   <form [formGroup]="planForm" class="dialog-form">
     
-    <!-- Fila 1: Nombre del Plan y Orden visualizado lado a lado -->
-    <div class="form-row" style="display: flex; gap: 16px;">
-      
-      <mat-form-field appearance="outline" style="flex: 3;">
-        <mat-label>Nombre del Plan</mat-label>
+    <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+  
+      <!-- Nombre del Plan -->
+      <mat-form-field appearance="outline" style="flex: 1; min-width: 250px;">
+        <mat-label>Nombre del Plan*</mat-label>
         <input matInput formControlName="nombre" placeholder="Ej: Servicio Premium">
-        <mat-error *ngIf="planForm.get('nombre')?.hasError('required')">El nombre es requerido</mat-error>
       </mat-form-field>
 
-      <mat-form-field appearance="outline" style="flex: 1;">
-        <mat-label>Prioridad (Orden)</mat-label>
-        <input matInput type="number" formControlName="orden" min="0" placeholder="Ej: 1, 2, 3...">
-        <mat-error *ngIf="planForm.get('orden')?.hasError('required')">Requerido</mat-error>
+      <!-- 🔥 Valor Base -->
+      <mat-form-field appearance="outline" style="width: 150px;">
+        <mat-label>Valor Base ($)</mat-label>
+        <input matInput type="number" formControlName="valor" min="0" placeholder="Ej: 1500000">
+      </mat-form-field>
+
+      <!-- Prioridad (Orden) -->
+      <mat-form-field appearance="outline" style="width: 120px;">
+        <mat-label>Prioridad (Orden)*</mat-label>
+        <!-- 🔥 CORRECCIÓN: Aquí decía 'prioridad', debe ser 'orden' -->
+        <input matInput type="number" formControlName="orden">
       </mat-form-field>
 
     </div>
