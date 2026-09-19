@@ -12,6 +12,7 @@ export interface PlanFunerario {
   imagenes: string[];
   adm_plan_adicionales?: PlanAdicional[];
   orden?: number; // <-- NUEVO CAMPO
+  valor?: number;
   fecha_creada?: string;
   fecha_actualizada?: string;
   fecha_eliminacion?: string | null;

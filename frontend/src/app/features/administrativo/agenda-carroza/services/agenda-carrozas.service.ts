@@ -18,7 +18,7 @@ export class AgendaCarrozasService {
       .from('adm_agenda_carrozas')
       .select(`
         *,
-        adm_servicios (nombre_fallecido, folio),
+        adm_contratos_servicios (nombre_fallecido, folio),
         inv_carrozas (marca, modelo, patente)
       `)
       .is('fecha_eliminacion', null)
@@ -36,7 +36,7 @@ export class AgendaCarrozasService {
       .from('adm_agenda_carrozas')
       .select(`
         *,
-        adm_servicios (nombre_fallecido, folio),
+        adm_contratos_servicios (nombre_fallecido, folio),
         inv_carrozas (marca, modelo, patente)
       `)
       .eq('id', id)

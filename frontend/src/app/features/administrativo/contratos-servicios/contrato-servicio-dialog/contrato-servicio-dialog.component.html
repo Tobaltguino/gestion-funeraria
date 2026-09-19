@@ -1,0 +1,340 @@
+<!-- Botón Cerrar (X) -->
+<button mat-icon-button (click)="cerrar()" style="position: absolute; top: 16px; right: 16px; z-index: 20; background-color: #f5f5f5; color: #666;">
+  <mat-icon>close</mat-icon>
+</button>
+
+<!-- Etiqueta del Folio (Movida hacia la izquierda para no chocar con la X) -->
+<div *ngIf="esEdicion && data?.folio" style="position: absolute; top: 20px; right: 64px; background-color: var(--color-brand); color: white; padding: 4px 12px; border-radius: 16px; font-weight: 600; box-shadow: 0 2px 4px rgba(0,0,0,0.1); z-index: 10;">
+  Folio #{{ data.folio }}
+</div>
+
+<h2 mat-dialog-title class="dialog-title" style="padding-right: 60px;">
+  {{ esEdicion ? 'Editar Contrato' : 'Generar Nuevo Contrato' }}
+</h2>
+<p class="dialog-subtitle" style="padding: 0 24px; margin-bottom: 0; padding-right: 60px;">
+  Siga los pasos para completar la ficha, estructurar el servicio y procesar el pago.
+</p>
+
+<mat-dialog-content class="dialog-content" style="padding-top: 0 !important; overflow-x: hidden;">
+  
+  <div *ngIf="cargando" style="display: flex; justify-content: center; align-items: center; padding: 40px;">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+
+  <form *ngIf="!cargando" [formGroup]="servicioForm" class="dialog-form">
+    <mat-stepper [linear]="!esEdicion" #stepper style="background: transparent;">
+      
+      <!-- ================= PASO 1: SOLICITANTE ================= -->
+      <mat-step formGroupName="solicitante" [stepControl]="servicioForm.get('solicitante')!">
+        <ng-template matStepLabel>Solicitante</ng-template>
+        <div style="padding-top: 16px;">
+          
+          <div class="form-row" style="display: flex; gap: 16px; flex-wrap: wrap;">
+            <mat-form-field appearance="outline" style="flex: 2; min-width: 200px;">
+              <mat-label>Nombre del Solicitante / Contratante</mat-label>
+              <input matInput formControlName="solicitante_nombre" placeholder="Ej: María González">
+              <mat-error>El nombre del solicitante es requerido</mat-error>
+            </mat-form-field>
+            
+            <mat-form-field appearance="outline" style="flex: 1; min-width: 150px;">
+              <mat-label>RUT</mat-label>
+              <!-- 🔥 AQUÍ ESTÁ APLICADA LA DIRECTIVA appRutFormat -->
+              <input matInput formControlName="solicitante_rut" placeholder="Ej: 12.345.678-9" appRutFormat>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row" style="display: flex; gap: 16px; flex-wrap: wrap;">
+            <mat-form-field appearance="outline" style="flex: 2; min-width: 200px;">
+              <mat-label>Dirección (Calle y Número)</mat-label>
+              <input matInput formControlName="solicitante_direccion">
+            </mat-form-field>
+            
+            <mat-form-field appearance="outline" style="flex: 1; min-width: 150px;">
+              <mat-label>Ciudad</mat-label>
+              <input matInput formControlName="solicitante_ciudad">
+            </mat-form-field>
+          </div>
+
+          <div class="form-row" style="display: flex; gap: 16px; flex-wrap: wrap;">
+            <mat-form-field appearance="outline" style="flex: 1; min-width: 150px;">
+              <mat-label>Teléfono de Contacto</mat-label>
+              <input matInput formControlName="solicitante_fono" placeholder="Ej: +569...">
+            </mat-form-field>
+            
+            <mat-form-field appearance="outline" style="flex: 1; min-width: 150px;">
+              <mat-label>Correo Electrónico</mat-label>
+              <input matInput formControlName="solicitante_email" type="email" placeholder="ejemplo@correo.com">
+              <!-- 🔥 ERROR VISUAL PARA CORREO INVÁLIDO -->
+              <mat-error *ngIf="servicioForm.get('solicitante.solicitante_email')?.hasError('email')">El formato del correo es inválido</mat-error>
+            </mat-form-field>
+          </div>
+
+          <mat-checkbox formControlName="consentimiento_redes" style="margin-top: 8px;">
+            Acepta uso de imágenes en redes sociales (Opcional)
+          </mat-checkbox>
+        </div>
+        
+        <div style="display: flex; justify-content: flex-end; margin-top: 16px;">
+          <button mat-button class="btn-cancelar" (click)="cerrar()">Cancelar</button>
+          <button mat-flat-button matStepperNext class="btn-submit">Siguiente</button>
+        </div>
+      </mat-step>
+
+      <!-- ================= PASO 2: FALLECIDO ================= -->
+      <mat-step formGroupName="fallecido" [stepControl]="servicioForm.get('fallecido')!">
+        <ng-template matStepLabel>Difunto</ng-template>
+        <div style="padding-top: 16px;">
+          
+          <div class="form-row" style="display: flex; gap: 16px; flex-wrap: wrap;">
+            <mat-form-field appearance="outline" style="flex: 2; min-width: 200px;">
+              <mat-label>Nombre del Fallecido</mat-label>
+              <input matInput formControlName="nombre_fallecido">
+              <mat-error>El nombre del fallecido es requerido</mat-error>
+            </mat-form-field>
+            
+            <mat-form-field appearance="outline" style="flex: 1; min-width: 150px;">
+              <mat-label>RUT</mat-label>
+              <!-- 🔥 AQUÍ ESTÁ APLICADA LA DIRECTIVA appRutFormat -->
+              <input matInput formControlName="fallecido_rut" placeholder="Ej: 12.345.678-9" appRutFormat>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row" style="display: flex; gap: 16px; flex-wrap: wrap;">
+            <mat-form-field appearance="outline" style="flex: 1; min-width: 150px;">
+              <mat-label>Retirado Desde (Hospital/Domicilio)</mat-label>
+              <input matInput formControlName="retirado_desde">
+            </mat-form-field>
+            
+            <mat-form-field appearance="outline" style="flex: 1; min-width: 150px;">
+              <mat-label>Lugar de Velatorio</mat-label>
+              <input matInput formControlName="velado_en">
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" style="width: 200px;">
+              <mat-label>Hora de Misa/Responso</mat-label>
+              <input matInput [matTimepicker]="pickerMisa" formControlName="hora_misa">
+              <mat-timepicker-toggle matIconSuffix [for]="pickerMisa"></mat-timepicker-toggle>
+              <mat-timepicker #pickerMisa></mat-timepicker>
+            </mat-form-field>
+          </div>
+        </div>
+        
+        <div style="display: flex; justify-content: space-between; margin-top: 16px;">
+          <button mat-button matStepperPrevious class="btn-cancelar">Volver</button>
+          <button mat-flat-button matStepperNext class="btn-submit">Siguiente</button>
+        </div>
+      </mat-step>
+
+      <!-- ================= PASO 3: LOGÍSTICA ================= -->
+      <mat-step formGroupName="logistica" [stepControl]="servicioForm.get('logistica')!">
+        <ng-template matStepLabel>Logística</ng-template>
+        <div style="padding-top: 16px;">
+          
+          <div style="background-color: var(--color-input-bg); padding: 16px; border-radius: 8px; margin-bottom: 24px;">
+            <div class="form-row" style="display: flex; gap: 16px; flex-wrap: wrap;">
+              <mat-form-field appearance="outline" style="flex: 1; min-width: 150px;">
+                <mat-label>Fecha de Contrato</mat-label>
+                <input matInput [matDatepicker]="pickerContrato" formControlName="fecha_servicio">
+                <mat-datepicker-toggle matIconSuffix [for]="pickerContrato"></mat-datepicker-toggle>
+                <mat-datepicker #pickerContrato></mat-datepicker>
+                <mat-error>Fecha requerida</mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" style="flex: 1; min-width: 150px;">
+                <mat-label>Día del Funeral</mat-label>
+                <input matInput [matDatepicker]="pickerFuneral" formControlName="dia_funeral">
+                <mat-datepicker-toggle matIconSuffix [for]="pickerFuneral"></mat-datepicker-toggle>
+                <mat-datepicker #pickerFuneral></mat-datepicker>
+              </mat-form-field>
+            </div>
+            
+            <div class="form-row" style="display: flex; gap: 16px; flex-wrap: wrap;">
+              <mat-form-field appearance="outline" style="flex: 2; min-width: 200px;">
+                <mat-label>Lugar del Funeral (Cementerio)</mat-label>
+                <input matInput formControlName="lugar_funeral">
+              </mat-form-field>
+              
+              <mat-form-field appearance="outline" style="flex: 1; min-width: 120px;">
+                <mat-label>Hora Funeral</mat-label>
+                <input matInput [matTimepicker]="pickerFuneralHora" formControlName="hora_funeral">
+                <mat-timepicker-toggle matIconSuffix [for]="pickerFuneralHora"></mat-timepicker-toggle>
+                <mat-timepicker #pickerFuneralHora></mat-timepicker>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Plan Base (Catálogo)</mat-label>
+              <mat-select formControlName="plan_base_id">
+                <mat-option *ngFor="let plan of planesBase" [value]="plan.id">{{ plan.nombre }}</mat-option>
+              </mat-select>
+              <mat-error>Debe seleccionar un plan base</mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row" style="margin-top: 8px;">
+            <div style="width: 100%; background-color: var(--color-input-bg); border: 1px solid var(--color-linea); border-radius: 4px; padding: 12px; display: flex; align-items: center; justify-content: space-between;">
+              <div style="display: flex; flex-direction: column;">
+                <span style="font-size: 0.8rem; color: var(--color-texto-suave); margin-bottom: 4px;">Urna a Utilizar</span>
+                <strong style="color: var(--color-texto); font-size: 1rem;">
+                  {{ urnaSeleccionada ? urnaSeleccionada.nombre : 'Sin urna seleccionada' }}
+                </strong>
+              </div>
+              <div style="display: flex; gap: 8px;">
+                <button type="button" mat-icon-button color="warn" (click)="removerUrna()" *ngIf="urnaSeleccionada"><mat-icon>delete</mat-icon></button>
+                <button type="button" mat-flat-button class="btn-crear-verde" (click)="abrirSelectorUrna()"><mat-icon>search</mat-icon> Buscar</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row" style="margin-top: 16px;">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Carroza Asignada</mat-label>
+              <mat-select formControlName="carroza_id">
+                <mat-option *ngFor="let carroza of carrozasDisponibles" [value]="carroza.id">
+                  {{ carroza.marca }} {{ carroza.modelo }} ({{ carroza.patente }})
+                </mat-option>
+              </mat-select>
+              <mat-error>Debe asignar una carroza</mat-error>
+            </mat-form-field>
+          </div>
+
+          <div formGroupName="adicionales" style="margin-top: 24px;">
+            <h5 style="margin: 0 0 16px 0; color: var(--color-brand); font-weight: 500; border-bottom: 1px solid var(--color-linea); padding-bottom: 4px;">
+              Equipamiento Adicional
+            </h5>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px;">
+              <div *ngFor="let categoria of categoriasPresentes">
+                <strong style="font-size: 0.85rem; color: #666; margin-bottom: 8px; display: block;">{{ categoria }}</strong>
+                
+                <ng-container *ngIf="categoria === 'Luces' || categoria === 'LUCES'; else tipoCheckboxes">
+                  <mat-radio-group formControlName="luces_id" style="display: flex; flex-direction: column; gap: 8px;">
+                    <mat-radio-button *ngFor="let item of adicionalesAgrupados[categoria]" [value]="item.id">{{ item.nombre }}</mat-radio-button>
+                  </mat-radio-group>
+                </ng-container>
+
+                <ng-template #tipoCheckboxes>
+                  <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <mat-checkbox *ngFor="let item of adicionalesAgrupados[categoria]" [formControlName]="'check_' + item.id">{{ item.nombre }}</mat-checkbox>
+                  </div>
+                </ng-template>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div style="display: flex; justify-content: space-between; margin-top: 24px;">
+          <button mat-button matStepperPrevious class="btn-cancelar">Volver</button>
+          <button mat-flat-button matStepperNext class="btn-submit">Siguiente</button>
+        </div>
+      </mat-step>
+
+      <!-- ================= PASO 4: PAGOS ================= -->
+      <mat-step formGroupName="pagos" [stepControl]="servicioForm.get('pagos')!">
+        <ng-template matStepLabel>Pagos</ng-template>
+        <div style="padding-top: 16px;">
+          
+          <div class="form-row" style="display: flex; gap: 16px; flex-wrap: wrap;">
+            <mat-form-field appearance="outline" style="flex: 1; min-width: 120px;">
+              <mat-label>N° Factura</mat-label>
+              <input matInput formControlName="factura_numero" placeholder="Ej: 1542">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" style="flex: 1; min-width: 150px;">
+              <mat-label>Tipo Entidad / Modalidad</mat-label>
+              <mat-select formControlName="tipo_entidad">
+                <mat-option *ngFor="let tipo of tiposEntidad" [value]="tipo">{{ tipo }}</mat-option>
+              </mat-select>
+              <mat-error>Requerido</mat-error>
+            </mat-form-field>
+            
+            <mat-form-field appearance="outline" style="flex: 2; min-width: 200px;">
+              <mat-label>Financiador</mat-label>
+              <mat-select formControlName="entidad_pagadora">
+                <mat-option *ngFor="let entidad of opcionesEntidadPagadora" [value]="entidad">{{ entidad }}</mat-option>
+              </mat-select>
+              <mat-error>Requerido</mat-error>
+            </mat-form-field>
+          </div>
+
+          <div style="margin-top: 10px; padding: 24px; background-color: var(--color-fondo); border-radius: 8px; border: 1px dashed var(--color-linea);">
+            
+            <div class="form-row" style="display: flex; gap: 16px; flex-wrap: wrap;">
+              <mat-form-field appearance="outline" style="flex: 1; min-width: 150px;">
+                <mat-label>Monto Total Servicio ($)</mat-label>
+                <input matInput type="number" formControlName="monto" min="0">
+                <mat-error *ngIf="servicioForm.get('pagos.monto')?.hasError('required')">El monto es requerido</mat-error>
+                <mat-error *ngIf="servicioForm.get('pagos.monto')?.hasError('min')">El monto debe ser positivo</mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" style="flex: 1; min-width: 150px;">
+                <mat-label>Cobertura Entidad ($)</mat-label>
+                <input matInput type="number" formControlName="monto_entidad" min="0" placeholder="Ej: Cuota Mortuoria">
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" style="flex: 1; min-width: 150px;">
+                <mat-label>Diferencia a Pagar ($)</mat-label>
+                <input matInput type="number" formControlName="diferencia" style="font-weight: bold; color: var(--color-brand);">
+              </mat-form-field>
+            </div>
+
+            <div class="form-row" style="display: flex; gap: 16px; flex-wrap: wrap; margin-top: 16px;">
+              <mat-form-field appearance="outline" style="flex: 1;">
+                <mat-label>Estado de la Deuda</mat-label>
+                <mat-select formControlName="estado">
+                  <mat-option value="Pendiente">Pendiente</mat-option>
+                  <mat-option value="Pagado">Pagado</mat-option>
+                </mat-select>
+                <mat-error>Requerido</mat-error>
+              </mat-form-field>
+              
+              <mat-form-field appearance="outline" style="flex: 1;">
+                <mat-label>Fecha del Pago</mat-label>
+                <input matInput [matDatepicker]="pickerPagoF" formControlName="fecha_pago">
+                <mat-datepicker-toggle matIconSuffix [for]="pickerPagoF"></mat-datepicker-toggle>
+                <mat-datepicker #pickerPagoF></mat-datepicker>
+              </mat-form-field>
+            </div>
+          </div>
+        </div>
+        
+        <div style="display: flex; justify-content: space-between; margin-top: 24px;">
+          <button mat-button matStepperPrevious class="btn-cancelar">Volver</button>
+          <button mat-flat-button matStepperNext class="btn-submit">Finalizar Resumen</button>
+        </div>
+      </mat-step>
+
+      <!-- ================= PASO 5: RESUMEN Y GUARDAR ================= -->
+      <mat-step>
+        <ng-template matStepLabel>Vista Previa</ng-template>
+        
+        <div style="padding: 24px; text-align: center;">
+          <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: var(--color-brand); margin-bottom: 16px;">receipt_long</mat-icon>
+          <h3 style="margin-top: 0; font-family: var(--fuente-titulo); font-size: 1.5rem;">Contrato Listo para Imprimir</h3>
+          <p style="color: var(--color-texto-suave); margin-bottom: 24px;">
+            El servicio de <strong>{{ resumen.fallecido.nombre_fallecido || '---' }}</strong> está configurado correctamente.<br>
+            La diferencia a facturar es de <strong>${{ resumen.pagos.diferencia | number:'1.0-0' }}</strong>.
+          </p>
+
+          <p style="font-size: 0.9rem; background: #fff3e0; color: #e65100; padding: 12px; border-radius: 4px; display: inline-block;">
+            Al hacer clic en Guardar, el sistema asignará el Folio correlativo y enviará el documento a imprimir.
+          </p>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; margin-top: 16px; border-top: 1px solid var(--color-linea); padding-top: 16px;">
+          <button mat-button matStepperPrevious class="btn-cancelar">Revisar Datos</button>
+          
+          <button mat-flat-button class="btn-submit" (click)="guardar()" [disabled]="servicioForm.invalid || guardando" style="background-color: #2e7d32 !important;">
+            <mat-icon *ngIf="!guardando">print</mat-icon>
+            <mat-spinner *ngIf="guardando" diameter="20" style="margin-right: 8px;"></mat-spinner>
+            {{ guardando ? 'Guardando...' : 'Guardar e Imprimir Contrato' }}
+          </button>
+        </div>
+      </mat-step>
+
+    </mat-stepper>
+  </form>
+</mat-dialog-content>

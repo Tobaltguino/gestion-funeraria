@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { SupabaseService } from '../../../../core/supabase/supabase';
-import { ServicioContratado } from '../models/servicio.interface';
+import { ContratoServicio } from '../models/contrato-servicio.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -13,12 +13,14 @@ export class ServiciosService {
   }
 
   // --- OBTENER ---
-  async obtenerServicios(): Promise<ServicioContratado[]> {
+  async obtenerServicios(): Promise<ContratoServicio[]> {
     const { data, error } = await this.supabase
-      .from('adm_servicios')
+      .from('adm_contratos_servicios')
       .select(`
         *,
         adm_catalogo_planes (nombre),
+        inv_urnas (nombre, tipo_urna),
+        inv_carrozas (marca, modelo, patente),
         adm_servicio_adicionales (
           adicional_id,
           cantidad,
@@ -32,12 +34,14 @@ export class ServiciosService {
     return data || [];
   }
 
-  async obtenerServicioPorId(id: string): Promise<ServicioContratado | null> {
+  async obtenerServicioPorId(id: string): Promise<ContratoServicio | null> {
     const { data, error } = await this.supabase
-      .from('adm_servicios')
+      .from('adm_contratos_servicios')
       .select(`
         *,
         adm_catalogo_planes (nombre),
+        inv_urnas (nombre, tipo_urna),
+        inv_carrozas (marca, modelo, patente),
         adm_servicio_adicionales (
           adicional_id,
           cantidad,
@@ -52,16 +56,17 @@ export class ServiciosService {
     return data;
   }
 
-  // Agrega este método a tu ServiciosService
-  async obtenerServiciosPaginados(filtros: any, page: number, pageSize: number): Promise<{ data: ServicioContratado[], total: number }> {
+  async obtenerServiciosPaginados(filtros: any, page: number, pageSize: number): Promise<{ data: ContratoServicio[], total: number }> {
     const from = page * pageSize;
     const to = from + pageSize - 1;
 
     let query = this.supabase
-      .from('adm_servicios')
+      .from('adm_contratos_servicios')
       .select(`
         *,
         adm_catalogo_planes (nombre),
+        inv_urnas (nombre, tipo_urna),
+        inv_carrozas (marca, modelo, patente),
         adm_servicio_adicionales (
           adicional_id, cantidad, inv_adicionales (nombre, categoria)
         )
@@ -69,26 +74,23 @@ export class ServiciosService {
       .is('fecha_eliminacion', null)
       .order('fecha_servicio', { ascending: false });
 
-    // Filtro de Fecha (Mes y Año)
+    // 1. Filtro de Fecha (Mes y Año)
     if (filtros.anio && filtros.mes) {
       const startDate = new Date(filtros.anio, filtros.mes - 1, 1).toISOString();
-      // El día 0 del mes siguiente nos da el último día del mes actual
       const endDate = new Date(filtros.anio, filtros.mes, 0, 23, 59, 59).toISOString(); 
       query = query.gte('fecha_servicio', startDate).lte('fecha_servicio', endDate);
     }
 
-    // Filtros de Texto y Numéricos
+    // 2. Filtro Numérico (Folio exacto)
     if (filtros.folio) query = query.eq('folio', filtros.folio);
-    if (filtros.nombre_fallecido) query = query.ilike('nombre_fallecido', `%${filtros.nombre_fallecido}%`);
     
-    // Filtros Exactos (Selects)
-    if (filtros.entidad_pagadora) query = query.eq('entidad_pagadora', filtros.entidad_pagadora);
+    // 3. Filtros de Texto (Búsqueda parcial / ignorando mayúsculas)
+    if (filtros.nombre_fallecido) query = query.ilike('nombre_fallecido', `%${filtros.nombre_fallecido}%`);
+    if (filtros.fallecido_rut) query = query.ilike('fallecido_rut', `%${filtros.fallecido_rut}%`);
+    
+    // 4. Filtro de Select Exacto
     if (filtros.estado) query = query.eq('estado', filtros.estado);
-    if (filtros.plan_base_id) query = query.eq('plan_base_id', filtros.plan_base_id);
-    if (filtros.urna_id) query = query.eq('urna_id', filtros.urna_id);
-    if (filtros.carroza_id) query = query.eq('carroza_id', filtros.carroza_id);
 
-    // Aplicar Paginación
     const { data, error, count } = await query.range(from, to);
 
     if (error) throw error;
@@ -96,17 +98,16 @@ export class ServiciosService {
   }
 
   // --- CREAR ---
-  async crearServicio(servicio: Partial<ServicioContratado>, adicionales: any[]): Promise<void> {
-    // 1. Guardamos los datos principales del servicio
+  // AHORA RETORNA Promise<ServicioContratado> en lugar de void
+  async crearServicio(servicio: Partial<ContratoServicio>, adicionales: any[]): Promise<ContratoServicio> {
     const { data: servicioCreado, error: servicioError } = await this.supabase
-      .from('adm_servicios')
+      .from('adm_contratos_servicios')
       .insert([{ ...servicio, fecha_creada: new Date().toISOString() }])
-      .select('id')
+      .select() // <-- CLAVE: Le decimos a Supabase que nos devuelva todo el objeto generado (incluyendo el folio)
       .single();
 
     if (servicioError) throw servicioError;
 
-    // 2. Insertamos la configuración personalizada en la tabla intermedia
     if (adicionales && adicionales.length > 0) {
       const insertData = adicionales.map(a => ({
         servicio_id: servicioCreado.id,
@@ -120,19 +121,23 @@ export class ServiciosService {
         
       if (relError) throw relError;
     }
+
+    // Devolvemos el servicio con su nuevo folio
+    return servicioCreado as ContratoServicio;
   }
 
   // --- ACTUALIZAR ---
-  async actualizarServicio(id: string, servicio: Partial<ServicioContratado>, adicionales: any[]): Promise<void> {
-    // 1. Actualizamos los datos principales
-    const { error: servicioError } = await this.supabase
-      .from('adm_servicios')
+  // AHORA RETORNA Promise<ServicioContratado> en lugar de void
+  async actualizarServicio(id: string, servicio: Partial<ContratoServicio>, adicionales: any[]): Promise<ContratoServicio> {
+    const { data: servicioActualizado, error: servicioError } = await this.supabase
+      .from('adm_contratos_servicios')
       .update({ ...servicio, fecha_actualizada: new Date().toISOString() })
-      .eq('id', id);
+      .eq('id', id)
+      .select() // <-- CLAVE: Devolvemos el registro actualizado
+      .single();
 
     if (servicioError) throw servicioError;
 
-    // 2. Limpiamos los adicionales viejos y guardamos los nuevos (Estrategia Muchos a Muchos)
     await this.supabase.from('adm_servicio_adicionales').delete().eq('servicio_id', id);
 
     if (adicionales && adicionales.length > 0) {
@@ -148,12 +153,15 @@ export class ServiciosService {
         
       if (relError) throw relError;
     }
+
+    // Devolvemos los datos por si se mandan a imprimir post-edición
+    return servicioActualizado as ContratoServicio;
   }
 
-  // --- ELIMINAR (Borrado Lógico) ---
+  // --- ELIMINAR ---
   async eliminarServicio(id: string): Promise<void> {
     const { error } = await this.supabase
-      .from('adm_servicios')
+      .from('adm_contratos_servicios')
       .update({ fecha_eliminacion: new Date().toISOString() })
       .eq('id', id);
 

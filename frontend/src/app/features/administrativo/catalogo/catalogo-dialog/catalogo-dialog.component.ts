@@ -52,8 +52,9 @@ export class CatalogoDialogComponent implements OnInit {
     
     this.planForm = this.fb.group({
       nombre: [data?.nombre || '', Validators.required],
+      valor: [data?.valor || null, Validators.min(0)], // 🔥 NUEVO: Campo de valor base
       orden: [data?.orden || 0, [Validators.required, Validators.min(0)]], 
-      luces_id: [null, Validators.required] // Luces obligatorio
+      luces_id: [null, Validators.required] 
     });
 
     if (this.esEdicion && data?.imagenes) {
@@ -83,18 +84,14 @@ export class CatalogoDialogComponent implements OnInit {
         this.adicionalesAgrupados[cat].push(item);
 
         if (cat !== CategoriaAdicional.LUCES && cat !== 'Luces') {
-          // REGLA 1: Si es Fijo, se marca y deshabilita para que sea obligatorio
           const esFijo = (cat.toUpperCase() === 'FIJO');
           this.planForm.addControl(`check_${item.id}`, this.fb.control({ value: esFijo, disabled: esFijo }));
         }
       });
 
-      // REGLA 2: Establecer "Luces" por defecto si es creación, evadiendo los Cirios
       if (!this.esEdicion) {
         const luces = this.adicionalesAgrupados['Luces'] || this.adicionalesAgrupados['LUCES'];
         if (luces && luces.length > 0) {
-          // Buscamos primero que el nombre contenga "luces" o "luz".
-          // Así evitamos que la palabra "porta" seleccione "Cirios para porta urnas".
           const luzPredeterminada = luces.find(l => 
             l.nombre.toLowerCase().includes('luces') || 
             l.nombre.toLowerCase().includes('luz')
@@ -206,7 +203,6 @@ export class CatalogoDialogComponent implements OnInit {
     }
 
     this.guardando = true;
-    // REGLA 3: getRawValue() extrae los valores de controles deshabilitados (los "Fijos")
     const formValues = this.planForm.getRawValue(); 
     const nombreLimpio = formValues.nombre.replace(/[^a-zA-Z0-9]/g, '');
 
@@ -225,6 +221,7 @@ export class CatalogoDialogComponent implements OnInit {
       
       const planData: Partial<PlanFunerario> = { 
         nombre: formValues.nombre, 
+        valor: formValues.valor, // 🔥 NUEVO: Se captura el valor para guardarlo en BD
         orden: formValues.orden,
         imagenes: imagenesFinales 
       };

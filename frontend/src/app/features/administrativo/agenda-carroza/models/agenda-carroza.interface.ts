@@ -1,4 +1,4 @@
-import { ServicioContratado } from '../../servicios/models/servicio.interface';
+import { ContratoServicio } from "../../contratos-servicios/models/contrato-servicio.interface";
 import { Carroza } from '../../../inventario/carrozas/models/carroza.interface';
 
 export enum TipoEvento {
@@ -26,7 +26,7 @@ export interface AgendaCarroza {
   estado: EstadoAgenda | string;
   
   // Relaciones (Opcionales, útiles para cuando se hace un SELECT con JOIN)
-  adm_servicios?: ServicioContratado; 
+  adm_servicios?: ContratoServicio; 
   inv_carrozas?: Carroza;
   
   fecha_creada?: string;

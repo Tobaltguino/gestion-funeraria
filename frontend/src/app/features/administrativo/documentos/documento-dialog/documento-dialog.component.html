@@ -1,0 +1,75 @@
+<div class="visor-header" style="display: flex; justify-content: space-between; align-items: center; padding: 16px 24px 0;">
+  <h2 mat-dialog-title class="dialog-title" style="margin: 0; padding: 0;">
+    {{ esEdicion ? 'Editar Documento' : 'Subir Nuevo Documento' }}
+  </h2>
+  <button mat-icon-button (click)="cerrar()" [disabled]="guardando">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+
+<p class="dialog-subtitle" style="padding: 0 24px; color: var(--color-texto-suave); margin-top: 8px;">
+  Complete la información y adjunte el archivo correspondiente.
+</p>
+
+<mat-dialog-content class="dialog-content" style="padding-top: 8px;">
+  <form [formGroup]="docForm" class="dialog-form" style="display: flex; flex-direction: column; gap: 16px;">
+    
+    <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+      <!-- Nombre del Documento -->
+      <mat-form-field appearance="outline" style="flex: 2; min-width: 200px;">
+        <mat-label>Nombre del Documento</mat-label>
+        <input matInput formControlName="nombre" placeholder="Ej: Certificado de Defunción 2026">
+        <mat-error>El nombre es obligatorio</mat-error>
+      </mat-form-field>
+
+      <!-- Categoría / Tipo -->
+      <mat-form-field appearance="outline" style="flex: 1; min-width: 150px;">
+        <mat-label>Categoría</mat-label>
+        <mat-select formControlName="tipo">
+          <mat-option *ngFor="let t of tiposDocumento" [value]="t">{{ t }}</mat-option>
+        </mat-select>
+        <mat-error>Seleccione una categoría</mat-error>
+      </mat-form-field>
+    </div>
+
+    <!-- Descripción (Opcional) -->
+    <mat-form-field appearance="outline" class="w-100">
+      <mat-label>Descripción / Observaciones (Opcional)</mat-label>
+      <textarea matInput formControlName="descripcion" rows="2" placeholder="Detalles extra del documento..."></textarea>
+    </mat-form-field>
+
+    <!-- ZONA DE CARGA DE ARCHIVO -->
+    <div class="file-upload-section" style="background-color: var(--color-input-bg); border: 1px dashed var(--color-linea); border-radius: 8px; padding: 20px; display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 8px;">
+      
+      <!-- Input de archivo oculto -->
+      <input type="file" #fileInput (change)="onFileSelected($event)" style="display: none;">
+      
+      <!-- Botón que dispara el input oculto -->
+      <button mat-stroked-button color="primary" type="button" (click)="fileInput.click()" [disabled]="guardando">
+        <mat-icon>cloud_upload</mat-icon>
+        {{ esEdicion ? 'Reemplazar Archivo' : 'Seleccionar Archivo' }}
+      </button>
+      
+      <!-- Muestra el nombre del archivo seleccionado -->
+      <span style="font-size: 0.85rem; color: var(--color-texto-suave); text-align: center; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+        <mat-icon style="font-size: 16px; width: 16px; height: 16px; vertical-align: middle; margin-right: 4px;" *ngIf="archivoSeleccionado">attach_file</mat-icon>
+        {{ nombreArchivoMostrado }}
+      </span>
+
+      <!-- Advertencia si falta el archivo al crear -->
+      <span *ngIf="!esEdicion && !archivoSeleccionado" style="color: #c62828; font-size: 0.75rem; font-weight: 500;">
+        * El archivo es obligatorio
+      </span>
+    </div>
+
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" style="padding: 16px 24px;">
+  <button mat-button class="btn-cancelar" (click)="cerrar()" [disabled]="guardando">Cancelar</button>
+  <button mat-flat-button class="btn-submit" (click)="guardar()" [disabled]="guardando">
+    <mat-icon *ngIf="!guardando">save</mat-icon>
+    <mat-spinner *ngIf="guardando" diameter="20" style="margin-right: 8px;"></mat-spinner>
+    {{ guardando ? 'Guardando...' : 'Guardar Documento' }}
+  </button>
+</mat-dialog-actions>

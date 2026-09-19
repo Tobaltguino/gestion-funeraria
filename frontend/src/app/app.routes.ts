@@ -15,9 +15,10 @@ import { UpdatePasswordComponent } from './features/auth/update-password/update-
 // --- NUEVOS COMPONENTES POR DOMINIO ---
 import { DashboardComponent } from './features/dashboard/dashboard.component';
 
-import { ServiciosComponent } from './features/administrativo/servicios/servicios.component';
+import { ContratoServicio } from './features/administrativo/contratos-servicios/models/contrato-servicio.interface';
 import { AgendaCarrozaComponent } from './features/administrativo/agenda-carroza/agenda-carroza.component';
 import { CatalogoComponent } from './features/administrativo/catalogo/catalogo.component';
+import { DocumentosComponent } from './features/administrativo/documentos/documentos.component';
 
 import { UrnasComponent } from './features/inventario/urnas/urnas.component';
 import { CarrozasComponent } from './features/inventario/carrozas/carrozas.component';
@@ -28,6 +29,7 @@ import { MovimientosCajaComponent } from './features/finanzas/movimientos-caja/m
 
 import { UsuariosComponent } from './features/sistema/usuarios/usuarios.component';
 import { AuditoriaComponent } from './features/sistema/auditoria/auditoria.component';
+import { ContratoServicioComponent } from './features/administrativo/contratos-servicios/contrato-servicio.component';
 
 export const routes: Routes = [
   // ==========================================
@@ -61,13 +63,19 @@ export const routes: Routes = [
       },
       { 
         path: 'servicios', 
-        component: ServiciosComponent,
+        component: ContratoServicioComponent,
         data: { roles: [Role.ADMIN, Role.EMPLEADO] } 
       },
       { 
         path: 'agenda', 
         component: AgendaCarrozaComponent,
         data: { roles: [Role.ADMIN, Role.EMPLEADO] } 
+      },
+
+      {
+        path: 'documentos',
+        component: DocumentosComponent,
+        data: { roles: [Role.ADMIN, Role.EMPLEADO] }
       },
 
       // --- INVENTARIO (Ambos) ---

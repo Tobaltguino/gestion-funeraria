@@ -11,7 +11,14 @@
 <mat-dialog-content class="dialog-content">
   
   <!-- Barra de Acciones -->
-  <div style="display: flex; justify-content: flex-end; margin-bottom: 16px;">
+  <div style="display: flex; justify-content: flex-end; gap: 12px; margin-bottom: 16px;">
+    
+    <!-- 🔥 NUEVO: Botón de Exportar a PDF -->
+    <button mat-flat-button style="background-color: #1976d2; color: white;" (click)="imprimirCatalogo()" [disabled]="dataSource.data.length === 0">
+      <mat-icon>picture_as_pdf</mat-icon>
+      Exportar a PDF
+    </button>
+    
     <button mat-flat-button class="btn-crear-verde" (click)="abrirDialogoFormulario()">
       <mat-icon>add_box</mat-icon>
       Crear Nuevo Plan
@@ -59,9 +66,23 @@
         <th mat-header-cell *matHeaderCellDef> Características </th>
         <td mat-cell *matCellDef="let plan">
           <span style="color: var(--color-texto-suave); font-size: 0.9rem;">
-            <!-- ACTUALIZAMOS plan.incluye POR plan.adm_plan_adicionales -->
             Contiene <strong>{{ plan.adm_plan_adicionales ? plan.adm_plan_adicionales.length : 0 }}</strong> elementos incluidos.
           </span>
+        </td>
+      </ng-container>
+
+      <!-- 🔥 NUEVA Columna: Valor -->
+      <ng-container matColumnDef="valor">
+        <th mat-header-cell *matHeaderCellDef> Valor Base </th>
+        <td mat-cell *matCellDef="let plan">
+          <strong style="color: var(--color-brand); font-size: 0.95rem;">
+            <ng-container *ngIf="plan.valor && plan.valor > 0; else sinValor">
+              ${{ plan.valor | number:'1.0-0' }}
+            </ng-container>
+            <ng-template #sinValor>
+              <span style="color: var(--color-texto-suave); font-weight: normal;">No definido</span>
+            </ng-template>
+          </strong>
         </td>
       </ng-container>
 
@@ -82,7 +103,7 @@
       <tr mat-row *matRowDef="let row; columns: columnasMostrar;"></tr>
       
       <tr class="mat-row" *matNoDataRow>
-        <td class="mat-cell" colspan="4" style="text-align: center; padding: 2rem;">
+        <td class="mat-cell" colspan="5" style="text-align: center; padding: 2rem;">
           <mat-icon style="font-size: 40px; color: var(--color-linea);">list_alt</mat-icon>
           <p style="margin-top: 10px; color: var(--color-texto-suave);">No hay planes registrados en el catálogo.</p>
         </td>

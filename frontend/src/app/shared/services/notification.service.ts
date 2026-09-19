@@ -31,7 +31,6 @@ import { MatIconModule } from '@angular/material/icon';
 export class CustomToastComponent {
   private snackBarRef = inject(MatSnackBarRef);
   
-  // Recibimos los datos (mensaje, icono y color) que nos envía el servicio
   constructor(@Inject(MAT_SNACK_BAR_DATA) public data: any) {}
 
   cerrar() {
@@ -49,28 +48,30 @@ export class NotificationService {
   private snackBar = inject(MatSnackBar);
 
   private show(message: string, panelClass: string, icon: string, color: string, duration = 4000) {
-    // Usamos openFromComponent en lugar del open tradicional
     this.snackBar.openFromComponent(CustomToastComponent, {
       duration: duration,
       horizontalPosition: 'end',
       verticalPosition: 'top',
       panelClass: [panelClass],
-      data: { message, icon, color } // Le inyectamos la configuración visual
+      data: { message, icon, color } 
     });
   }
 
   success(message: string) {
-    // Ticket (check_circle) en Verde
     this.show(message, 'toast-success', 'check_circle', '#166534');
   }
 
   error(message: string) {
-    // Equis (cancel) en Rojo
     this.show(message, 'toast-error', 'cancel', '#991b1b', 5000);
   }
 
   warning(message: string) {
-    // Advertencia (warning) en Naranja
     this.show(message, 'toast-warning', 'warning', '#92400e');
+  }
+
+  // --- NUEVO MÉTODO INFO ---
+  info(message: string) {
+    // Info en color Azul
+    this.show(message, 'toast-info', 'info', '#1e40af');
   }
 }

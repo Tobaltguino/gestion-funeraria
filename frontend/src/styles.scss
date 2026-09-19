@@ -420,6 +420,16 @@ h1, h2, h3, h4, h5, h6 { font-family: var(--fuente-titulo); margin: 0; }
   }
 }
 
+/* Toast de Información (Azul formal) */
+.toast-info {
+  .mdc-snackbar__surface {
+    border-left: 6px solid #3b82f6 !important; /* Franja azul */
+  }
+  .mat-mdc-button.mat-mdc-snack-bar-action {
+    color: #1e3a8a !important; /* "X" de color azul oscuro */
+  }
+}
+
 /* ==========================================
    9. GALERÍA DE IMÁGENES (Subida y Previsualización)
    ========================================== */
@@ -784,4 +794,114 @@ h1, h2, h3, h4, h5, h6 { font-family: var(--fuente-titulo); margin: 0; }
   opacity: 0.5;
   background-color: transparent !important;
   transform: none;
+}
+
+/* ===================================================================== */
+/* FIX: Forzar el reloj circular sobre modales de Angular Material 17+   */
+/* ===================================================================== */
+.timepicker-overlay,
+.timepicker-backdrop-overlay,
+.ngx-material-timepicker-container,
+ngx-material-timepicker-container {
+    z-index: 999999 !important;
+}
+
+/* Opcional: Asegura que el contenedor de Angular Material no oculte elementos fijos */
+.cdk-global-overlay-wrapper,
+.cdk-overlay-container {
+    z-index: 99999 !important;
+}
+
+/* ==========================================
+   13. DISEÑO RESPONSIVO (Tablets y Celulares)
+   ========================================== */
+
+/* --- TABLETS (Pantallas menores a 960px) --- */
+@media (max-width: 959px) {
+  .page-container {
+    padding: 1rem 0.5rem; /* Reducimos el margen lateral */
+  }
+
+  /* El visor de imágenes a pantalla completa se ajusta */
+  .lightbox-image {
+    max-width: 95vw;
+    max-height: 75vh;
+  }
+  
+  .lightbox-nav-btn {
+    &.prev { left: 10px; }
+    &.next { right: 10px; }
+  }
+}
+
+/* --- CELULARES (Pantallas menores a 600px) --- */
+@media (max-width: 599px) {
+  
+  /* 1. Tipografía Global */
+  h2, .dialog-title, .login-title {
+    font-size: 1.4rem !important;
+  }
+  .dialog-subtitle, .login-subtitle {
+    font-size: 0.85rem;
+  }
+
+  /* 2. Cabecera de Página (Apilamos el título y el botón) */
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    
+    .btn-crear-verde {
+      width: 100%; /* El botón de "Crear" ocupa todo el ancho */
+    }
+  }
+
+  /* 3. Formularios (Los inputs en la misma fila se apilan hacia abajo) */
+  .form-row, 
+  div[style*="display: flex; gap: 16px"] {
+    flex-direction: column !important;
+    gap: 0 !important; /* Material ya tiene margen inferior en sus inputs */
+  }
+
+  /* 4. Tablas (Habilitamos Scroll Horizontal para que no se rompa la pantalla) */
+  .table-container {
+    overflow-x: auto !important; /* Si la tabla es ancha, se desliza con el dedo */
+    border-radius: 4px;
+    
+    table {
+      min-width: 600px; /* Forzamos un ancho mínimo para que las celdas no se aplasten */
+    }
+  }
+
+  /* 5. Modales (Ocupan casi toda la pantalla) */
+  .mdc-dialog__surface {
+    border-radius: 12px 12px 0 0 !important; /* Estilo de panel inferior (BottomSheet) */
+  }
+  
+  .dialog-content, .mat-mdc-dialog-content {
+    padding: 10px 16px !important;
+  }
+
+  .dialog-actions, .mat-mdc-dialog-actions {
+    flex-direction: column-reverse;
+    padding: 16px !important;
+    
+    button {
+      width: 100%;
+      margin: 0 0 8px 0 !important;
+    }
+  }
+
+  /* 6. Calendario (Ajustamos tamaño de los botones) */
+  .fc .fc-toolbar {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .fc .fc-toolbar-title {
+    font-size: 1.3rem;
+  }
+  .fc .fc-button {
+    padding: 0.3em 0.6em;
+    font-size: 0.75rem;
+  }
 }
